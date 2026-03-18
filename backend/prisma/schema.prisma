@@ -3,9 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
+
+// 注意：Vercel Postgres 需要设置 DIRECT_URL 用于 Prisma 迁移
 
 // 客户基础信息
 model Customer {
