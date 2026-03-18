@@ -110,8 +110,8 @@ router.post('/:id/participants', async (req, res) => {
   
   const participation = await prisma.activityParticipation.create({
     data: {
-      activityId: id,
-      customerId,
+      activity_id: id,
+      customer_id: customerId,
     },
     include: {
       customer: {
@@ -133,9 +133,9 @@ router.put('/:id/participants/:customerId', async (req, res) => {
   
   const participation = await prisma.activityParticipation.update({
     where: {
-      activityId_customerId: {
-        activityId: id,
-        customerId,
+      activity_id_customer_id: {
+        activity_id: id,
+        customer_id: customerId,
       },
     },
     data: req.body,
@@ -150,9 +150,9 @@ router.delete('/:id/participants/:customerId', async (req, res) => {
   
   await prisma.activityParticipation.delete({
     where: {
-      activityId_customerId: {
-        activityId: id,
-        customerId,
+      activity_id_customer_id: {
+        activity_id: id,
+        customer_id: customerId,
       },
     },
   })

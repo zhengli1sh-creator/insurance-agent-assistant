@@ -13,7 +13,7 @@ router.get('/history', async (req, res) => {
     prisma.chatHistory.findMany({
       skip,
       take: parseInt(pageSize as string),
-      orderBy: { createdAt: 'asc' },
+      orderBy: { created_at: 'asc' },
     }),
     prisma.chatHistory.count(),
   ])

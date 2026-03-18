@@ -23,12 +23,12 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // 导入路由
-import customerRoutes from '../routes/customers'
-import visitRoutes from '../routes/visits'
-import activityRoutes from '../routes/activities'
-import queryRoutes from '../routes/query'
-import chatRoutes from '../routes/chat'
-import migrationRoutes from '../routes/migration'
+import customerRoutes from '../src/routes/customers'
+import visitRoutes from '../src/routes/visits'
+import activityRoutes from '../src/routes/activities'
+import queryRoutes from '../src/routes/query'
+import chatRoutes from '../src/routes/chat'
+import migrationRoutes from '../src/routes/migration'
 
 // 挂载路由
 app.use('/api/customers', customerRoutes)
