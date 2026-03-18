@@ -14,7 +14,7 @@ const app = express()
 // 配置 CORS
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-frontend.vercel.app', 'https://your-frontend-domain.com']
+    ? ['https://insurance-agent-frontend-omega.vercel.app', 'https://*.vercel.app']
     : '*',
   credentials: true
 }))
@@ -22,7 +22,7 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// 导入路由 - 使用动态导入避免路径问题
+// 导入路由
 import customerRoutes from '../routes/customers'
 import visitRoutes from '../routes/visits'
 import activityRoutes from '../routes/activities'
