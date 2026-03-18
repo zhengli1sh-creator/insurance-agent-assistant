@@ -549,6 +549,7 @@ export default function App() {
           <div ref={messagesEndRef} />
           </div>
           )}
+        </div>
 
         {/* 输入区域 */}
         {activeView !== 'import' && (
