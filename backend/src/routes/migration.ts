@@ -1,7 +1,158 @@
 import { Router } from 'express'
 import { prisma } from '../utils/prisma'
+import multer from 'multer'
+import * as XLSX from 'xlsx'
+import csv from 'csv-parser'
+import { Readable } from 'stream'
 
 const router = Router()
+
+// 配置 multer 存储
+const storage = multer.memoryStorage()
+const upload = multer({ storage })
+
+// 文件导入路由 - 支持 CSV 和 Excel
+router.post('/import', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: '请上传文件' })
+      return
+    }
+
+    const file = req.file
+    const ext = file.originalname.toLowerCase().split('.').pop()
+    let data: any[] = []
+
+    if (ext === 'csv') {
+      // 解析 CSV
+      data = await parseCSV(file.buffer)
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      // 解析 Excel
+      const workbook = XLSX.read(file.buffer, { type: 'buffer' })
+      const sheetName = workbook.SheetNames[0]
+      const worksheet = workbook.Sheets[sheetName]
+      data = XLSX.utils.sheet_to_json(worksheet)
+    } else {
+      res.status(400).json({ error: '不支持的文件格式，请上传 .csv, .xlsx 或 .xls 文件' })
+      return
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      res.status(400).json({ error: '文件为空或格式错误' })
+      return
+    }
+
+    // 导入数据
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: [] as string[],
+    }
+
+    for (const row of data) {
+      try {
+        // 检查客户姓名是否为空
+        const name = row.name?.trim()
+        if (!name) {
+          results.failed++
+          results.errors.push(`客户记录缺少姓名`)
+          continue
+        }
+
+        // 去重判断：姓名 + 昵称
+        const existingCustomer = await prisma.customer.findFirst({
+          where: {
+            name: name,
+            nickname: row.nickname || null,
+          },
+        })
+
+        if (existingCustomer) {
+          results.failed++
+          results.errors.push(`客户 ${name} (昵称: ${row.nickname || '无'}) 已存在，跳过导入`)
+          continue
+        }
+
+        // 转换数据
+        const customerData: any = {
+          name: name,
+          age: row.age ? String(row.age) : '未知',
+          sex: mapGender(row.sex || row.gender),
+          profession: row.profession || row.job,
+          family_profile: row.family_profile || row.familyStatus,
+          core_interesting: row.core_interesting,
+          prefer_communicate: row.prefer_communicate,
+          recent_money: row.recent_money,
+          nickname: row.nickname,
+          sys_platform: row.sys_platform || 'import',
+          uuid: row.uuid,
+          phone: row.phone ? String(row.phone) : null,
+          email: row.email,
+          insurance_needs: row.insurance_needs || row.insuranceNeeds,
+          customer_stage: row.customer_stage || 'potential',
+          tags: parseTags(row.tags),
+          source: row.source || 'import',
+          status: row.status || 'active',
+          remark: row.remark,
+          metadata: {
+            imported_at: new Date().toISOString(),
+            original_file: file.originalname,
+          },
+        }
+
+        // 过滤 undefined 值
+        Object.keys(customerData).forEach(key => {
+          if (customerData[key] === undefined) {
+            delete customerData[key]
+          }
+        })
+
+        await prisma.customer.create({
+          data: customerData,
+        })
+        results.success++
+      } catch (error: any) {
+        results.failed++
+        results.errors.push(`客户 ${row.name || '未命名'}: ${error.message}`)
+      }
+    }
+
+    res.json(results)
+  } catch (error: any) {
+    console.error('导入失败:', error)
+    res.status(500).json({ error: `导入失败: ${error.message}` })
+  }
+})
+
+// 解析 CSV 文件
+function parseCSV(buffer: Buffer): Promise<any[]> {
+  return new Promise((resolve, reject) => {
+    const results: any[] = []
+    const stream = Readable.from(buffer.toString())
+    
+    stream
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => resolve(results))
+      .on('error', (error) => reject(error))
+  })
+}
+
+// 解析标签字段
+function parseTags(tags: any): string[] {
+  if (!tags) return []
+  if (Array.isArray(tags)) return tags
+  if (typeof tags === 'string') {
+    // 支持逗号分隔或 JSON 数组格式
+    try {
+      const parsed = JSON.parse(tags)
+      if (Array.isArray(parsed)) return parsed
+    } catch {
+      return tags.split(',').map(t => t.trim()).filter(Boolean)
+    }
+  }
+  return []
+}
 
 // 导入客户数据
 router.post('/customers', async (req, res) => {

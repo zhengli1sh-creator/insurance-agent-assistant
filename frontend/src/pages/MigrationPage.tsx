@@ -78,7 +78,7 @@ export default function MigrationPage() {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">数据导入</h2>
           <p className="text-gray-500 mb-6">
-            从 Excel 文件批量导入客户数据。支持 .xlsx 和 .xls 格式。
+            从 Excel 或 CSV 文件批量导入客户数据。支持 .xlsx、.xls 和 .csv 格式。
           </p>
 
           {/* 操作按钮 */}
@@ -105,7 +105,7 @@ export default function MigrationPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xlsx,.xls"
+            accept=".xlsx,.xls,.csv"
             onChange={handleFileUpload}
             className="hidden"
           />
