@@ -1,0 +1,325 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ========================================
+// 1. 客户基础信息表
+// ========================================
+model Customer {
+  id        String   @id @default(uuid())
+
+  // ====================================
+  // 扣子平台保留的字段
+  // ====================================
+  
+  // 基础信息
+  name           String   // 客户姓名
+  age            String   // 年龄（String类型，保留扣子设计）
+  sex            String?  // 性别：male/female/unknown
+  profession     String?  // 职业
+  family_profile  String?  // 家庭情况
+  
+  // 扣子特有字段
+  core_interesting String?  // 核心关注点（保留扣子命名）
+  prefer_communicate String?  // 沟通偏好（保留扣子命名）
+  recent_money     String?  // 资金情况
+  nickname        String?  // 客户昵称
+  
+  // 平台信息
+  sys_platform    String?  // 渠道（扣子平台字段）
+  uuid            String?  @unique  // 用户唯一标识（扣子平台字段）
+  
+  // ====================================
+  // 新增缺失的字段
+  // ====================================
+  
+  // 联系方式
+  phone           String?  // 手机号
+  email           String?  // 邮箱
+  
+  // 保险相关
+  insurance_needs String?  @db.Text  // 保险需求
+  
+  // 客户管理
+  customer_stage  String?  @default("potential") // 客户阶段：potential/contacted/proposal/negotiation/won/lost
+  tags           String[]  // 客户标签数组：VIP/潜客/流失客户等
+  
+  // 来源和状态
+  source          String?  // 客户来源：referral/advertisement/event/online/other
+  status          String   @default("active") // 状态：active/inactive/blacklist
+  
+  // 备注和扩展
+  remark          String?  @db.Text  // 备注
+  metadata        Json?     // 扩展元数据（灵活扩展）
+  
+  // 时间戳
+  bstudio_create_time DateTime?  // 扣子平台创建时间（兼容性）
+  created_at       DateTime @default(now())  // 标准创建时间
+  updated_at       DateTime @updatedAt  // 更新时间
+  
+  // ====================================
+  // 关联关系
+  // ====================================
+  visit_records    VisitRecord[]
+  participations  ActivityParticipation[]
+  follow_ups      FollowUp[]
+  tag_relations   CustomerTagRelation[]
+  
+  // ====================================
+  // 索引和唯一约束
+  // ====================================
+  @@index([name])
+  @@index([nickname])
+  @@index([name, nickname])
+  @@index([phone])
+  @@index([email])
+  @@index([uuid])
+  @@index([customer_stage])
+  @@index([status])
+  @@index([source])
+  @@index([sys_platform])
+}
+
+// ========================================
+// 2. 客户标签表
+// ========================================
+model CustomerTag {
+  id        String   @id @default(uuid())
+  name      String   @unique  // 标签名称：VIP/潜客/流失客户等
+  color     String?  // 标签颜色（前端展示）
+  created_at DateTime @default(now())
+  
+  // 关联
+  customers  CustomerTagRelation[]
+  
+  @@index([name])
+}
+
+// 客户-标签关联表（多对多关系）
+model CustomerTagRelation {
+  id         String @id @default(uuid())
+  customer_id String
+  tag_id      String
+  created_at  DateTime @default(now())
+  
+  // 关联
+  customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  tag      CustomerTag @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  
+  @@unique([customer_id, tag_id])
+  @@index([customer_id])
+  @@index([tag_id])
+}
+
+// ========================================
+// 3. 拜访记录表
+// ========================================
+model VisitRecord {
+  id          String   @id @default(uuid())
+  customer_id String
+  
+  // 拜访基础信息
+  visit_time   DateTime  // 拜访时间
+  visit_type   String   // 拜访类型：face-to-face/phone/wechat/email/other
+  location    String?  // 拜访地点
+  duration    Int?     // 拜访时长（分钟）
+  
+  // 拜访内容
+  purpose     String?  @db.Text  // 拜访目的
+  content     String   @db.Text  // 拜访内容（详细记录）
+  result      String?  @db.Text  // 拜访结果
+  
+  // 跟进计划
+  next_plan    String?  @db.Text  // 下一步计划
+  next_date    DateTime?  // 下次跟进时间
+  
+  // 客户反馈
+  sentiment   String?  // 客户情绪：positive/neutral/negative
+  interest_level String?  // 兴趣程度：high/medium/low
+  concerns    String?  @db.Text  // 客户顾虑/疑问
+  
+  // 扩展字段
+  attachment  String?  // 附件路径（录音、文件等）
+  metadata    Json?    // 扩展元数据
+  
+  // 时间戳
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // 关联
+  customer   Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  follow_up   FollowUp?
+  
+  // 索引
+  @@index([customer_id])
+  @@index([visit_time])
+  @@index([visit_type])
+  @@index([sentiment])
+  @@index([next_date])
+}
+
+// ========================================
+// 4. 活动表
+// ========================================
+model Activity {
+  id             String   @id @default(uuid())
+  
+  // 活动基础信息
+  title          String   // 活动标题
+  type           String   // 活动类型：seminar/lecture/appreciation/other
+  description    String?  @db.Text  // 活动描述
+  
+  // 时间和地点
+  start_time     DateTime // 开始时间
+  end_time       DateTime? // 结束时间
+  location       String?  // 活动地点
+  online_link     String?  // 在线活动链接
+  
+  // 参与信息
+  max_participants Int?  // 最大参与人数
+  registered_count Int     @default(0)  // 已报名人数
+  attended_count  Int     @default(0)  // 实际参与人数
+  
+  // 活动状态
+  status         String   @default("upcoming") // upcoming/ongoing/completed/cancelled
+  priority       String?  // 优先级：high/medium/low
+  
+  // 扩展字段
+  cover_image     String?  // 封面图片
+  materials      String[] // 活动资料链接
+  metadata       Json?   // 扩展元数据
+  
+  // 时间戳
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  // 关联
+  participations ActivityParticipation[]
+  
+  // 索引
+  @@index([start_time])
+  @@index([status])
+  @@index([type])
+}
+
+// ========================================
+// 5. 活动参与记录表
+// ========================================
+model ActivityParticipation {
+  id          String   @id @default(uuid())
+  activity_id String
+  customer_id String
+  
+  // 参与状态
+  status     String   @default("registered") // registered/attended/absent/cancelled/no-show
+  fee        Int?     // 参与费用
+  payment_status String?  // 支付状态：paid/unpaid/refunded
+  
+  // 时间记录
+  register_time DateTime @default(now())  // 报名时间
+  attend_time  DateTime?  // 实际参加时间
+  cancel_time  DateTime?  // 取消时间
+  
+  // 客户反馈
+  feedback    String?  @db.Text  // 客户反馈内容
+  satisfaction Int?     // 满意度：1-5
+  suggestions String?  @db.Text  // 建议和意见
+  
+  // 扩展字段
+  metadata   Json?    // 扩展元数据
+  
+  // 时间戳
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // 关联
+  activity Activity @relation(fields: [activity_id], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  
+  // 唯一约束
+  @@unique([activity_id, customer_id])
+  
+  // 索引
+  @@index([customer_id])
+  @@index([activity_id])
+  @@index([status])
+  @@index([register_time])
+}
+
+// ========================================
+// 6. 跟进工作表
+// ========================================
+model FollowUp {
+  id           String   @id @default(uuid())
+  customer_id   String
+  visit_record_id String? @unique  // 关联的拜访记录
+  
+  // 跟进信息
+  type         String   // 跟进类型：call/meeting/wechat/email/other
+  content      String   @db.Text  // 跟进内容
+  
+  // 时间管理
+  due_date     DateTime // 截止日期
+  completed_at DateTime?  // 完成时间
+  reminder_time DateTime?  // 提醒时间
+  
+  // 状态和优先级
+  status       String   @default("pending") // pending/completed/overdue/cancelled
+  priority     String   @default("normal") // high/medium/low
+  reminder     Boolean  @default(false)  // 是否提醒
+  
+  // 附件和备注
+  attachment   String?  // 附件路径
+  remark       String?  @db.Text  // 备注
+  
+  // 扩展字段
+  metadata     Json?    // 扩展元数据
+  
+  // 时间戳
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  
+  // 关联
+  customer    Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  visit_record VisitRecord? @relation(fields: [visit_record_id], references: [id], onDelete: SetNull)
+  
+  // 索引
+  @@index([customer_id])
+  @@index([status])
+  @@index([due_date])
+  @@index([priority])
+}
+
+// ========================================
+// 7. AI 对话记录表
+// ========================================
+model ChatHistory {
+  id           String   @id @default(uuid())
+  
+  // 对话基础信息
+  role         String   // 角色：user/assistant/system
+  content      String   @db.Text  // 对话内容
+  
+  // 情绪和意图
+  emotion      String?  // 情绪识别结果：happy/sad/angry/neutral/...
+  intent       String?  // 意图识别结果：query_customer/add_visit/...
+  
+  // 元数据
+  metadata     Json?    // 扩展信息：confidence, tokens, model等
+  session_id   String?  // 会话ID（用于关联同一对话）
+  
+  // 时间戳
+  created_at  DateTime @default(now())
+  
+  // 索引
+  @@index([created_at])
+  @@index([session_id])
+  @@index([role])
+  @@index([intent])
+}
