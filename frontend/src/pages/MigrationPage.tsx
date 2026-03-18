@@ -1,217 +1,171 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { migrationApi } from '../services/api'
 import * as XLSX from 'xlsx'
 
-export default function MigrationPage() {
-  const [activeTab, setActiveTab] = useState('customers')
-  const [importing, setImporting] = useState(false)
-  const [importResults, setImportResults] = useState<any>(null)
+interface MigrationResult {
+  success: number
+  failed: number
+  errors: string[]
+}
 
-  const handleFileUpload = async (file: File, type: string) => {
-    setImporting(true)
-    setImportResults(null)
+export default function MigrationPage() {
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<MigrationResult | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // 下载模板
+  const downloadTemplate = () => {
+    const template = [
+      {
+        name: '张三',
+        age: '30',
+        sex: '男',
+        profession: '工程师',
+        family_profile: '已婚，有一个孩子',
+        core_interesting: '重疾险、医疗险',
+        prefer_communicate: '微信',
+        recent_money: '5-10万',
+        nickname: '三哥',
+        phone: '13800138000',
+        email: 'zhangsan@example.com',
+        insurance_needs: '需要重疾险保额50万，医疗险',
+        customer_stage: 'potential',
+        tags: ['VIP客户', '意向客户'],
+        sys_platform: '扣子',
+        uuid: 'uuid-001'
+      }
+    ]
+
+    const ws = XLSX.utils.json_to_sheet(template)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, '客户数据')
+    XLSX.writeFile(wb, '客户导入模板.xlsx')
+  }
+
+  // 处理文件上传
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setLoading(true)
+    setResult(null)
 
     try {
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer)
-        const workbook = XLSX.read(data, { type: 'array' })
-        const sheetName = workbook.SheetNames[0]
-        const worksheet = workbook.Sheets[sheetName]
-        const jsonData = XLSX.utils.sheet_to_json(worksheet)
+      const formData = new FormData()
+      formData.append('file', file)
 
-        let res
-        switch (type) {
-          case 'customers':
-            res = await migrationApi.importCustomers(jsonData)
-            break
-          case 'visits':
-            res = await migrationApi.importVisits(jsonData)
-            break
-          case 'activities':
-            res = await migrationApi.importActivities(jsonData)
-            break
-          default:
-            throw new Error('未知的数据类型')
-        }
-
-        setImportResults(res.data)
-        alert('导入完成')
-      }
-      reader.readAsArrayBuffer(file)
+      const res = await migrationApi.importData(formData)
+      setResult(res.data)
     } catch (error: any) {
-      alert('导入失败：' + error.message)
+      console.error('导入失败:', error)
+      setResult({
+        success: 0,
+        failed: 0,
+        errors: [error.response?.data?.error || '导入失败，请检查文件格式']
+      })
+    } finally {
+      setLoading(false)
+      // 重置文件输入
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
-    setImporting(false)
   }
-
-  const downloadTemplate = (type: string) => {
-    const templates: Record<string, any[]> = {
-      customers: [
-        {
-          name: '张三',
-          age: '35',
-          sex: 'male',
-          profession: '软件工程师',
-          family_profile: '已婚，有一子',
-          core_interesting: '家庭保障、财富传承',
-          prefer_communicate: '微信沟通',
-          recent_money: '30-50万',
-          nickname: '张先生',
-          sys_platform: 'coze',
-          uuid: 'user-001',
-          phone: '13800138000',
-          email: 'zhangsan@example.com',
-          insurance_needs: '重疾险、医疗险、意外险',
-          customer_stage: 'potential',
-          tags: ['VIP', '潜客'],
-          source: '转介绍',
-          status: 'active',
-          remark: '重点客户，近期有购买意向',
-        },
-      ],
-      visits: [
-        {
-          customerPhone: '13800138000',
-          customerName: '张三',
-          visitTime: '2024-01-15 14:30',
-          visitType: 'face-to-face',
-          content: '介绍新产品，了解客户需求',
-          result: '客户有兴趣，约定下次详谈',
-          nextPlan: '一周后电话跟进',
-          location: '客户公司',
-          duration: 60,
-          sentiment: 'positive',
-        },
-      ],
-      activities: [
-        {
-          title: '2024年新春客户答谢会',
-          type: 'appreciation',
-          startTime: '2024-02-10 14:00',
-          endTime: '2024-02-10 17:00',
-          location: '某酒店宴会厅',
-          description: '感谢客户一年来的支持',
-          max_participants: 100,
-          status: 'upcoming',
-        },
-      ],
-    }
-
-    const template = templates[type]
-    const worksheet = XLSX.utils.json_to_sheet(template)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Template')
-    XLSX.writeFile(workbook, `${type}_template.xlsx`)
-  }
-
-  const tabs = [
-    { key: 'customers', label: '客户数据导入' },
-    { key: 'visits', label: '拜访记录导入' },
-    { key: 'activities', label: '活动数据导入' },
-  ]
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-medium">数据迁移</h2>
-          <p className="text-gray-500 text-sm mt-1">
-            您可以通过上传 Excel 文件的方式将现有数据导入系统。请先下载对应的数据模板，
-            按照模板格式填写数据后再上传。
+    <div className="p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">数据导入</h2>
+          <p className="text-gray-500 mb-6">
+            从 Excel 文件批量导入客户数据。支持 .xlsx 和 .xls 格式。
           </p>
-        </div>
 
-        {/* 标签页 */}
-        <div className="border-b">
-          <div className="flex">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.key
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-800'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 导入区域 */}
-        <div className="p-6 space-y-4">
-          <button
-            onClick={() => downloadTemplate(activeTab)}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"
-          >
-            <span>📥</span>
-            <span>下载{activeTab === 'customers' ? '客户' : activeTab === 'visits' ? '拜访记录' : '活动'}模板</span>
-          </button>
-
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) {
-                  handleFileUpload(file, activeTab)
-                }
-              }}
-              className="hidden"
-              id="file-upload"
-            />
-            <label
-              htmlFor="file-upload"
-              className="cursor-pointer flex flex-col items-center"
+          {/* 操作按钮 */}
+          <div className="flex gap-3 mb-6">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              <span className="text-4xl mb-2">📤</span>
-              <p className="text-gray-600">点击上传 Excel 文件</p>
-              <p className="text-gray-400 text-sm mt-1">支持 .xlsx, .xls 格式</p>
-            </label>
+              <span>📤</span>
+              <span>{loading ? '导入中...' : '选择文件导入'}</span>
+            </button>
+
+            <button
+              onClick={downloadTemplate}
+              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+            >
+              <span>📥</span>
+              <span>下载导入模板</span>
+            </button>
           </div>
 
-          {importing && (
-            <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="text-gray-500 mt-2">导入中...</p>
-            </div>
-          )}
+          {/* 隐藏的文件输入 */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
 
-          {importResults && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">导入结果</h4>
-              <div className="flex gap-4 mb-2">
-                <span className="px-2 py-1 bg-green-100 text-green-600 rounded text-sm">成功: {importResults.success}</span>
-                <span className="px-2 py-1 bg-red-100 text-red-600 rounded text-sm">失败: {importResults.failed}</span>
+          {/* 导入结果 */}
+          {result && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-semibold text-gray-800 mb-3">导入结果</h3>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{result.success}</div>
+                  <div className="text-sm text-gray-600">成功导入</div>
+                </div>
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{result.failed}</div>
+                  <div className="text-sm text-gray-600">导入失败</div>
+                </div>
               </div>
-              {importResults.errors.length > 0 && (
-                <div className="mt-2">
-                  <p className="text-red-500 text-sm">错误详情：</p>
-                  <ul className="text-sm text-red-500 mt-1 max-h-32 overflow-y-auto">
-                    {importResults.errors.map((error: string, index: number) => (
-                      <li key={index}>{error}</li>
+
+              {result.errors.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-gray-700 mb-2">错误详情:</h4>
+                  <div className="max-h-60 overflow-y-auto">
+                    {result.errors.map((error, idx) => (
+                      <div key={idx} className="text-sm text-red-600 py-1 border-b border-red-100">
+                        {idx + 1}. {error}
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>
           )}
-        </div>
 
-        {/* 导入说明 */}
-        <div className="p-4 bg-blue-50 m-4 rounded-lg">
-          <h4 className="font-medium mb-2">导入说明</h4>
-          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-            <li>请使用系统提供的模板文件，确保数据格式正确</li>
-            <li>客户姓名和拜访记录中的客户信息会自动关联</li>
-            <li>日期格式请使用：YYYY-MM-DD HH:mm</li>
-            <li>导入过程中如有错误，系统会显示详细的错误信息</li>
-            <li>建议先导入客户数据，再导入拜访记录和活动数据</li>
-          </ul>
+          {/* 字段说明 */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h3 className="font-semibold text-gray-800 mb-3">字段说明</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="font-medium text-red-600">*</span>
+                <span className="text-gray-700"> name（姓名）- 必填</span>
+              </div>
+              <div className="text-gray-600">age（年龄）</div>
+              <div className="text-gray-600">sex（性别：男/女）</div>
+              <div className="text-gray-600">profession（职业）</div>
+              <div className="text-gray-600">family_profile（家庭情况）</div>
+              <div className="text-gray-600">core_interesting（核心关注点）</div>
+              <div className="text-gray-600">prefer_communicate（沟通偏好）</div>
+              <div className="text-gray-600">recent_money（资金情况）</div>
+              <div className="text-gray-600">nickname（客户昵称）</div>
+              <div className="text-gray-600">phone（电话）</div>
+              <div className="text-gray-600">email（邮箱）</div>
+              <div className="text-gray-600">insurance_needs（保险需求）</div>
+              <div className="text-gray-600">customer_stage（客户阶段）</div>
+              <div className="text-gray-600">tags（标签，多个用逗号分隔）</div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">
+              注意：客户姓名是必填字段，其他字段均为可选。去重判断依据是"姓名+昵称"组合。
+            </p>
+          </div>
         </div>
       </div>
     </div>

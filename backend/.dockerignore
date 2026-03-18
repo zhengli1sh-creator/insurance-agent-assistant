@@ -1,0 +1,14 @@
+node_modules
+dist
+npm-debug.log
+*.log
+.env
+.env.local
+.env.*.local
+.DS_Store
+*.db
+*.db-journal
+.git
+.gitignore
+README.md
+.codebuddy

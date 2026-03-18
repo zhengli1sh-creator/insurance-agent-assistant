@@ -116,12 +116,41 @@ npm run dev
 
 ## 🔧 部署
 
-### 部署到腾讯云 CloudBase
+### 部署到 Vercel（推荐）
 
-1. 登录腾讯云 CloudBase 控制台
-2. 创建新环境
-3. 部署后端服务
-4. 部署前端静态资源
+本项目支持部署到 Vercel 平台，使用云端 PostgreSQL 数据库。
+
+**部署架构：**
+- **前端**：Vercel 静态网站托管
+- **后端**：Vercel Serverless Functions
+- **数据库**：云端 PostgreSQL（支持 Vercel Postgres / Supabase / Neon 等）
+
+**快速部署步骤：**
+
+1. **准备云端数据库**
+   - Vercel Postgres：在 Vercel Dashboard 创建 Postgres 数据库
+   - Supabase：访问 [supabase.com](https://supabase.com) 创建免费数据库
+
+2. **部署后端**
+   ```bash
+   cd backend
+   vercel --prod
+   ```
+   设置环境变量：`DATABASE_URL`、`DIRECT_URL`、`NODE_ENV=production`
+
+3. **执行数据库迁移**
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+4. **部署前端**
+   ```bash
+   cd frontend
+   # 更新 .env.production 中的 VITE_API_URL
+   vercel --prod
+   ```
+
+📖 **详细部署文档**：[DEPLOY.md](./DEPLOY.md)
 
 ## 📄 许可证
 

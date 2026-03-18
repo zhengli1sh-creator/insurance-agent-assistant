@@ -72,6 +72,15 @@ export const chatApi = {
 
 // 数据迁移 API
 export const migrationApi = {
+  importData: (formData: FormData) => {
+    const formDataApi = axios.create({
+      baseURL: getBaseURL(),
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return formDataApi.post('/migration/import', formData)
+  },
   importCustomers: (customers: any[]) => api.post('/migration/customers', { customers }),
   importVisits: (visits: any[]) => api.post('/migration/visits', { visits }),
   importActivities: (activities: any[]) => api.post('/migration/activities', { customers: activities }),

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { chatApi, customerApi, visitApi, activityApi, queryApi } from './services/api'
 import type { ChatMessage, Customer, VisitRecord, Activity } from './types'
 import * as XLSX from 'xlsx'
+import MigrationPage from './pages/MigrationPage'
 
 // 消息类型扩展
 interface ExtendedChatMessage extends ChatMessage {
@@ -450,31 +451,35 @@ export default function App() {
         </header>
 
         {/* 对话区域 */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-4xl mb-4">
-                🤖
-              </div>
-              <h3 className="text-xl font-medium text-gray-800 mb-2">我是您的保险助手</h3>
-              <p className="text-gray-500 mb-6 max-w-md">
-                我可以通过语音帮您管理客户、记录拜访、查询信息。<br/>
-                点击下方的麦克风按钮开始说话吧！
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center max-w-lg">
-                {quickCommands.map((cmd, idx) => (
-                  <button
-                    key={idx}
-                    onClick={cmd.action}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border rounded-full hover:bg-gray-50 transition-colors"
-                  >
-                    <span>{cmd.icon}</span>
-                    <span>{cmd.text}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+        <div className="flex-1 overflow-y-auto">
+          {activeView === 'import' ? (
+            <MigrationPage />
           ) : (
+            <div className="p-4 space-y-4">
+              {messages.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-4xl mb-4">
+                    🤖
+                  </div>
+                  <h3 className="text-xl font-medium text-gray-800 mb-2">我是您的保险助手</h3>
+                  <p className="text-gray-500 mb-6 max-w-md">
+                    我可以通过语音帮您管理客户、记录拜访、查询信息。<br/>
+                    点击下方的麦克风按钮开始说话吧！
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center max-w-lg">
+                    {quickCommands.map((cmd, idx) => (
+                      <button
+                        key={idx}
+                        onClick={cmd.action}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border rounded-full hover:bg-gray-50 transition-colors"
+                      >
+                        <span>{cmd.icon}</span>
+                        <span>{cmd.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
             messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] rounded-2xl p-4 ${
@@ -542,10 +547,12 @@ export default function App() {
             ))
           )}
           <div ref={messagesEndRef} />
-        </div>
+          </div>
+          )}
 
         {/* 输入区域 */}
-        <div className="bg-white border-t p-4">
+        {activeView !== 'import' && (
+          <div className="bg-white border-t p-4">
           <div className="max-w-4xl mx-auto flex gap-3">
             <button
               onClick={toggleRecording}
@@ -576,7 +583,8 @@ export default function App() {
           <p className="text-center text-xs text-gray-400 mt-2">
             提示：点击麦克风按钮，直接说话即可。例如："添加客户张三，电话13800138000"
           </p>
-        </div>
+          </div>
+        )}
       </main>
 
       {/* 隐藏的文件输入 */}

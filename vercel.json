@@ -1,0 +1,5 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'Build is handled by vercel.json in subdirectories'",
+  "installCommand": "echo 'Install is handled by vercel.json in subdirectories'"
+}
