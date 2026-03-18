@@ -35,7 +35,7 @@ router.get('/search', async (req, res) => {
           where: customerWhere,
           skip,
           take: parseInt(pageSize as string),
-          orderBy: { createdAt: 'desc' },
+          orderBy: { created_at: 'desc' },
         }),
         prisma.customer.count({ where: customerWhere }),
       ])
@@ -60,15 +60,15 @@ router.get('/search', async (req, res) => {
           { result: { contains: keyword as string } },
         ]
       }
-      if (startDate) visitWhere.visitTime = { ...visitWhere.visitTime, gte: new Date(startDate as string) }
-      if (endDate) visitWhere.visitTime = { ...visitWhere.visitTime, lte: new Date(endDate as string) }
-      
+      if (startDate) visitWhere.visit_time = { ...visitWhere.visit_time, gte: new Date(startDate as string) }
+      if (endDate) visitWhere.visit_time = { ...visitWhere.visit_time, lte: new Date(endDate as string) }
+
       const [visits, visitTotal] = await Promise.all([
         prisma.visitRecord.findMany({
           where: visitWhere,
           skip,
           take: parseInt(pageSize as string),
-          orderBy: { visitTime: 'desc' },
+          orderBy: { visit_time: 'desc' },
           include: {
             customer: {
               select: {
@@ -103,15 +103,15 @@ router.get('/search', async (req, res) => {
         ]
       }
       if (status) activityWhere.status = status
-      if (startDate) activityWhere.startTime = { ...activityWhere.startTime, gte: new Date(startDate as string) }
-      if (endDate) activityWhere.startTime = { ...activityWhere.startTime, lte: new Date(endDate as string) }
-      
+      if (startDate) activityWhere.start_time = { ...activityWhere.start_time, gte: new Date(startDate as string) }
+      if (endDate) activityWhere.start_time = { ...activityWhere.start_time, lte: new Date(endDate as string) }
+
       const [activities, activityTotal] = await Promise.all([
         prisma.activity.findMany({
           where: activityWhere,
           skip,
           take: parseInt(pageSize as string),
-          orderBy: { startTime: 'desc' },
+          orderBy: { start_time: 'desc' },
         }),
         prisma.activity.count({ where: activityWhere }),
       ])
@@ -131,15 +131,15 @@ router.get('/search', async (req, res) => {
       // 跟进工作查询
       const followUpWhere: any = {}
       if (status) followUpWhere.status = status
-      if (startDate) followUpWhere.dueDate = { ...followUpWhere.dueDate, gte: new Date(startDate as string) }
-      if (endDate) followUpWhere.dueDate = { ...followUpWhere.dueDate, lte: new Date(endDate as string) }
-      
+      if (startDate) followUpWhere.due_date = { ...followUpWhere.due_date, gte: new Date(startDate as string) }
+      if (endDate) followUpWhere.due_date = { ...followUpWhere.due_date, lte: new Date(endDate as string) }
+
       const [followUps, followUpTotal] = await Promise.all([
         prisma.followUp.findMany({
           where: followUpWhere,
           skip,
           take: parseInt(pageSize as string),
-          orderBy: { dueDate: 'asc' },
+          orderBy: { due_date: 'asc' },
           include: {
             customer: {
               select: {
@@ -176,32 +176,32 @@ router.get('/customer-overview/:id', async (req, res) => {
   const customer = await prisma.customer.findUnique({
     where: { id },
     include: {
-      visitRecords: {
-        orderBy: { visitTime: 'desc' },
+      visit_records: {
+        orderBy: { visit_time: 'desc' },
       },
       participations: {
         include: {
           activity: true,
         },
-        orderBy: { registerTime: 'desc' },
+        orderBy: { register_time: 'desc' },
       },
-      followUps: {
-        orderBy: { dueDate: 'desc' },
+      follow_ups: {
+        orderBy: { due_date: 'desc' },
       },
     },
   })
-  
+
   if (!customer) {
     res.status(404).json({ error: '客户不存在' })
     return
   }
-  
+
   // 统计信息
   const stats = {
-    totalVisits: customer.visitRecords.length,
+    totalVisits: customer.visit_records.length,
     totalActivities: customer.participations.length,
-    pendingFollowUps: customer.followUps.filter(f => f.status === 'pending').length,
-    lastVisitDate: customer.visitRecords[0]?.visitTime || null,
+    pendingFollowUps: customer.follow_ups.filter(f => f.status === 'pending').length,
+    lastVisitDate: customer.visit_records[0]?.visit_time || null,
   }
   
   res.json({
@@ -226,13 +226,13 @@ router.get('/customer-features', async (req, res) => {
   }
   
   const skip = (parseInt(page as string) - 1) * parseInt(pageSize as string)
-  
+
   const [customers, total] = await Promise.all([
     prisma.customer.findMany({
       where,
       skip,
       take: parseInt(pageSize as string),
-      orderBy: { createdAt: 'desc' },
+      orderBy: { created_at: 'desc' },
     }),
     prisma.customer.count({ where }),
   ])

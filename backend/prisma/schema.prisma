@@ -40,8 +40,8 @@ model Customer {
   // ====================================
   
   // 联系方式
-  phone           String?  @unique  // 手机号
-  email           String?  @unique  // 邮箱
+  phone           String?  // 手机号
+  email           String?  // 邮箱
   
   // 保险相关
   insurance_needs String?  @db.Text  // 保险需求
@@ -72,9 +72,11 @@ model Customer {
   tag_relations   CustomerTagRelation[]
   
   // ====================================
-  // 索引
+  // 索引和唯一约束
   // ====================================
   @@index([name])
+  @@index([nickname])
+  @@index([name, nickname])
   @@index([phone])
   @@index([email])
   @@index([uuid])

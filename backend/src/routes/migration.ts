@@ -20,12 +20,34 @@ router.post('/customers', async (req, res) => {
 
   for (const customer of customers) {
     try {
+      // 检查客户姓名是否为空
+      const name = customer.name?.trim()
+      if (!name) {
+        results.failed++
+        results.errors.push(`客户记录缺少姓名`)
+        continue
+      }
+
+      // 去重判断：姓名 + 昵称
+      const existingCustomer = await prisma.customer.findFirst({
+        where: {
+          name: name,
+          nickname: customer.nickname || null,
+        },
+      })
+
+      if (existingCustomer) {
+        results.failed++
+        results.errors.push(`客户 ${name} (昵称: ${customer.nickname || '无'}) 已存在，跳过导入`)
+        continue
+      }
+
       // 检查是否为扣子平台数据（有 uuid 字段）
       const isCozeData = customer.uuid || customer.sys_platform === 'coze'
 
       // 转换扣子字段到新 schema
       const customerData: any = {
-        name: customer.name || '未命名客户',
+        name: name,
 
         // 扣子字段映射
         age: customer.age || '未知',

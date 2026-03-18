@@ -8,25 +8,25 @@ router.get('/', async (req, res) => {
   const { page = '1', pageSize = '10', customerId, startDate, endDate } = req.query
   
   const where: any = {}
-  
+
   if (customerId) {
-    where.customerId = customerId as string
+    where.customer_id = customerId as string
   }
-  
+
   if (startDate || endDate) {
-    where.visitTime = {}
-    if (startDate) where.visitTime.gte = new Date(startDate as string)
-    if (endDate) where.visitTime.lte = new Date(endDate as string)
+    where.visit_time = {}
+    if (startDate) where.visit_time.gte = new Date(startDate as string)
+    if (endDate) where.visit_time.lte = new Date(endDate as string)
   }
-  
+
   const skip = (parseInt(page as string) - 1) * parseInt(pageSize as string)
-  
+
   const [records, total] = await Promise.all([
     prisma.visitRecord.findMany({
       where,
       skip,
       take: parseInt(pageSize as string),
-      orderBy: { visitTime: 'desc' },
+      orderBy: { visit_time: 'desc' },
       include: {
         customer: {
           select: {
@@ -58,7 +58,7 @@ router.get('/:id', async (req, res) => {
     where: { id },
     include: {
       customer: true,
-      followUp: true,
+      follow_up: true,
     },
   })
   

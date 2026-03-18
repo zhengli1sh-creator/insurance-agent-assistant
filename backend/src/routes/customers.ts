@@ -27,11 +27,11 @@ router.get('/', async (req, res) => {
       where,
       skip,
       take: parseInt(pageSize as string),
-      orderBy: { createdAt: 'desc' },
+      orderBy: { created_at: 'desc' },
       include: {
         _count: {
           select: {
-            visitRecords: true,
+            visit_records: true,
             participations: true,
           },
         },
@@ -57,20 +57,20 @@ router.get('/:id', async (req, res) => {
   const customer = await prisma.customer.findUnique({
     where: { id },
     include: {
-      visitRecords: {
-        orderBy: { visitTime: 'desc' },
+      visit_records: {
+        orderBy: { visit_time: 'desc' },
         take: 5,
       },
       participations: {
         include: {
           activity: true,
         },
-        orderBy: { registerTime: 'desc' },
+        orderBy: { register_time: 'desc' },
         take: 5,
       },
-      followUps: {
+      follow_ups: {
         where: { status: 'pending' },
-        orderBy: { dueDate: 'asc' },
+        orderBy: { due_date: 'asc' },
       },
     },
   })
@@ -85,10 +85,56 @@ router.get('/:id', async (req, res) => {
 
 // 创建客户
 router.post('/', async (req, res) => {
-  const customer = await prisma.customer.create({
-    data: req.body,
+  const { name, nickname, phone, email } = req.body
+
+  // 检查客户姓名是否为空
+  if (!name || !name.trim()) {
+    res.status(400).json({ error: '客户姓名不能为空' })
+    return
+  }
+
+  // 去重判断：姓名 + 昵称
+  const existingCustomer = await prisma.customer.findFirst({
+    where: {
+      name: name.trim(),
+      nickname: nickname || null,
+    },
   })
-  
+
+  if (existingCustomer) {
+    res.status(400).json({ error: '该客户已存在（姓名+昵称重复）' })
+    return
+  }
+
+  // 检查手机号唯一性（如果提供了手机号）
+  if (phone) {
+    const existingPhone = await prisma.customer.findFirst({
+      where: { phone: phone.trim() },
+    })
+    if (existingPhone) {
+      res.status(400).json({ error: '该手机号已被使用' })
+      return
+    }
+  }
+
+  // 检查邮箱唯一性（如果提供了邮箱）
+  if (email) {
+    const existingEmail = await prisma.customer.findFirst({
+      where: { email: email.trim() },
+    })
+    if (existingEmail) {
+      res.status(400).json({ error: '该邮箱已被使用' })
+      return
+    }
+  }
+
+  const customer = await prisma.customer.create({
+    data: {
+      ...req.body,
+      name: name.trim(),
+    },
+  })
+
   res.json(customer)
 })
 

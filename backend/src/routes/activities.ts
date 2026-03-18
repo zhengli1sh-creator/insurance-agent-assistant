@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
       where,
       skip,
       take: parseInt(pageSize as string),
-      orderBy: { startTime: 'desc' },
+      orderBy: { start_time: 'desc' },
       include: {
         _count: {
           select: {
@@ -58,7 +58,7 @@ router.get('/:id', async (req, res) => {
             },
           },
         },
-        orderBy: { registerTime: 'desc' },
+        orderBy: { register_time: 'desc' },
       },
     },
   })
