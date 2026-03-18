@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 客户基础信息
+model Customer {
+  id          String   @id @default(uuid())
+  name        String
+  phone       String?
+  email       String?
+  gender      String?  // 性别：男/女
+  age         Int?     // 年龄
+  idCard      String?  // 身份证号
+  address     String?  // 地址
+  company     String?  // 工作单位
+  job         String?  // 职业
+  income      String?  // 收入范围
+  familyStatus String? // 家庭状况
+  insuranceNeeds String? // 保险需求
+  riskLevel   String?  // 风险等级：保守/稳健/积极
+  source      String?  // 客户来源
+  status      String   @default("active") // 状态：active/inactive
+  remark      String?  // 备注
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  visitRecords VisitRecord[]
+  participations ActivityParticipation[]
+  followUps   FollowUp[]
+
+  @@index([name])
+  @@index([phone])
+  @@index([status])
+}
+
+// 拜访记录
+model VisitRecord {
+  id          String   @id @default(uuid())
+  customerId  String
+  visitTime   DateTime // 拜访时间
+  visitType   String   // 拜访类型：面谈/电话/微信/其他
+  content     String   // 拜访内容
+  result      String?  // 拜访结果
+  nextPlan    String?  // 下一步计划
+  location    String?  // 拜访地点
+  duration    Int?     // 拜访时长（分钟）
+  sentiment   String?  // 客户情绪：积极/中性/消极
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  followUp    FollowUp?
+
+  @@index([customerId])
+  @@index([visitTime])
+}
+
+// 客户活动
+model Activity {
+  id          String   @id @default(uuid())
+  title       String   // 活动标题
+  type        String   // 活动类型：沙龙/讲座/答谢会/其他
+  startTime   DateTime // 开始时间
+  endTime     DateTime? // 结束时间
+  location    String?  // 活动地点
+  description String?  // 活动描述
+  maxParticipants Int? // 最大参与人数
+  status      String   @default("upcoming") // 状态：upcoming/ongoing/completed/cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  participations ActivityParticipation[]
+
+  @@index([startTime])
+  @@index([status])
+}
+
+// 活动参与记录
+model ActivityParticipation {
+  id          String   @id @default(uuid())
+  activityId  String
+  customerId  String
+  registerTime DateTime @default(now()) // 报名时间
+  attendTime  DateTime? // 实际参加时间
+  status      String   @default("registered") // 状态：registered/attended/absent/cancelled
+  feedback    String?  // 客户反馈
+  satisfaction Int?    // 满意度：1-5
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  activity    Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, customerId])
+  @@index([customerId])
+  @@index([status])
+}
+
+// 跟进工作
+model FollowUp {
+  id          String   @id @default(uuid())
+  customerId  String
+  visitRecordId String? @unique // 关联的拜访记录
+  type        String   // 跟进类型：电话/面谈/微信/邮件
+  content     String   // 跟进内容
+  dueDate     DateTime // 截止日期
+  completedAt DateTime? // 完成时间
+  status      String   @default("pending") // 状态：pending/completed/overdue
+  priority    String   @default("normal") // 优先级：high/normal/low
+  reminder    Boolean  @default(false) // 是否提醒
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  visitRecord VisitRecord? @relation(fields: [visitRecordId], references: [id])
+
+  @@index([customerId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// AI 对话记录
+model ChatHistory {
+  id          String   @id @default(uuid())
+  role        String   // 角色：user/assistant
+  content     String   // 对话内容
+  emotion     String?  // 情绪识别结果
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}
