@@ -14,7 +14,7 @@ const app = express()
 // 配置 CORS
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://insurance-agent-frontend-omega.vercel.app', 'https://*.vercel.app']
+    ? ['https://insurance-agent-frontend-eight.vercel.app', 'https://*.vercel.app']
     : '*',
   credentials: true
 }))
@@ -23,12 +23,12 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // 导入路由
-import customerRoutes from '../src/routes/customers'
-import visitRoutes from '../src/routes/visits'
-import activityRoutes from '../src/routes/activities'
-import queryRoutes from '../src/routes/query'
-import chatRoutes from '../src/routes/chat'
-import migrationRoutes from '../src/routes/migration'
+import customerRoutes from '../dist/src/routes/customers'
+import visitRoutes from '../dist/src/routes/visits'
+import activityRoutes from '../dist/src/routes/activities'
+import queryRoutes from '../dist/src/routes/query'
+import chatRoutes from '../dist/src/routes/chat'
+import migrationRoutes from '../dist/src/routes/migration'
 
 // 挂载路由
 app.use('/api/customers', customerRoutes)
