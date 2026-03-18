@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import { PrismaClient } from '@prisma/client'
 
 dotenv.config()
 
@@ -14,7 +15,15 @@ import migrationRoutes from './routes/migration'
 const app = express()
 const PORT = process.env.PORT || 3001
 
-app.use(cors())
+// CORS 配置
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-frontend.vercel.app', 'https://your-frontend-domain.com'] 
+    : true,
+  credentials: true
+}
+
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -31,6 +40,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+// 本地开发时启动服务器
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`)
+  })
+}
+
+// Vercel Serverless 导出
+export default app

@@ -1,7 +1,17 @@
 import axios from 'axios'
 
+// 根据环境获取 API 基础 URL
+const getBaseURL = () => {
+  // 生产环境使用完整 URL
+  if (import.meta.env.PROD && import.meta.env.VITE_API_URL) {
+    return `${import.meta.env.VITE_API_URL}/api`
+  }
+  // 开发环境使用相对路径（通过代理）
+  return '/api'
+}
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
