@@ -1,5 +1,32 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Build is handled by vercel.json in subdirectories'",
-  "installCommand": "echo 'Install is handled by vercel.json in subdirectories'"
+  "buildCommand": "cd backend && npm install && npm run vercel-build",
+  "outputDirectory": "backend/dist",
+  "installCommand": "cd backend && npm install",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.ts"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type,Authorization"
+        }
+      ]
+    }
+  ]
 }
