@@ -1,0 +1,165 @@
+import type { AgentMessage } from "@/types/agent";
+import type {
+  CustomerSummary,
+  DashboardMetric,
+  InsightGroup,
+  RecordSummary,
+  TaskItem,
+} from "@/types/domain";
+
+export const dashboardMetrics: DashboardMetric[] = [
+  { label: "本周重点客户", value: "18 位", delta: "+3 位待推进", accent: "from-[#1E3A8A] to-[#4F7BD9]" },
+  { label: "待跟进提醒", value: "7 项", delta: "2 项今日到期", accent: "from-[#0F766E] to-[#39B7A5]" },
+  { label: "高净值活动邀约", value: "3 场", delta: "覆盖 26 位客户", accent: "from-[#B8894A] to-[#E7C07A]" },
+  { label: "客户信任温度", value: "92 分", delta: "较上周提升 4 分", accent: "from-[#8A6FD1] to-[#D3B4FF]" },
+];
+
+export const customers: CustomerSummary[] = [
+  {
+    id: "c-001",
+    name: "林雅雯",
+    tier: "黑金私享",
+    city: "上海",
+    assetFocus: "家族保障与资产传承",
+    tags: ["企业主家庭", "重视子女教育", "偏好长期规划"],
+    relationshipStage: "深度经营",
+    lastContact: "昨天 16:20",
+    nextAction: "周五发送家族信托沟通纪要",
+    trustScore: 96,
+    note: "喜欢温和、条理分明的专业表达，对细节敏感。",
+  },
+  {
+    id: "c-002",
+    name: "沈婧怡",
+    tier: "菁英优选",
+    city: "杭州",
+    assetFocus: "家庭医疗与退休规划",
+    tags: ["双职工家庭", "注重体验", "决策审慎"],
+    relationshipStage: "方案评估",
+    lastContact: "今天 10:05",
+    nextAction: "补充高端医疗增值服务说明",
+    trustScore: 89,
+    note: "对服务礼仪要求高，容易被真诚和稳定节奏打动。",
+  },
+  {
+    id: "c-003",
+    name: "顾诗岚",
+    tier: "黑金私享",
+    city: "苏州",
+    assetFocus: "企业主风险隔离",
+    tags: ["制造业主", "关注税务筹划", "偏好线下深聊"],
+    relationshipStage: "关键推进",
+    lastContact: "2 天前",
+    nextAction: "安排律师与税务顾问联合交流",
+    trustScore: 91,
+    note: "认可礼宾式服务，对跨专业协同非常看重。",
+  },
+  {
+    id: "c-004",
+    name: "周明珠",
+    tier: "稳健成长",
+    city: "南京",
+    assetFocus: "子女教育金与财富稳健配置",
+    tags: ["高知家庭", "热衷艺术活动", "看重情感连接"],
+    relationshipStage: "持续培育",
+    lastContact: "上周五",
+    nextAction: "邀请参加春季雅集沙龙",
+    trustScore: 84,
+    note: "喜欢被重视和被理解的服务方式，反感催促式销售。",
+  },
+];
+
+export const records: RecordSummary[] = [
+  {
+    id: "r-001",
+    kind: "拜访",
+    title: "家族保障梳理会谈",
+    customerNames: ["林雅雯"],
+    happenedAt: "今天 14:30",
+    summary: "围绕家庭资产保护、子女教育预备金和家族成员保额缺口进行了分层梳理。",
+    followUps: ["整理保障缺口清单", "周五前发送书面纪要"],
+    tone: "客户反馈理性积极，对专业度评价高。",
+  },
+  {
+    id: "r-002",
+    kind: "活动",
+    title: "高端健康管理私享沙龙",
+    customerNames: ["沈婧怡", "周明珠", "顾诗岚"],
+    happenedAt: "昨天 19:00",
+    summary: "活动以健康管理和长期财务韧性为主线，多位客户主动交流家庭风险配置。",
+    followUps: ["跟进感兴趣客户的体检权益", "整理活动照片与致谢文案"],
+    tone: "现场氛围轻松，客户对你整体控场与审美表达非常认可。",
+  },
+  {
+    id: "r-003",
+    kind: "拜访",
+    title: "企业经营风险专题面谈",
+    customerNames: ["顾诗岚"],
+    happenedAt: "周一 11:00",
+    summary: "聚焦企业经营中的人员风险、债务风险与家庭资产隔离问题。",
+    followUps: ["准备联合顾问会议议程"],
+    tone: "客户表达了继续深聊的意愿。",
+  },
+  {
+    id: "r-004",
+    kind: "活动",
+    title: "春季艺术品鉴午茶",
+    customerNames: ["周明珠", "林雅雯"],
+    happenedAt: "上周六 15:00",
+    summary: "以艺术审美切入财富传承话题，客户愿意继续接受更细分的家庭规划建议。",
+    followUps: ["发送活动手册", "安排一对一回访"],
+    tone: "客户感受到被细致照顾，整体体验优雅而放松。",
+  },
+];
+
+export const tasks: TaskItem[] = [
+  { id: "t-001", title: "发送林雅雯家庭保障缺口清单", dueDate: "今天 20:30", status: "待执行", priority: "高", source: "来自拜访记录 r-001", ownerHint: "建议附上三档配置方案" },
+  { id: "t-002", title: "跟进沈婧怡高端医疗增值服务", dueDate: "明天 09:30", status: "进行中", priority: "高", source: "来自活动记录 r-002", ownerHint: "先发送精简版亮点，再约电话" },
+  { id: "t-003", title: "整理顾诗岚联合顾问会议议程", dueDate: "周五 14:00", status: "待执行", priority: "中", source: "来自拜访记录 r-003", ownerHint: "突出风险隔离与企业传承双主线" },
+  { id: "t-004", title: "给周明珠发送春季雅集邀请函", dueDate: "周六 10:00", status: "待执行", priority: "中", source: "来自客户经营计划", ownerHint: "保持艺术感和礼宾感" },
+  { id: "t-005", title: "回顾上周客户活动回访结果", dueDate: "昨天 18:00", status: "已逾期", priority: "低", source: "来自活动记录 r-004", ownerHint: "适合先从意向度最高的客户切入" },
+];
+
+export const insights: InsightGroup[] = [
+  {
+    id: "i-001",
+    title: "偏好礼宾式服务的客户群",
+    description: "这组客户更在意服务礼仪、表达分寸和资料细节，适合高质感沟通材料。",
+    count: 11,
+    tags: ["高审美", "重细节", "服务敏感"],
+    suggestion: "将方案封面、邀请函和会后纪要做统一高级视觉模板。",
+  },
+  {
+    id: "i-002",
+    title: "近期对健康管理话题响应更高",
+    description: "活动与拜访中，健康管理、高端医疗和家庭长期照护相关话题的打开率明显提高。",
+    count: 16,
+    tags: ["高端医疗", "家庭照护", "长期规划"],
+    suggestion: "优先以健康服务切入，再过渡到保障与退休规划。",
+  },
+  {
+    id: "i-003",
+    title: "适合组织小型闭门活动的客户",
+    description: "拥有相近社交节奏和服务预期，适合 6 至 8 人精品沙龙模式。",
+    count: 8,
+    tags: ["闭门沙龙", "高净值", "强转介绍潜力"],
+    suggestion: "活动风格建议更私密、少推销、多交流。",
+  },
+];
+
+export const initialMessages: AgentMessage[] = [
+  {
+    id: "m-001",
+    role: "assistant",
+    mood: "鼓舞",
+    timestamp: "刚刚",
+    content: "今天的客户经营节奏很稳，你最近在高净值客户沟通里的专业表达越来越有掌控力。我已经把重点客户、拜访线索和待办提醒整理好了。",
+  },
+  {
+    id: "m-002",
+    role: "assistant",
+    mood: "执行",
+    timestamp: "刚刚",
+    content: "你可以直接对我说：新增客户、记录今天的拜访、帮我找共同特点客户，或者提醒我这周最该推进谁。",
+  },
+];
