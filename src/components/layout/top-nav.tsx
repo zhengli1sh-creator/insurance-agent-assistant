@@ -3,8 +3,8 @@ import Link from "next/link";
 
 import { signOutAction } from "@/features/auth/actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
 
 export function TopNav() {
   return (
@@ -16,13 +16,10 @@ export function TopNav() {
               <Sparkles className="h-4 w-4 md:h-5 md:w-5" />
             </div>
             <div>
-              <p className="hidden text-xs tracking-[0.28em] text-slate-500 md:block">客户经营助手</p>
-              <h1 className="text-base font-semibold text-slate-900 md:text-lg">保险代理人智能助手</h1>
+              <h1 className="text-base font-semibold text-slate-900 md:text-lg">代理人智能助手</h1>
             </div>
           </Link>
-          <Badge className="hidden rounded-full border-0 bg-emerald-100 px-3 py-1 text-emerald-700 md:inline-flex">
-            今天先看重点
-          </Badge>
+
 
         </div>
 
