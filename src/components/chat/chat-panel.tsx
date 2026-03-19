@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { initialMessages } from "@/lib/demo-data";
 import { requestChatAssistant } from "@/modules/chat/chat-client";
 import type { AssistantWorkflowDirective, ChatRequestMode, ChatResponse, AgentMessage } from "@/types/agent";
@@ -28,6 +29,7 @@ type ChatPanelProps = {
   placeholder?: string;
   submitLabel?: string;
   sendingLabel?: string;
+  className?: string;
 };
 
 const defaultQuickActions = ["帮我新增一位客户", "记录今天的拜访", "找找适合统一跟进的客户", "我今天有点乱，先帮我理清重点"];
@@ -48,7 +50,7 @@ export function ChatPanel({
   placeholder = "例如：今天拜访了林雅雯，她希望周五收到家庭保障缺口清单，并在下周安排一次家族资产梳理会。",
   submitLabel = "发给助手",
   sendingLabel = "处理中",
-
+  className,
 }: ChatPanelProps = {}) {
   const [messages, setMessages] = useState<AgentMessage[]>(customInitialMessages ?? initialMessages);
   const [draft, setDraft] = useState(initialDraft);
@@ -101,12 +103,12 @@ export function ChatPanel({
   }
 
   return (
-    <Card className="glass-panel flex h-full min-h-[640px] flex-col overflow-hidden border-white/55 bg-white/85 shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
-      <CardHeader className="border-b border-slate-200/70 pb-5">
+    <Card className={cn("glass-panel flex h-full min-h-[560px] flex-col overflow-hidden border-white/55 bg-white/85 shadow-[0_24px_80px_rgba(15,23,42,0.12)] sm:min-h-[640px]", className)}>
+      <CardHeader className="border-b border-slate-200/70 pb-4 sm:pb-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <Badge className="mb-3 rounded-full border-0 bg-[#1E3A8A]/10 px-3 py-1 text-[#1E3A8A]">{badgeLabel}</Badge>
-            <CardTitle className="text-2xl font-semibold text-slate-900">{title}</CardTitle>
+            <CardTitle className="text-xl font-semibold text-slate-900 sm:text-2xl">{title}</CardTitle>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
           </div>
           <div className="hidden rounded-2xl border border-[#B8894A]/25 bg-[#B8894A]/10 px-4 py-3 text-sm text-slate-700 xl:block">
@@ -117,14 +119,14 @@ export function ChatPanel({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col gap-5 p-5">
+      <CardContent className="flex flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-5">
         <div className="flex flex-wrap gap-2">
           {quickActions.map((action) => (
             <button
               key={action}
               type="button"
               onClick={() => sendMessage(action)}
-              className="cursor-pointer rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 text-sm text-slate-600 transition hover:-translate-y-0.5 hover:border-[#1E3A8A]/30 hover:text-[#1E3A8A]"
+              className="cursor-pointer rounded-full border border-slate-200/80 bg-white/80 px-3 py-1.5 text-[13px] text-slate-600 transition hover:-translate-y-0.5 hover:border-[#1E3A8A]/30 hover:text-[#1E3A8A] sm:px-4 sm:py-2 sm:text-sm"
             >
               {action}
             </button>
@@ -203,10 +205,10 @@ export function ChatPanel({
           <Textarea
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
-            className="min-h-28 rounded-3xl border-0 bg-slate-50/80 px-4 py-3 text-sm leading-7 shadow-none focus-visible:ring-2 focus-visible:ring-[#1E3A8A]/30"
+            className="min-h-24 rounded-3xl border-0 bg-slate-50/80 px-4 py-3 text-sm leading-6 shadow-none focus-visible:ring-2 focus-visible:ring-[#1E3A8A]/30 sm:min-h-28 sm:leading-7"
             placeholder={placeholder}
           />
-          <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs leading-5 text-slate-500">{mode === "workflow" ? "我会先理解你的目标，再带你进入合适的内容。" : "需要确认的操作会先提醒你，不会直接改动客户资料。"}</p>
 
             <Button type="button" disabled={sending} onClick={() => sendMessage(draft)} className="cursor-pointer rounded-full bg-gradient-to-r from-[#1E3A8A] via-[#285DA8] to-[#B8894A] px-5 text-white shadow-lg shadow-[#1E3A8A]/25 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70">

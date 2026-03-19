@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { clearAssistantWorkflow, persistAssistantWorkflow } from "@/modules/chat/workflow-session";
 import type { AgentMessage, AssistantWorkflowDirective } from "@/types/agent";
-
 
 type AssistantHomeProps = {
   returnMessage?: string;
@@ -55,7 +55,6 @@ const assistantQuickActions = [
   "我今天有点乱，先帮我梳理最值得推进的一件事",
 ];
 
-
 function buildAssistantRoute(workflow: AssistantWorkflowDirective) {
   if (workflow.preferredSurface === "activities") {
     return "/dashboard/task?surface=activities";
@@ -91,9 +90,7 @@ export function AssistantHome({ returnMessage }: AssistantHomeProps) {
       timestamp: "现在",
       content: returnMessage
         ? `${returnMessage}。可以继续告诉我下一步。`
-        : "直接告诉我你现在想处理什么。我会带你进入合适的内容；如果你想自己查看客户、记录或任务，也可以直接进入下面的栏目。",
-
-
+        : "直接告诉我你现在想处理什么。我会先带你进入合适的内容；如果你想自己开始今天的工作，也可以切换到旁边的标签。",
     },
   ];
 
@@ -113,67 +110,96 @@ export function AssistantHome({ returnMessage }: AssistantHomeProps) {
     router.push(targetRoute);
   }
 
-
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="chat" className="space-y-4 lg:space-y-6">
       <Card className="glass-panel overflow-hidden border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.95),rgba(248,251,255,0.94),rgba(247,244,238,0.9))] shadow-[0_28px_90px_rgba(15,23,42,0.12)]">
-        <CardContent className="space-y-6 p-6 lg:p-8">
-          <div className="space-y-4">
-            <Badge className="rounded-full border-0 bg-[#123B5D]/10 px-3 py-1 text-[#123B5D]">开始今天的工作</Badge>
-            <h2 className="max-w-4xl text-3xl font-semibold leading-tight text-slate-900 lg:text-[40px]">
-              先说说今天要处理什么，
-              <span className="font-[family-name:var(--font-accent)] text-[#B8894A]">我会带你进入最适合处理这件事的地方。</span>
+        <CardContent className="space-y-4 p-4 sm:p-5 lg:p-6">
+          <div className="space-y-2">
+            <Badge className="rounded-full border-0 bg-[#123B5D]/10 px-3 py-1 text-[#123B5D]">今天先从一件事开始</Badge>
+            <h2 className="max-w-3xl text-[28px] font-semibold leading-tight text-slate-900 sm:text-3xl lg:text-[40px]">
+              先和助手聊一聊，
+              <span className="font-[family-name:var(--font-accent)] text-[#B8894A]">或直接开始今天的工作。</span>
             </h2>
-            <p className="max-w-3xl text-sm leading-7 text-slate-600">
-              先把当前目标说清楚。常见事项我会一步一步带你完成；如果你想自己查看客户、记录或任务，也可以直接进入下面的栏目。
+            <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:leading-7">
+              默认先打开助手入口。你可以直接说目标，也可以切换到下面的工作页，自己查看客户、记录和任务。
             </p>
           </div>
 
+          <TabsList className="grid h-auto w-full grid-cols-2 rounded-[24px] bg-[#F4F7FB] p-1.5">
+            <TabsTrigger value="chat" className="h-11 rounded-[18px] px-3 text-sm font-medium text-slate-600 data-active:bg-[#123B5D] data-active:text-white data-active:shadow-none">
+              和助手聊一聊
+            </TabsTrigger>
+            <TabsTrigger value="work" className="h-11 rounded-[18px] px-3 text-sm font-medium text-slate-600 data-active:bg-[#123B5D] data-active:text-white data-active:shadow-none">
+              开始今天的工作
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            {selfServeRoutes.map((route) => {
-              const Icon = route.icon;
-
-              return (
-                <Link key={route.href} href={route.href} className="group rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:border-[#123B5D]/18">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <Badge className="rounded-full border-0 bg-[#F7F4EE] px-3 py-1 text-[#8A6A3E]">{route.badge}</Badge>
-                      <p className="mt-3 text-lg font-semibold text-slate-900">{route.label}</p>
-                    </div>
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#123B5D]/10 text-[#123B5D] transition group-hover:bg-[#123B5D] group-hover:text-white">
-                      <Icon className="h-4 w-4" />
-                    </span>
-                  </div>
-                  <p className="mt-4 text-sm leading-6 text-slate-600">{route.description}</p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-sm text-[#123B5D]">
-                    进入{route.label}
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-
-                </Link>
-              );
-            })}
-          </div>
+          {returnMessage && (
+            <div className="rounded-[22px] border border-[#B8894A]/18 bg-[#FFF8EE] px-4 py-3 text-sm leading-6 text-slate-700">
+              {returnMessage}。现在可以继续下一步。
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <ChatPanel
-        mode="workflow"
-        onWorkflowChange={handleWorkflowChange}
-        initialMessages={initialMessages}
-        initialDraft="昨天组织了一场亲子财商沙龙，参加客户有林雅雯、王姐，我答应下周发送课程回顾并安排一对一沟通。"
-        quickActions={assistantQuickActions}
-        badgeLabel="和助手聊一聊"
-        title="先说说你的目标"
-        description="你不用先想该去哪里。只要告诉我现在想做什么，我会判断是记录拜访、补录活动、创建客户，还是直接带你查看客户、记录或任务。"
-        statusIdleText="随时可以开始"
-        statusSendingText="正在为你打开相关内容"
-        promptHint="例如：刚见完客户、活动刚结束、要为新客户建档，或想先理清今天的重点。"
-        submitLabel="交给助手"
-        sendingLabel="正在打开"
+      <TabsContent value="chat" className="space-y-4">
+        <ChatPanel
+          mode="workflow"
+          onWorkflowChange={handleWorkflowChange}
+          initialMessages={initialMessages}
+          initialDraft="昨天组织了一场亲子财商沙龙，参加客户有林雅雯、王姐，我答应下周发送课程回顾并安排一对一沟通。"
+          quickActions={assistantQuickActions}
+          badgeLabel="和助手聊一聊"
+          title="先和我说一句"
+          description="你不用先判断该去哪里。只要告诉我现在想做什么，我会帮你接上后面的内容。"
+          statusIdleText="随时可以开始"
+          statusSendingText="正在为你打开相关内容"
+          promptHint="例如：刚见完客户、活动刚结束、要为新客户建档，或想先理清今天的重点。"
+          submitLabel="交给助手"
+          sendingLabel="正在打开"
+        />
+      </TabsContent>
 
-      />
-    </div>
+      <TabsContent value="work" className="space-y-4">
+        <Card className="glass-panel border-white/60 bg-white/88 shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
+          <CardContent className="space-y-3 p-4 sm:p-5">
+            <Badge className="rounded-full border-0 bg-[#F7F4EE] px-3 py-1 text-[#8A6A3E]">开始今天的工作</Badge>
+            <h3 className="text-xl font-semibold text-slate-900 sm:text-2xl">需要时，你也可以直接进入工作栏目。</h3>
+            <p className="text-sm leading-6 text-slate-600">
+              适合想直接查看客户、补录记录、处理待办，或回看今天重点的时候使用。
+            </p>
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
+          {selfServeRoutes.map((route) => {
+            const Icon = route.icon;
+
+            return (
+              <Link
+                key={route.href}
+                href={route.href}
+                className="group rounded-[26px] border border-white/70 bg-white/88 p-4 shadow-[0_18px_55px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:border-[#123B5D]/18 sm:p-5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <Badge className="rounded-full border-0 bg-[#F7F4EE] px-3 py-1 text-[#8A6A3E]">{route.badge}</Badge>
+                    <p className="mt-3 text-lg font-semibold text-slate-900">{route.label}</p>
+                  </div>
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#123B5D]/10 text-[#123B5D] transition group-hover:bg-[#123B5D] group-hover:text-white">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{route.description}</p>
+                <span className="mt-4 inline-flex items-center gap-2 text-sm text-[#123B5D]">
+                  进入{route.label}
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
