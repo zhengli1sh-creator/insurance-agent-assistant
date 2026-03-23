@@ -58,9 +58,10 @@ set
       from jsonb_array_elements_text(coalesce(ae.follow_ups, '[]'::jsonb)) as value
     )
   )
-from public.customers c
-join public.activity_events ae on ae.id = ap.activity_id
-where ap.customer_id = c.id;
+from public.customers c, public.activity_events ae
+where ap.customer_id = c.id
+  and ae.id = ap.activity_id;
+
 
 update public.activity_participants
 set bstudio_create_time = coalesce(bstudio_create_time, created_at)

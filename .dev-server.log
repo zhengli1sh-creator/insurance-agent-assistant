@@ -1,0 +1,1777 @@
+
+> insurance-agent-assistant@0.1.0 dev
+> next dev --webpack
+
+▲ Next.js 16.1.7 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://30.233.233.233:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 4.1s
+⚠ Cross origin request detected from 127.0.0.1 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+○ Compiling / ...
+ GET / 307 in 8.2s (compile: 7.8s, render: 411ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 11.0s (compile: 10.2s, proxy.ts: 248ms, render: 497ms)
+ GET /login 200 in 125ms (compile: 21ms, proxy.ts: 45ms, render: 59ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 124ms (compile: 12ms, proxy.ts: 28ms, render: 84ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 127ms (compile: 24ms, proxy.ts: 22ms, render: 81ms)
+ GET /api/customers 401 in 1724ms (compile: 1686ms, render: 38ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 600ms (compile: 327ms, proxy.ts: 71ms, render: 202ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 274ms (compile: 114ms, proxy.ts: 47ms, render: 113ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 65ms (compile: 9ms, proxy.ts: 17ms, render: 39ms)
+ GET /register 200 in 1344ms (compile: 1031ms, proxy.ts: 11ms, render: 303ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 88ms (compile: 24ms, proxy.ts: 22ms, render: 43ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 107ms (compile: 11ms, proxy.ts: 36ms, render: 60ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 51ms (compile: 8ms, proxy.ts: 13ms, render: 30ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 46ms (compile: 6ms, proxy.ts: 9ms, render: 30ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 158ms (compile: 6ms, proxy.ts: 12ms, render: 139ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 122ms (compile: 18ms, proxy.ts: 13ms, render: 91ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 151ms (compile: 11ms, proxy.ts: 15ms, render: 125ms)
+ GET /login 200 in 104ms (compile: 8ms, proxy.ts: 22ms, render: 74ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 132ms (compile: 6ms, proxy.ts: 12ms, render: 114ms)
+ GET /login 200 in 117ms (compile: 13ms, proxy.ts: 24ms, render: 80ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 118ms (compile: 13ms, proxy.ts: 24ms, render: 81ms)
+ GET /login 200 in 550ms (compile: 151ms, proxy.ts: 19ms, render: 380ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 552ms (compile: 151ms, proxy.ts: 19ms, render: 381ms)
+ GET /login 200 in 192ms (compile: 6ms, proxy.ts: 12ms, render: 174ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 115ms (compile: 4ms, proxy.ts: 12ms, render: 99ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 138ms (compile: 22ms, proxy.ts: 26ms, render: 90ms)
+ GET /dashboard 200 in 2.5s (compile: 2.1s, proxy.ts: 131ms, render: 260ms)
+ POST /login 303 in 3.8s (compile: 8ms, proxy.ts: 14ms, render: 3.8s)
+ GET /dashboard 200 in 641ms (compile: 7ms, proxy.ts: 596ms, render: 39ms)
+ GET /login 200 in 177ms (compile: 6ms, proxy.ts: 8ms, render: 163ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 167ms (compile: 44ms, proxy.ts: 34ms, render: 89ms)
+ GET /dashboard 200 in 1359ms (compile: 17ms, proxy.ts: 1275ms, render: 67ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.2s (compile: 1659ms, render: 4.6s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 4.8s (compile: 3ms, render: 4.8s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.4s (compile: 6ms, render: 6.4s)
+○ Compiling /dashboard/task ...
+ GET /dashboard/task?surface=customers 200 in 4.9s (compile: 4.6s, proxy.ts: 148ms, render: 139ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 3.0s (compile: 1953ms, render: 1050ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 292ms (compile: 3ms, render: 289ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 241ms (compile: 3ms, render: 239ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 705ms (compile: 3ms, render: 702ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 670ms (compile: 229ms, proxy.ts: 177ms, render: 264ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 82ms (compile: 7ms, proxy.ts: 25ms, render: 50ms)
+ GET /dashboard/task?surface=customers 200 in 1665ms (compile: 22ms, proxy.ts: 1572ms, render: 71ms)
+ GET /dashboard/task?surface=customers 200 in 209ms (compile: 10ms, proxy.ts: 133ms, render: 66ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 466ms (compile: 165ms, proxy.ts: 56ms, render: 245ms)
+ GET /dashboard/task?surface=customers 200 in 2.2s (compile: 1320ms, proxy.ts: 678ms, render: 160ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 87ms (compile: 12ms, proxy.ts: 16ms, render: 59ms)
+ GET /dashboard/task?surface=customers 200 in 177ms (compile: 7ms, proxy.ts: 127ms, render: 43ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 365ms (compile: 150ms, proxy.ts: 26ms, render: 188ms)
+ GET /dashboard/task?surface=customers 200 in 1640ms (compile: 934ms, proxy.ts: 621ms, render: 84ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1761ms (compile: 1235ms, render: 526ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 256ms (compile: 132ms, proxy.ts: 23ms, render: 101ms)
+ GET /dashboard/task?surface=customers 200 in 649ms (compile: 20ms, proxy.ts: 560ms, render: 69ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 234ms (compile: 67ms, proxy.ts: 21ms, render: 145ms)
+ GET /dashboard/task?surface=customers 200 in 623ms (compile: 21ms, proxy.ts: 544ms, render: 59ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 268ms (compile: 75ms, proxy.ts: 51ms, render: 142ms)
+ GET /dashboard/task?surface=customers 200 in 640ms (compile: 18ms, proxy.ts: 533ms, render: 89ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 187ms (compile: 74ms, proxy.ts: 26ms, render: 88ms)
+ GET /dashboard/task?surface=customers 200 in 576ms (compile: 15ms, proxy.ts: 515ms, render: 46ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 171ms (compile: 58ms, proxy.ts: 21ms, render: 91ms)
+ GET /dashboard/task?surface=customers 200 in 670ms (compile: 27ms, proxy.ts: 555ms, render: 87ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 2.2s (compile: 158ms, render: 2.1s)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 1178ms (compile: 99ms, proxy.ts: 561ms, render: 517ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1334ms (compile: 471ms, render: 864ms)
+ GET /dashboard/task?surface=customers 200 in 1471ms (compile: 19ms, proxy.ts: 1407ms, render: 45ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 205ms (compile: 26ms, proxy.ts: 16ms, render: 164ms)
+ GET /dashboard/task?surface=customers 200 in 962ms (compile: 6ms, proxy.ts: 913ms, render: 43ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 59ms (compile: 11ms, proxy.ts: 13ms, render: 35ms)
+ GET /dashboard/task?surface=customers 200 in 1134ms (compile: 6ms, proxy.ts: 1092ms, render: 36ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1643ms (compile: 4ms, render: 1640ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 183ms (compile: 60ms, proxy.ts: 14ms, render: 109ms)
+ GET /dashboard/task?surface=customers 200 in 1453ms (compile: 23ms, proxy.ts: 1259ms, render: 171ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 3.3s (compile: 1494ms, render: 1816ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 159ms (compile: 59ms, proxy.ts: 13ms, render: 87ms)
+ GET /dashboard/task?surface=customers 200 in 848ms (compile: 22ms, proxy.ts: 616ms, render: 211ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 339ms (compile: 187ms, proxy.ts: 15ms, render: 137ms)
+ GET /dashboard/task?surface=customers 200 in 2.8s (compile: 20ms, proxy.ts: 2.4s, render: 392ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 106ms (compile: 5ms, proxy.ts: 11ms, render: 91ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 208ms (compile: 86ms, proxy.ts: 22ms, render: 99ms)
+ GET /dashboard/task?surface=customers 200 in 798ms (compile: 18ms, proxy.ts: 730ms, render: 50ms)
+ GET /login?surface=visit&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 79ms (compile: 14ms, proxy.ts: 17ms, render: 49ms)
+ GET /dashboard/task?surface=customers 200 in 615ms (compile: 7ms, proxy.ts: 569ms, render: 39ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 3.2s (compile: 1743ms, render: 1465ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 697ms (compile: 3ms, render: 694ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 296ms (compile: 3ms, render: 294ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 690ms (compile: 4ms, render: 686ms)
+ GET /dashboard 200 in 801ms (compile: 40ms, proxy.ts: 476ms, render: 285ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 7.5s (compile: 955ms, render: 6.5s)
+ GET /dashboard/task?surface=customers 200 in 241ms (compile: 82ms, proxy.ts: 122ms, render: 37ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 697ms (compile: 413ms, render: 284ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 291ms (compile: 2ms, render: 289ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 250ms (compile: 3ms, render: 247ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 673ms (compile: 3ms, render: 670ms)
+ POST /api/customers/extract 200 in 5.1s (compile: 951ms, render: 4.2s)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /dashboard/task?surface=customers 200 in 2.1s (compile: 205ms, proxy.ts: 1024ms, render: 845ms)
+ GET /dashboard/task?surface=customers 200 in 1359ms (compile: 176ms, proxy.ts: 884ms, render: 299ms)
+ GET /dashboard/task?surface=customers 200 in 750ms (compile: 73ms, proxy.ts: 519ms, render: 158ms)
+ GET /dashboard/task?surface=customers 200 in 1271ms (compile: 180ms, proxy.ts: 644ms, render: 447ms)
+ GET /dashboard/task?surface=customers 200 in 729ms (compile: 76ms, proxy.ts: 564ms, render: 89ms)
+ GET /dashboard/task?surface=customers 200 in 843ms (compile: 6ms, proxy.ts: 799ms, render: 38ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1835ms (compile: 1032ms, render: 803ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 291ms (compile: 3ms, render: 288ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 251ms (compile: 2ms, render: 249ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 200 in 190ms (compile: 2ms, render: 188ms)
+ GET /dashboard 200 in 492ms (compile: 45ms, proxy.ts: 145ms, render: 302ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.9s (compile: 816ms, render: 6.1s)
+ GET /dashboard/task?surface=customers 200 in 219ms (compile: 63ms, proxy.ts: 115ms, render: 41ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 294ms (compile: 5ms, render: 289ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 277ms (compile: 3ms, render: 275ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 244ms (compile: 3ms, render: 241ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 606ms (compile: 3ms, render: 603ms)
+ POST /api/customers/extract 200 in 4.4s (compile: 764ms, render: 3.7s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 5.8s (compile: 32ms, render: 5.8s)
+ GET /dashboard/task?surface=customers 200 in 194ms (compile: 42ms, proxy.ts: 118ms, render: 33ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 479ms (compile: 126ms, render: 352ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 232ms (compile: 3ms, render: 228ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1079ms (compile: 3ms, render: 1076ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 254ms (compile: 3ms, render: 251ms)
+ POST /api/customers/extract 200 in 2.7s (compile: 5ms, render: 2.7s)
+ GET /dashboard/task?surface=customers 200 in 1171ms (compile: 58ms, proxy.ts: 1025ms, render: 88ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1570ms (compile: 726ms, render: 845ms)
+ GET /dashboard/task?surface=customers 200 in 637ms (compile: 53ms, proxy.ts: 510ms, render: 74ms)
+ GET /dashboard/task?surface=customers 200 in 652ms (compile: 5ms, proxy.ts: 612ms, render: 35ms)
+ GET /dashboard/task?surface=customers 200 in 1004ms (compile: 136ms, proxy.ts: 728ms, render: 140ms)
+ GET /dashboard/task?surface=customers 200 in 938ms (compile: 153ms, proxy.ts: 589ms, render: 196ms)
+ GET /dashboard/task?surface=customers 200 in 718ms (compile: 76ms, proxy.ts: 490ms, render: 151ms)
+ GET /dashboard/task?surface=customers 200 in 764ms (compile: 73ms, proxy.ts: 564ms, render: 127ms)
+ GET /dashboard/task?surface=customers 200 in 807ms (compile: 53ms, proxy.ts: 683ms, render: 71ms)
+ GET /dashboard/task?surface=customers 200 in 623ms (compile: 9ms, proxy.ts: 544ms, render: 70ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 2.3s (compile: 1544ms, render: 765ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 286ms (compile: 3ms, render: 283ms)
+ GET /dashboard 200 in 471ms (compile: 43ms, proxy.ts: 130ms, render: 298ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.8s (compile: 788ms, render: 6.1s)
+ GET /dashboard/task?surface=customers 200 in 245ms (compile: 57ms, proxy.ts: 150ms, render: 39ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 275ms (compile: 6ms, render: 269ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 324ms (compile: 3ms, render: 321ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 731ms (compile: 12ms, render: 719ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 299ms (compile: 9ms, render: 290ms)
+ POST /api/customers/extract 200 in 3.9s (compile: 588ms, render: 3.3s)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 3.2s (compile: 1649ms, render: 1551ms)
+ GET /dashboard/task?surface=customers 200 in 1518ms (compile: 137ms, proxy.ts: 1181ms, render: 200ms)
+ GET /dashboard/task?surface=customers 200 in 1623ms (compile: 137ms, proxy.ts: 621ms, render: 865ms)
+ GET /dashboard/task?surface=customers 200 in 910ms (compile: 146ms, proxy.ts: 574ms, render: 189ms)
+ GET /dashboard/task?surface=customers 200 in 874ms (compile: 74ms, proxy.ts: 548ms, render: 252ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 922ms (compile: 184ms, render: 738ms)
+ GET /dashboard/task?surface=customers 200 in 784ms (compile: 68ms, proxy.ts: 542ms, render: 175ms)
+ GET /dashboard/task?surface=customers 200 in 590ms (compile: 6ms, proxy.ts: 541ms, render: 43ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 907ms (compile: 77ms, render: 829ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 761ms (compile: 3ms, render: 759ms)
+ GET /dashboard 200 in 470ms (compile: 18ms, proxy.ts: 154ms, render: 298ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 7.6s (compile: 1381ms, render: 6.3s)
+ GET /dashboard/task?surface=customers 200 in 212ms (compile: 36ms, proxy.ts: 144ms, render: 32ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 336ms (compile: 4ms, render: 332ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 282ms (compile: 3ms, render: 279ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 323ms (compile: 3ms, render: 319ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 664ms (compile: 9ms, render: 655ms)
+ POST /api/customers/extract 200 in 3.7s (compile: 569ms, render: 3.1s)
+ GET /dashboard/task?surface=customers 200 in 1182ms (compile: 56ms, proxy.ts: 1055ms, render: 71ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1448ms (compile: 606ms, render: 843ms)
+ GET /dashboard/task?surface=customers 200 in 709ms (compile: 55ms, proxy.ts: 567ms, render: 87ms)
+ GET /dashboard/task?surface=customers 200 in 911ms (compile: 39ms, proxy.ts: 795ms, render: 78ms)
+ GET /dashboard/task?surface=customers 200 in 639ms (compile: 6ms, proxy.ts: 594ms, render: 40ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 812ms (compile: 147ms, render: 665ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 261ms (compile: 2ms, render: 259ms)
+ GET /dashboard 200 in 426ms (compile: 16ms, proxy.ts: 130ms, render: 280ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 637ms (compile: 3ms, render: 634ms)
+ GET /dashboard 200 in 319ms (compile: 5ms, proxy.ts: 131ms, render: 183ms)
+ GET /dashboard 200 in 938ms (compile: 80ms, proxy.ts: 799ms, render: 59ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 7.7s (compile: 1387ms, render: 6.3s)
+ GET /dashboard/task?surface=customers 200 in 178ms (compile: 26ms, proxy.ts: 117ms, render: 35ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 274ms (compile: 4ms, render: 270ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 240ms (compile: 3ms, render: 238ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 254ms (compile: 3ms, render: 251ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 669ms (compile: 3ms, render: 666ms)
+ POST /api/customers/extract 200 in 4.4s (compile: 590ms, render: 3.8s)
+ POST /api/customers/extract 200 in 3.2s (compile: 6ms, render: 3.2s)
+ POST /api/customers/extract 200 in 3.7s (compile: 7ms, render: 3.7s)
+ GET /dashboard/task?surface=customers 200 in 1546ms (compile: 35ms, proxy.ts: 1330ms, render: 182ms)
+ GET /dashboard/task?surface=customers 200 in 1084ms (compile: 61ms, proxy.ts: 951ms, render: 73ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 2.4s (compile: 961ms, render: 1457ms)
+ GET /dashboard/task?surface=customers 200 in 816ms (compile: 6ms, proxy.ts: 766ms, render: 45ms)
+ GET /dashboard/task?surface=customers 200 in 880ms (compile: 65ms, proxy.ts: 713ms, render: 102ms)
+ GET /dashboard/task?surface=customers 200 in 613ms (compile: 6ms, proxy.ts: 572ms, render: 36ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1080ms (compile: 121ms, render: 959ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 343ms (compile: 3ms, render: 340ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 709ms (compile: 3ms, render: 706ms)
+ GET /dashboard/task?surface=customers 200 in 885ms (compile: 49ms, proxy.ts: 765ms, render: 71ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1416ms (compile: 671ms, render: 745ms)
+ GET /dashboard/task?surface=customers 200 in 585ms (compile: 5ms, proxy.ts: 530ms, render: 50ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 758ms (compile: 4ms, render: 755ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 293ms (compile: 3ms, render: 290ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 702ms (compile: 3ms, render: 699ms)
+ GET /dashboard/task?surface=customers 200 in 435ms (compile: 6ms, proxy.ts: 125ms, render: 304ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 337ms (compile: 3ms, render: 334ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 285ms (compile: 4ms, render: 281ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 276ms (compile: 3ms, render: 273ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 637ms (compile: 2ms, render: 634ms)
+ GET /dashboard/task?surface=customers 200 in 2.2s (compile: 1153ms, proxy.ts: 854ms, render: 197ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 2.5s (compile: 1924ms, render: 611ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 250ms (compile: 3ms, render: 247ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 403ms (compile: 28ms, render: 374ms)
+ GET /dashboard 200 in 433ms (compile: 16ms, proxy.ts: 146ms, render: 271ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 7.3s (compile: 845ms, render: 6.5s)
+ GET /dashboard/task?surface=customers 200 in 208ms (compile: 51ms, proxy.ts: 130ms, render: 27ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 237ms (compile: 4ms, render: 233ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 695ms (compile: 13ms, render: 682ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 235ms (compile: 5ms, render: 229ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 612ms (compile: 7ms, render: 606ms)
+ GET /dashboard 200 in 1908ms (compile: 550ms, proxy.ts: 1229ms, render: 128ms)
+ GET /dashboard 200 in 1594ms (compile: 7ms, proxy.ts: 1497ms, render: 90ms)
+ GET /dashboard 200 in 194ms (compile: 5ms, proxy.ts: 145ms, render: 44ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: useState is not defined
+    at AssistantHome (src\components\dashboard\assistant-home.tsx:86:49)
+  84 | export function AssistantHome({ returnMessage }: AssistantHomeProps) {
+  85 |   const router = useRouter();
+> 86 |   const [pendingWorkflow, setPendingWorkflow] = useState<AssistantWorkflowDirective | null>(null);
+     |                                                 ^
+  87 |   const transitionTimerRef = useRef<number | null>(null);
+  88 |
+  89 |   useEffect(() => () => { {
+  digest: '4076754382'
+}
+ GET /dashboard 500 in 1707ms (compile: 91ms, proxy.ts: 563ms, render: 1052ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: useState is not defined
+    at AssistantHome (src\components\dashboard\assistant-home.tsx:86:49)
+  84 | export function AssistantHome({ returnMessage }: AssistantHomeProps) {
+  85 |   const router = useRouter();
+> 86 |   const [pendingWorkflow, setPendingWorkflow] = useState<AssistantWorkflowDirective | null>(null);
+     |                                                 ^
+  87 |   const transitionTimerRef = useRef<number | null>(null);
+  88 |
+  89 |   useEffect(() => () => { {
+  digest: '4076754382'
+}
+ GET /dashboard 500 in 2.2s (compile: 48ms, proxy.ts: 558ms, render: 1633ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: useState is not defined
+    at AssistantHome (src\components\dashboard\assistant-home.tsx:86:49)
+  84 | export function AssistantHome({ returnMessage }: AssistantHomeProps) {
+  85 |   const router = useRouter();
+> 86 |   const [pendingWorkflow, setPendingWorkflow] = useState<AssistantWorkflowDirective | null>(null);
+     |                                                 ^
+  87 |   const transitionTimerRef = useRef<number | null>(null);
+  88 |
+  89 |   useEffect(() => () => { {
+  digest: '4076754382'
+}
+ GET /dashboard 500 in 1141ms (compile: 98ms, proxy.ts: 534ms, render: 509ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: useState is not defined
+    at AssistantHome (src\components\dashboard\assistant-home.tsx:86:49)
+  84 | export function AssistantHome({ returnMessage }: AssistantHomeProps) {
+  85 |   const router = useRouter();
+> 86 |   const [pendingWorkflow, setPendingWorkflow] = useState<AssistantWorkflowDirective | null>(null);
+     |                                                 ^
+  87 |   const transitionTimerRef = useRef<number | null>(null);
+  88 |
+  89 |   useEffect(() => () => { {
+  digest: '4076754382'
+}
+ GET /dashboard 500 in 1274ms (compile: 76ms, proxy.ts: 562ms, render: 635ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /dashboard 200 in 935ms (compile: 88ms, proxy.ts: 541ms, render: 306ms)
+ GET /dashboard 200 in 578ms (compile: 5ms, proxy.ts: 536ms, render: 37ms)
+ GET /dashboard 200 in 739ms (compile: 24ms, proxy.ts: 575ms, render: 140ms)
+ GET /dashboard 200 in 595ms (compile: 7ms, proxy.ts: 529ms, render: 59ms)
+ GET /dashboard 200 in 1020ms (compile: 56ms, proxy.ts: 877ms, render: 86ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 8.6s (compile: 1685ms, render: 6.9s)
+ GET /dashboard/task?surface=customers 200 in 181ms (compile: 18ms, proxy.ts: 141ms, render: 22ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 843ms (compile: 491ms, render: 352ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 279ms (compile: 3ms, render: 277ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 285ms (compile: 4ms, render: 281ms)
+ GET /dashboard 200 in 456ms (compile: 38ms, proxy.ts: 137ms, render: 281ms)
+ GET /dashboard 200 in 327ms (compile: 7ms, proxy.ts: 126ms, render: 193ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.2s (compile: 29ms, render: 6.1s)
+ GET /dashboard/task?surface=customers 200 in 146ms (compile: 12ms, proxy.ts: 114ms, render: 20ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 272ms (compile: 3ms, render: 269ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 258ms (compile: 3ms, render: 256ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 244ms (compile: 3ms, render: 241ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 660ms (compile: 3ms, render: 657ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.3s (compile: 3ms, render: 6.3s)
+ GET /dashboard/task?surface=customers 200 in 172ms (compile: 7ms, proxy.ts: 143ms, render: 22ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 266ms (compile: 3ms, render: 263ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 258ms (compile: 3ms, render: 256ms)
+ GET /login?message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 218ms (compile: 54ms, proxy.ts: 16ms, render: 148ms)
+ GET /dashboard 200 in 300ms (compile: 7ms, proxy.ts: 125ms, render: 168ms)
+ POST /login?message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 303 in 1316ms (compile: 7ms, proxy.ts: 10ms, render: 1299ms)
+ GET /dashboard 200 in 900ms (compile: 232ms, proxy.ts: 513ms, render: 154ms)
+ GET /dashboard 200 in 907ms (compile: 9ms, proxy.ts: 850ms, render: 48ms)
+ GET /login?message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 256ms (compile: 16ms, proxy.ts: 6ms, render: 233ms)
+ GET /dashboard 200 in 661ms (compile: 13ms, proxy.ts: 519ms, render: 128ms)
+ GET /dashboard 200 in 662ms (compile: 10ms, proxy.ts: 523ms, render: 129ms)
+ GET /dashboard 200 in 938ms (compile: 7ms, proxy.ts: 722ms, render: 208ms)
+ GET /dashboard 200 in 323ms (compile: 6ms, proxy.ts: 116ms, render: 201ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 8.0s (compile: 1900ms, render: 6.1s)
+ GET /dashboard/task?surface=customers 200 in 203ms (compile: 48ms, proxy.ts: 118ms, render: 37ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 767ms (compile: 509ms, render: 258ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 253ms (compile: 3ms, render: 251ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 278ms (compile: 3ms, render: 275ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 660ms (compile: 3ms, render: 657ms)
+ GET /dashboard/task?surface=customers 200 in 1412ms (compile: 250ms, proxy.ts: 848ms, render: 314ms)
+ GET /dashboard 200 in 1425ms (compile: 404ms, proxy.ts: 860ms, render: 161ms)
+ GET /dashboard/task?surface=customers 200 in 877ms (compile: 68ms, proxy.ts: 574ms, render: 236ms)
+ GET /dashboard 200 in 991ms (compile: 27ms, proxy.ts: 813ms, render: 152ms)
+ GET /dashboard/task?surface=customers 200 in 2.3s (compile: 171ms, proxy.ts: 1559ms, render: 592ms)
+ GET /dashboard 200 in 2.3s (compile: 339ms, proxy.ts: 1563ms, render: 423ms)
+ GET /dashboard/task?surface=customers 200 in 720ms (compile: 15ms, proxy.ts: 602ms, render: 102ms)
+ GET /dashboard 200 in 724ms (compile: 59ms, proxy.ts: 609ms, render: 57ms)
+ GET /dashboard 200 in 555ms (compile: 7ms, proxy.ts: 525ms, render: 22ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 7.3s (compile: 1170ms, render: 6.1s)
+ GET /dashboard/task?surface=customers 200 in 220ms (compile: 48ms, proxy.ts: 135ms, render: 37ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 1007ms (compile: 728ms, render: 279ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 264ms (compile: 3ms, render: 261ms)
+ GET /dashboard 200 in 418ms (compile: 28ms, proxy.ts: 120ms, render: 270ms)
+ GET /dashboard 200 in 308ms (compile: 5ms, proxy.ts: 118ms, render: 185ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 5.4s (compile: 43ms, render: 5.4s)
+ GET /dashboard/task?surface=customers 200 in 169ms (compile: 17ms, proxy.ts: 132ms, render: 20ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 264ms (compile: 3ms, render: 261ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 252ms (compile: 2ms, render: 249ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 254ms (compile: 3ms, render: 252ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 641ms (compile: 2ms, render: 638ms)
+ POST /api/customers/extract 200 in 4.2s (compile: 601ms, render: 3.6s)
+ POST /api/customers/extract 200 in 3.4s (compile: 3ms, render: 3.4s)
+ GET /dashboard 200 in 1391ms (compile: 51ms, proxy.ts: 1186ms, render: 154ms)
+ GET /dashboard/task?surface=customers 200 in 1113ms (compile: 137ms, proxy.ts: 913ms, render: 63ms)
+ GET /dashboard/task?surface=customers 200 in 1347ms (compile: 14ms, proxy.ts: 1154ms, render: 178ms)
+ GET /dashboard 200 in 1445ms (compile: 43ms, proxy.ts: 1250ms, render: 152ms)
+ GET /dashboard 200 in 306ms (compile: 4ms, proxy.ts: 158ms, render: 144ms)
+ GET /dashboard/task?surface=customers 200 in 325ms (compile: 10ms, proxy.ts: 217ms, render: 98ms)
+ GET /dashboard/task?surface=customers 200 in 1045ms (compile: 398ms, proxy.ts: 556ms, render: 91ms)
+ GET /dashboard 200 in 1046ms (compile: 240ms, proxy.ts: 554ms, render: 253ms)
+ GET /dashboard 200 in 875ms (compile: 12ms, proxy.ts: 532ms, render: 331ms)
+ GET /dashboard/task?surface=customers 200 in 950ms (compile: 34ms, proxy.ts: 627ms, render: 289ms)
+ GET /dashboard 200 in 861ms (compile: 8ms, proxy.ts: 578ms, render: 274ms)
+ GET /dashboard/task?surface=customers 200 in 811ms (compile: 39ms, proxy.ts: 648ms, render: 125ms)
+ GET /dashboard/task?surface=customers 200 in 954ms (compile: 16ms, proxy.ts: 570ms, render: 368ms)
+ GET /dashboard 200 in 975ms (compile: 213ms, proxy.ts: 587ms, render: 175ms)
+ GET /dashboard/task?surface=customers 200 in 668ms (compile: 9ms, proxy.ts: 318ms, render: 341ms)
+ GET /dashboard 200 in 517ms (compile: 52ms, proxy.ts: 229ms, render: 236ms)
+ GET /dashboard 200 in 752ms (compile: 25ms, proxy.ts: 572ms, render: 154ms)
+ GET /dashboard/task?surface=customers 200 in 727ms (compile: 9ms, proxy.ts: 632ms, render: 86ms)
+⨯ ./src/components/customers/customer-profile-fields.tsx
+Error:   x Expected '</', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-profile-fields.tsx:172:1]
+ 169 |       ) : (
+ 170 |         extraFields
+ 171 |       )}
+ 172 |     
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-profile-fields.tsx
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-profile-fields.tsx
+Error:   x Expected '</', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-profile-fields.tsx:172:1]
+ 169 |       ) : (
+ 170 |         extraFields
+ 171 |       )}
+ 172 |     
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-profile-fields.tsx
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-profile-fields.tsx
+Error:   x Expected '</', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-profile-fields.tsx:172:1]
+ 169 |       ) : (
+ 170 |         extraFields
+ 171 |       )}
+ 172 |     
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-profile-fields.tsx
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-profile-fields.tsx
+Error:   x Expected '</', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-profile-fields.tsx:172:1]
+ 169 |       ) : (
+ 170 |         extraFields
+ 171 |       )}
+ 172 |     
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-profile-fields.tsx
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-profile-fields.tsx
+Error:   x Expected '</', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-profile-fields.tsx:172:1]
+ 169 |       ) : (
+ 170 |         extraFields
+ 171 |       )}
+ 172 |     
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-profile-fields.tsx
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-crm-panel.tsx
+Error:   x Expected ',', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-crm-panel.tsx:478:1]
+ 475 |         )}
+ 476 | 
+ 477 |       </CardContent>
+ 478 |     </Card>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-crm-panel.tsx
+Error:   x Expected ',', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-crm-panel.tsx:478:1]
+ 475 |         )}
+ 476 | 
+ 477 |       </CardContent>
+ 478 |     </Card>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-crm-panel.tsx
+Error:   x Expected ',', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-crm-panel.tsx:478:1]
+ 475 |         )}
+ 476 | 
+ 477 |       </CardContent>
+ 478 |     </Card>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⨯ ./src/components/customers/customer-crm-panel.tsx
+Error:   x Expected ',', got '<eof>'
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-crm-panel.tsx:478:1]
+ 475 |         )}
+ 476 | 
+ 477 |       </CardContent>
+ 478 |     </Card>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /dashboard 200 in 1476ms (compile: 335ms, proxy.ts: 793ms, render: 348ms)
+ GET /dashboard/task?surface=customers 200 in 1557ms (compile: 119ms, proxy.ts: 841ms, render: 596ms)
+ GET /dashboard 200 in 371ms (compile: 9ms, proxy.ts: 119ms, render: 243ms)
+ GET /dashboard 200 in 612ms (compile: 5ms, proxy.ts: 541ms, render: 66ms)
+ GET /dashboard/task?surface=customers 200 in 907ms (compile: 6ms, proxy.ts: 719ms, render: 182ms)
+ GET /dashboard 200 in 930ms (compile: 116ms, proxy.ts: 597ms, render: 217ms)
+ GET /dashboard/task?surface=customers 200 in 938ms (compile: 26ms, proxy.ts: 860ms, render: 52ms)
+ GET /dashboard 200 in 616ms (compile: 5ms, proxy.ts: 569ms, render: 41ms)
+ GET /dashboard/task?surface=customers 200 in 696ms (compile: 4ms, proxy.ts: 645ms, render: 47ms)
+ GET /dashboard/task?surface=customers 200 in 1114ms (compile: 67ms, proxy.ts: 924ms, render: 124ms)
+ GET /dashboard 200 in 1116ms (compile: 11ms, proxy.ts: 923ms, render: 182ms)
+ GET /dashboard/task?surface=customers 200 in 274ms (compile: 44ms, proxy.ts: 136ms, render: 94ms)
+ GET /dashboard 200 in 280ms (compile: 8ms, proxy.ts: 135ms, render: 137ms)
+ GET /dashboard/task?surface=customers 200 in 986ms (compile: 8ms, proxy.ts: 699ms, render: 279ms)
+ GET /dashboard 200 in 1015ms (compile: 31ms, proxy.ts: 816ms, render: 168ms)
+ GET /dashboard/task?surface=customers 200 in 375ms (compile: 9ms, proxy.ts: 244ms, render: 122ms)
+ GET /dashboard 200 in 228ms (compile: 16ms, proxy.ts: 154ms, render: 59ms)
+ GET /dashboard 200 in 1202ms (compile: 9ms, proxy.ts: 852ms, render: 342ms)
+ GET /dashboard/task?surface=customers 200 in 1218ms (compile: 46ms, proxy.ts: 950ms, render: 222ms)
+ GET /dashboard 200 in 367ms (compile: 7ms, proxy.ts: 267ms, render: 93ms)
+ GET /dashboard/task?surface=customers 200 in 276ms (compile: 8ms, proxy.ts: 149ms, render: 119ms)
+ GET /dashboard 200 in 1050ms (compile: 17ms, proxy.ts: 817ms, render: 216ms)
+ GET /dashboard/task?surface=customers 200 in 1052ms (compile: 75ms, proxy.ts: 828ms, render: 150ms)
+ GET /dashboard 200 in 359ms (compile: 11ms, proxy.ts: 187ms, render: 161ms)
+ GET /dashboard/task?surface=customers 200 in 313ms (compile: 17ms, proxy.ts: 217ms, render: 80ms)
+ GET /dashboard/task?surface=customers 200 in 821ms (compile: 13ms, proxy.ts: 570ms, render: 237ms)
+ GET /dashboard 200 in 829ms (compile: 34ms, proxy.ts: 679ms, render: 117ms)
+ GET /dashboard/task?surface=customers 200 in 1215ms (compile: 56ms, proxy.ts: 1081ms, render: 78ms)
+ GET /dashboard 200 in 1216ms (compile: 9ms, proxy.ts: 1079ms, render: 128ms)
+ GET /dashboard/task?surface=customers 200 in 244ms (compile: 7ms, proxy.ts: 128ms, render: 109ms)
+ GET /dashboard 200 in 267ms (compile: 10ms, proxy.ts: 184ms, render: 73ms)
+ GET /dashboard/task?surface=customers 200 in 705ms (compile: 13ms, proxy.ts: 565ms, render: 126ms)
+ GET /dashboard 200 in 742ms (compile: 68ms, proxy.ts: 585ms, render: 89ms)
+ GET /dashboard/task?surface=customers 200 in 1235ms (compile: 83ms, proxy.ts: 1036ms, render: 115ms)
+ GET /dashboard 200 in 1236ms (compile: 141ms, proxy.ts: 1050ms, render: 46ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 4.0s (compile: 2.3s, render: 1673ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 320ms (compile: 6ms, render: 314ms)
+ GET /api/customers?search=%E7%8E%8B%E7%9C%9F%E7%9C%9F 400 in 292ms (compile: 3ms, render: 290ms)
+ GET /dashboard 200 in 420ms (compile: 6ms, proxy.ts: 122ms, render: 292ms)
+ GET /dashboard 200 in 354ms (compile: 9ms, proxy.ts: 120ms, render: 225ms)
+ GET /dashboard 200 in 822ms (compile: 70ms, proxy.ts: 569ms, render: 184ms)
+ GET /dashboard 200 in 830ms (compile: 16ms, proxy.ts: 755ms, render: 59ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 7.3s (compile: 1244ms, render: 6.1s)
+ GET /dashboard/task?surface=customers 200 in 719ms (compile: 27ms, proxy.ts: 657ms, render: 34ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 471ms (compile: 5ms, render: 466ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 332ms (compile: 3ms, render: 329ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 622ms (compile: 5ms, render: 616ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 2.0s (compile: 3ms, render: 2.0s)
+ GET /dashboard/task?surface=customers 200 in 1313ms (compile: 165ms, proxy.ts: 875ms, render: 272ms)
+ GET /dashboard 200 in 1358ms (compile: 28ms, proxy.ts: 1159ms, render: 170ms)
+ GET /dashboard 200 in 681ms (compile: 6ms, proxy.ts: 584ms, render: 90ms)
+ GET /dashboard/task?surface=customers 200 in 765ms (compile: 6ms, proxy.ts: 677ms, render: 82ms)
+ GET /dashboard/task?surface=customers 200 in 653ms (compile: 8ms, proxy.ts: 560ms, render: 86ms)
+ GET /dashboard 200 in 656ms (compile: 36ms, proxy.ts: 560ms, render: 59ms)
+ GET /dashboard 200 in 628ms (compile: 17ms, proxy.ts: 555ms, render: 56ms)
+ GET /dashboard 200 in 764ms (compile: 76ms, proxy.ts: 545ms, render: 143ms)
+ GET /dashboard 200 in 766ms (compile: 68ms, proxy.ts: 552ms, render: 145ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 8.4s (compile: 2.2s, render: 6.2s)
+ GET /dashboard/task?surface=customers 200 in 614ms (compile: 37ms, proxy.ts: 522ms, render: 55ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 1263ms (compile: 780ms, render: 483ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 328ms (compile: 3ms, render: 326ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 316ms (compile: 2ms, render: 314ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 686ms (compile: 3ms, render: 683ms)
+ GET /dashboard/task?surface=customers 200 in 793ms (compile: 63ms, proxy.ts: 543ms, render: 187ms)
+ GET /dashboard 200 in 803ms (compile: 37ms, proxy.ts: 694ms, render: 72ms)
+ POST /api/customers/extract 200 in 4.9s (compile: 1280ms, render: 3.6s)
+ POST /api/customers 400 in 1280ms (compile: 18ms, render: 1262ms)
+ GET /dashboard/task?surface=customers 200 in 1328ms (compile: 57ms, proxy.ts: 1168ms, render: 104ms)
+ GET /dashboard 200 in 1675ms (compile: 19ms, proxy.ts: 1457ms, render: 199ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 1793ms (compile: 838ms, render: 956ms)
+ GET /dashboard 200 in 908ms (compile: 101ms, proxy.ts: 615ms, render: 192ms)
+ GET /dashboard/task?surface=customers 200 in 908ms (compile: 229ms, proxy.ts: 617ms, render: 63ms)
+ GET /dashboard 200 in 785ms (compile: 14ms, proxy.ts: 598ms, render: 173ms)
+ GET /dashboard/task?surface=customers 200 in 792ms (compile: 50ms, proxy.ts: 667ms, render: 75ms)
+ GET /dashboard/task?surface=customers 200 in 900ms (compile: 9ms, proxy.ts: 820ms, render: 71ms)
+ GET /dashboard 200 in 902ms (compile: 40ms, proxy.ts: 824ms, render: 37ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 1322ms (compile: 95ms, render: 1227ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 348ms (compile: 3ms, render: 345ms)
+ POST /api/customers 400 in 272ms (compile: 5ms, render: 267ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 320ms (compile: 3ms, render: 317ms)
+ GET /dashboard 200 in 175ms (compile: 6ms, proxy.ts: 148ms, render: 21ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 8.3s (compile: 2.7s, render: 5.6s)
+ GET /dashboard/task?surface=customers 200 in 703ms (compile: 78ms, proxy.ts: 518ms, render: 107ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 357ms (compile: 12ms, render: 345ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 333ms (compile: 4ms, render: 329ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 331ms (compile: 14ms, render: 317ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 718ms (compile: 3ms, render: 715ms)
+ POST /api/customers 400 in 262ms (compile: 5ms, render: 257ms)
+ GET /dashboard/task?surface=customers 200 in 1331ms (compile: 206ms, proxy.ts: 931ms, render: 195ms)
+ GET /dashboard 200 in 1339ms (compile: 330ms, proxy.ts: 937ms, render: 72ms)
+ GET /dashboard/task?surface=customers 200 in 745ms (compile: 11ms, proxy.ts: 610ms, render: 123ms)
+ GET /dashboard 200 in 752ms (compile: 60ms, proxy.ts: 617ms, render: 74ms)
+ GET /dashboard 200 in 1391ms (compile: 11ms, proxy.ts: 1358ms, render: 22ms)
+ GET /dashboard/task?surface=customers 200 in 501ms (compile: 15ms, proxy.ts: 150ms, render: 336ms)
+ GET /dashboard 200 in 620ms (compile: 7ms, proxy.ts: 138ms, render: 476ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 3.4s (compile: 2.6s, render: 810ms)
+ GET /dashboard/task?surface=customers 200 in 1214ms (compile: 92ms, proxy.ts: 839ms, render: 283ms)
+ GET /dashboard/task?surface=customers 200 in 1005ms (compile: 271ms, proxy.ts: 183ms, render: 550ms)
+ GET /dashboard/task?surface=customers 200 in 1252ms (compile: 270ms, proxy.ts: 192ms, render: 790ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 283ms (compile: 4ms, render: 279ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 303ms (compile: 3ms, render: 300ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 290ms (compile: 2ms, render: 288ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 291ms (compile: 3ms, render: 288ms)
+ GET /dashboard 200 in 210ms (compile: 18ms, proxy.ts: 138ms, render: 54ms)
+ GET /dashboard 200 in 813ms (compile: 6ms, proxy.ts: 617ms, render: 190ms)
+ GET /dashboard 200 in 858ms (compile: 77ms, proxy.ts: 632ms, render: 149ms)
+ GET /dashboard 200 in 865ms (compile: 8ms, proxy.ts: 794ms, render: 64ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 8.5s (compile: 2.1s, render: 6.4s)
+ GET /dashboard/task?surface=customers 200 in 683ms (compile: 28ms, proxy.ts: 621ms, render: 33ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 507ms (compile: 6ms, render: 501ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 282ms (compile: 4ms, render: 278ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 281ms (compile: 1917µs, render: 279ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 400 in 766ms (compile: 3ms, render: 764ms)
+ POST /api/customers 400 in 1001ms (compile: 5ms, render: 996ms)
+ GET /dashboard 200 in 1098ms (compile: 13ms, proxy.ts: 959ms, render: 126ms)
+ GET /dashboard/task?surface=customers 200 in 1078ms (compile: 67ms, proxy.ts: 943ms, render: 69ms)
+ GET /dashboard/task?surface=customers 200 in 259ms (compile: 39ms, proxy.ts: 152ms, render: 69ms)
+ GET /dashboard 200 in 260ms (compile: 6ms, proxy.ts: 152ms, render: 102ms)
+ GET /dashboard/task?surface=customers 200 in 641ms (compile: 6ms, proxy.ts: 589ms, render: 46ms)
+ GET /dashboard 200 in 799ms (compile: 7ms, proxy.ts: 687ms, render: 106ms)
+ GET /dashboard 200 in 918ms (compile: 7ms, proxy.ts: 611ms, render: 300ms)
+ GET /dashboard 200 in 353ms (compile: 8ms, proxy.ts: 140ms, render: 205ms)
+ GET /dashboard 200 in 342ms (compile: 5ms, proxy.ts: 143ms, render: 194ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.1s (compile: 5ms, render: 6.1s)
+ GET /dashboard/task?surface=customers 200 in 646ms (compile: 10ms, proxy.ts: 604ms, render: 33ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 420ms (compile: 4ms, render: 416ms)
+ POST /api/customers 200 in 802ms (compile: 5ms, render: 797ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 284ms (compile: 4ms, render: 280ms)
+ GET /dashboard?returnMessage=%E5%B7%B2%E4%B8%BA%E4%BD%A0%E4%BF%9D%E5%AD%98%E5%AE%A2%E6%88%B7%E6%A1%A3%E6%A1%88 200 in 165ms (compile: 7ms, proxy.ts: 141ms, render: 18ms)
+ GET /customers 200 in 3.7s (compile: 2.5s, proxy.ts: 954ms, render: 168ms)
+ GET /dashboard 200 in 263ms (compile: 20ms, proxy.ts: 173ms, render: 71ms)
+ GET /customers 200 in 687ms (compile: 6ms, proxy.ts: 626ms, render: 55ms)
+ GET /api/customers?search= 200 in 1347ms (compile: 719ms, render: 628ms)
+ GET /customers 200 in 1438ms (compile: 44ms, proxy.ts: 1037ms, render: 358ms)
+ GET /dashboard 200 in 383ms (compile: 25ms, proxy.ts: 138ms, render: 220ms)
+ GET /api/customers?search= 200 in 924ms (compile: 3ms, render: 921ms)
+ GET /dashboard 200 in 1302ms (compile: 226ms, proxy.ts: 816ms, render: 259ms)
+ GET /customers 200 in 1332ms (compile: 14ms, proxy.ts: 1148ms, render: 170ms)
+ GET /dashboard 200 in 797ms (compile: 9ms, proxy.ts: 551ms, render: 237ms)
+ GET /customers 200 in 807ms (compile: 40ms, proxy.ts: 656ms, render: 111ms)
+ GET /dashboard 200 in 1213ms (compile: 8ms, proxy.ts: 1111ms, render: 94ms)
+ GET /customers 200 in 1215ms (compile: 49ms, proxy.ts: 1112ms, render: 55ms)
+ GET /customers 200 in 1377ms (compile: 8ms, proxy.ts: 1304ms, render: 65ms)
+ GET /dashboard 200 in 1686ms (compile: 7ms, proxy.ts: 1494ms, render: 185ms)
+ GET /customers 200 in 901ms (compile: 8ms, proxy.ts: 683ms, render: 210ms)
+ GET /dashboard 200 in 908ms (compile: 16ms, proxy.ts: 792ms, render: 100ms)
+ GET /dashboard 200 in 761ms (compile: 8ms, proxy.ts: 587ms, render: 166ms)
+ GET /customers 200 in 769ms (compile: 25ms, proxy.ts: 684ms, render: 60ms)
+ GET /customers 200 in 885ms (compile: 6ms, proxy.ts: 725ms, render: 155ms)
+ GET /dashboard 200 in 925ms (compile: 12ms, proxy.ts: 797ms, render: 117ms)
+ GET /customers 200 in 832ms (compile: 11ms, proxy.ts: 659ms, render: 163ms)
+ GET /dashboard 200 in 1297ms (compile: 8ms, proxy.ts: 1185ms, render: 103ms)
+ GET /dashboard 200 in 880ms (compile: 8ms, proxy.ts: 627ms, render: 245ms)
+ GET /customers 200 in 905ms (compile: 44ms, proxy.ts: 722ms, render: 138ms)
+ GET /dashboard 200 in 872ms (compile: 16ms, proxy.ts: 621ms, render: 235ms)
+ GET /customers 200 in 882ms (compile: 36ms, proxy.ts: 696ms, render: 150ms)
+ GET /dashboard 200 in 940ms (compile: 7ms, proxy.ts: 654ms, render: 279ms)
+ GET /customers 200 in 969ms (compile: 16ms, proxy.ts: 711ms, render: 241ms)
+ GET /dashboard 200 in 828ms (compile: 7ms, proxy.ts: 601ms, render: 221ms)
+ GET /customers 200 in 839ms (compile: 34ms, proxy.ts: 688ms, render: 117ms)
+ GET /dashboard 200 in 882ms (compile: 12ms, proxy.ts: 706ms, render: 164ms)
+ GET /customers 200 in 889ms (compile: 35ms, proxy.ts: 792ms, render: 62ms)
+ GET /customers 200 in 959ms (compile: 10ms, proxy.ts: 736ms, render: 213ms)
+ GET /dashboard 200 in 968ms (compile: 30ms, proxy.ts: 816ms, render: 121ms)
+ GET /customers 200 in 756ms (compile: 25ms, proxy.ts: 652ms, render: 79ms)
+ GET /dashboard 200 in 1029ms (compile: 7ms, proxy.ts: 958ms, render: 64ms)
+ GET /dashboard 200 in 1002ms (compile: 60ms, proxy.ts: 607ms, render: 334ms)
+ GET /customers 200 in 1005ms (compile: 9ms, proxy.ts: 606ms, render: 390ms)
+ GET /customers 200 in 688ms (compile: 8ms, proxy.ts: 534ms, render: 146ms)
+ GET /dashboard 200 in 697ms (compile: 11ms, proxy.ts: 608ms, render: 79ms)
+ GET /customers 200 in 618ms (compile: 7ms, proxy.ts: 536ms, render: 75ms)
+ GET /dashboard 200 in 736ms (compile: 12ms, proxy.ts: 632ms, render: 93ms)
+ GET /customers 200 in 854ms (compile: 10ms, proxy.ts: 556ms, render: 288ms)
+ GET /dashboard 200 in 870ms (compile: 94ms, proxy.ts: 622ms, render: 154ms)
+ GET /customers 200 in 731ms (compile: 7ms, proxy.ts: 597ms, render: 127ms)
+ GET /dashboard 200 in 748ms (compile: 9ms, proxy.ts: 646ms, render: 93ms)
+ GET /customers 200 in 706ms (compile: 8ms, proxy.ts: 636ms, render: 62ms)
+ GET /dashboard 200 in 797ms (compile: 9ms, proxy.ts: 737ms, render: 52ms)
+ GET /dashboard 200 in 793ms (compile: 12ms, proxy.ts: 600ms, render: 181ms)
+ GET /customers 200 in 796ms (compile: 68ms, proxy.ts: 598ms, render: 130ms)
+ GET /dashboard 200 in 734ms (compile: 9ms, proxy.ts: 617ms, render: 108ms)
+ GET /customers 200 in 742ms (compile: 12ms, proxy.ts: 679ms, render: 51ms)
+ GET /customers 200 in 799ms (compile: 7ms, proxy.ts: 591ms, render: 202ms)
+ GET /dashboard 200 in 833ms (compile: 19ms, proxy.ts: 644ms, render: 170ms)
+ GET /dashboard 200 in 1077ms (compile: 14ms, proxy.ts: 748ms, render: 314ms)
+ GET /customers 200 in 1086ms (compile: 100ms, proxy.ts: 888ms, render: 98ms)
+ GET /dashboard 200 in 937ms (compile: 7ms, proxy.ts: 646ms, render: 285ms)
+ GET /customers 200 in 963ms (compile: 89ms, proxy.ts: 745ms, render: 129ms)
+ GET /customers 200 in 812ms (compile: 10ms, proxy.ts: 610ms, render: 192ms)
+ GET /dashboard 200 in 835ms (compile: 30ms, proxy.ts: 704ms, render: 102ms)
+ GET /dashboard 200 in 1032ms (compile: 5ms, proxy.ts: 646ms, render: 380ms)
+ GET /customers 200 in 1048ms (compile: 120ms, proxy.ts: 738ms, render: 190ms)
+ GET /customers 200 in 877ms (compile: 7ms, proxy.ts: 609ms, render: 261ms)
+ GET /dashboard 200 in 882ms (compile: 33ms, proxy.ts: 696ms, render: 154ms)
+ GET /dashboard 200 in 856ms (compile: 77ms, proxy.ts: 675ms, render: 105ms)
+ GET /customers 200 in 858ms (compile: 20ms, proxy.ts: 673ms, render: 165ms)
+ GET /customers 200 in 1628ms (compile: 128ms, proxy.ts: 600ms, render: 900ms)
+ GET /dashboard 200 in 1659ms (compile: 415ms, proxy.ts: 902ms, render: 341ms)
+ GET /customers 200 in 879ms (compile: 8ms, proxy.ts: 636ms, render: 235ms)
+ GET /dashboard 200 in 923ms (compile: 18ms, proxy.ts: 710ms, render: 195ms)
+ GET /dashboard 200 in 791ms (compile: 8ms, proxy.ts: 632ms, render: 152ms)
+ GET /customers 200 in 805ms (compile: 16ms, proxy.ts: 683ms, render: 106ms)
+ GET /dashboard 200 in 831ms (compile: 17ms, proxy.ts: 690ms, render: 123ms)
+ GET /customers 200 in 954ms (compile: 58ms, proxy.ts: 697ms, render: 198ms)
+ GET /dashboard 200 in 717ms (compile: 9ms, proxy.ts: 649ms, render: 59ms)
+ GET /customers 200 in 1028ms (compile: 8ms, proxy.ts: 928ms, render: 92ms)
+ GET /dashboard 200 in 942ms (compile: 6ms, proxy.ts: 646ms, render: 290ms)
+ GET /customers 200 in 958ms (compile: 79ms, proxy.ts: 709ms, render: 170ms)
+ GET /customers 200 in 813ms (compile: 9ms, proxy.ts: 684ms, render: 120ms)
+ GET /dashboard 200 in 1318ms (compile: 10ms, proxy.ts: 1126ms, render: 183ms)
+ GET /customers 200 in 1159ms (compile: 14ms, proxy.ts: 738ms, render: 406ms)
+ GET /dashboard 200 in 1302ms (compile: 192ms, proxy.ts: 826ms, render: 285ms)
+ GET /customers 200 in 1709ms (compile: 14ms, proxy.ts: 1611ms, render: 84ms)
+ GET /dashboard 200 in 1925ms (compile: 11ms, proxy.ts: 1718ms, render: 197ms)
+ GET /customers 200 in 880ms (compile: 9ms, proxy.ts: 703ms, render: 167ms)
+ GET /dashboard 200 in 889ms (compile: 19ms, proxy.ts: 803ms, render: 66ms)
+ GET /dashboard 200 in 1251ms (compile: 54ms, proxy.ts: 909ms, render: 288ms)
+ GET /customers 200 in 1259ms (compile: 10ms, proxy.ts: 908ms, render: 341ms)
+ GET /customers 200 in 740ms (compile: 6ms, proxy.ts: 655ms, render: 78ms)
+ GET /dashboard 200 in 1094ms (compile: 11ms, proxy.ts: 1003ms, render: 80ms)
+ GET /dashboard 200 in 977ms (compile: 11ms, proxy.ts: 582ms, render: 383ms)
+ GET /customers 200 in 1207ms (compile: 27ms, proxy.ts: 670ms, render: 511ms)
+ GET /customers 200 in 746ms (compile: 8ms, proxy.ts: 628ms, render: 109ms)
+ GET /dashboard 200 in 754ms (compile: 11ms, proxy.ts: 693ms, render: 50ms)
+ GET /dashboard 200 in 1408ms (compile: 15ms, proxy.ts: 1225ms, render: 168ms)
+ GET /customers 200 in 1415ms (compile: 80ms, proxy.ts: 1232ms, render: 103ms)
+ GET /dashboard 200 in 756ms (compile: 17ms, proxy.ts: 641ms, render: 98ms)
+ GET /customers 200 in 954ms (compile: 13ms, proxy.ts: 885ms, render: 57ms)
+ GET /customers 200 in 752ms (compile: 18ms, proxy.ts: 635ms, render: 99ms)
+ GET /dashboard 200 in 1026ms (compile: 12ms, proxy.ts: 940ms, render: 74ms)
+ GET /dashboard 200 in 718ms (compile: 5ms, proxy.ts: 614ms, render: 99ms)
+ GET /customers 200 in 726ms (compile: 8ms, proxy.ts: 662ms, render: 56ms)
+Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     },
+Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     },
+⨯ unhandledRejection: Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     },
+⨯ unhandledRejection:  Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     },
+Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     },
+⨯ unhandledRejection: Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     },
+⨯ unhandledRejection:  Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     },
+⨯ Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+    at eval (src\lib\supabase\server.ts:20:23)
+    at Array.forEach (<anonymous>)
+    at setAll (src\lib\supabase\server.ts:19:22)
+  18 |       setAll(cookiesToSet) {
+  19 |         cookiesToSet.forEach(({ name, value, options }) => {
+> 20 |           cookieStore.set(name, value, options);
+     |                       ^
+  21 |         });
+  22 |       },
+  23 |     }, {
+  digest: '967053444'
+}
+ GET / 500 in 5.9s (compile: 2.1s, render: 3.8s)
+ GET /dashboard 200 in 459ms (compile: 16ms, proxy.ts: 142ms, render: 301ms)
+ GET /dashboard 200 in 1196ms (compile: 8ms, proxy.ts: 763ms, render: 425ms)
+ GET /dashboard 200 in 821ms (compile: 38ms, proxy.ts: 619ms, render: 164ms)
+ GET /dashboard 200 in 834ms (compile: 16ms, proxy.ts: 747ms, render: 72ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 9.3s (compile: 2.2s, render: 7.2s)
+ GET /dashboard 200 in 1962ms (compile: 188ms, proxy.ts: 1609ms, render: 166ms)
+ GET /dashboard 200 in 1965ms (compile: 180ms, proxy.ts: 1617ms, render: 168ms)
+ GET /dashboard 200 in 283ms (compile: 5ms, proxy.ts: 171ms, render: 106ms)
+ GET /dashboard 200 in 276ms (compile: 10ms, proxy.ts: 205ms, render: 60ms)
+ GET /dashboard 200 in 1009ms (compile: 6ms, proxy.ts: 641ms, render: 361ms)
+ GET /dashboard 200 in 1011ms (compile: 144ms, proxy.ts: 699ms, render: 168ms)
+ GET /dashboard 200 in 650ms (compile: 8ms, proxy.ts: 595ms, render: 47ms)
+ GET /dashboard 200 in 804ms (compile: 4ms, proxy.ts: 764ms, render: 36ms)
+ GET /dashboard 200 in 1894ms (compile: 6ms, proxy.ts: 1599ms, render: 289ms)
+ GET /dashboard 200 in 344ms (compile: 6ms, proxy.ts: 136ms, render: 202ms)
+ GET /dashboard 200 in 743ms (compile: 65ms, proxy.ts: 615ms, render: 64ms)
+ GET /dashboard 200 in 2.8s (compile: 9ms, proxy.ts: 2.8s, render: 59ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 9.4s (compile: 2.2s, render: 7.2s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 8.2s (compile: 4ms, render: 8.2s)
+ GET /dashboard 200 in 1189ms (compile: 6ms, proxy.ts: 1133ms, render: 50ms)
+ GET /dashboard 200 in 1372ms (compile: 5ms, proxy.ts: 1315ms, render: 52ms)
+ GET /dashboard 200 in 1156ms (compile: 278ms, proxy.ts: 641ms, render: 237ms)
+ GET /dashboard 200 in 1408ms (compile: 10ms, proxy.ts: 1311ms, render: 87ms)
+ GET /dashboard 200 in 1115ms (compile: 5ms, proxy.ts: 1054ms, render: 56ms)
+ GET /dashboard 200 in 1371ms (compile: 7ms, proxy.ts: 1314ms, render: 50ms)
+ GET /dashboard 200 in 1234ms (compile: 11ms, proxy.ts: 1027ms, render: 195ms)
+ GET /dashboard 200 in 1351ms (compile: 13ms, proxy.ts: 1088ms, render: 250ms)
+ GET /dashboard 200 in 911ms (compile: 9ms, proxy.ts: 758ms, render: 143ms)
+ GET /dashboard 200 in 2.0s (compile: 20ms, proxy.ts: 907ms, render: 1084ms)
+ GET /dashboard 200 in 1524ms (compile: 146ms, proxy.ts: 692ms, render: 686ms)
+ GET /dashboard 200 in 2.0s (compile: 64ms, proxy.ts: 1879ms, render: 98ms)
+ GET /dashboard 200 in 948ms (compile: 71ms, proxy.ts: 653ms, render: 225ms)
+ GET /dashboard 200 in 957ms (compile: 202ms, proxy.ts: 663ms, render: 92ms)
+ GET /dashboard 200 in 898ms (compile: 71ms, proxy.ts: 674ms, render: 152ms)
+ GET /dashboard 200 in 1125ms (compile: 19ms, proxy.ts: 1025ms, render: 81ms)
+ GET /dashboard 200 in 775ms (compile: 7ms, proxy.ts: 710ms, render: 58ms)
+ GET /dashboard 200 in 1761ms (compile: 5ms, proxy.ts: 1705ms, render: 51ms)
+ GET /dashboard 200 in 1811ms (compile: 5ms, proxy.ts: 1676ms, render: 129ms)
+ GET /dashboard 200 in 1818ms (compile: 11ms, proxy.ts: 1729ms, render: 78ms)
+ GET /dashboard 200 in 979ms (compile: 67ms, proxy.ts: 688ms, render: 224ms)
+ GET /dashboard 200 in 1006ms (compile: 15ms, proxy.ts: 889ms, render: 102ms)
+ GET /dashboard 200 in 955ms (compile: 92ms, proxy.ts: 650ms, render: 213ms)
+ GET /dashboard 200 in 958ms (compile: 90ms, proxy.ts: 652ms, render: 216ms)
+ GET /dashboard 200 in 915ms (compile: 64ms, proxy.ts: 623ms, render: 227ms)
+ GET /dashboard 200 in 930ms (compile: 20ms, proxy.ts: 829ms, render: 82ms)
+ GET /dashboard 200 in 1743ms (compile: 54ms, proxy.ts: 1074ms, render: 614ms)
+ GET /dashboard 200 in 1817ms (compile: 26ms, proxy.ts: 1201ms, render: 591ms)
+ GET /dashboard 200 in 765ms (compile: 8ms, proxy.ts: 644ms, render: 112ms)
+ GET /dashboard 200 in 768ms (compile: 8ms, proxy.ts: 645ms, render: 115ms)
+ GET /dashboard 200 in 1833ms (compile: 15ms, proxy.ts: 1562ms, render: 256ms)
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: read ECONNRESET
+      at ignore-listed frames {
+    errno: -4077,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted address: cysjmjxvwpcxmpfyvmoh.supabase.co:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+ GET /dashboard 200 in 10.0s (compile: 36ms, proxy.ts: 9.5s, render: 460ms)
+○ Compiling /api/chat ...
+ GET /dashboard 200 in 1205ms (compile: 141ms, proxy.ts: 826ms, render: 239ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 16.0s (compile: 9.4s, render: 6.7s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 4.8s (compile: 14ms, render: 4.8s)
+ GET / 307 in 1667ms (compile: 454ms, render: 1213ms)
+ GET /dashboard 200 in 665ms (compile: 13ms, proxy.ts: 152ms, render: 501ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.4s (compile: 17ms, render: 6.4s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 4.0s (compile: 37ms, render: 3.9s)
+ GET /dashboard 200 in 1031ms (compile: 16ms, proxy.ts: 609ms, render: 406ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.0s (compile: 5ms, render: 6.0s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 3.8s (compile: 14ms, render: 3.8s)
+ GET /dashboard 200 in 1862ms (compile: 483ms, proxy.ts: 924ms, render: 455ms)
+ GET /dashboard 200 in 829ms (compile: 14ms, proxy.ts: 678ms, render: 137ms)
+ GET /dashboard 200 in 643ms (compile: 12ms, proxy.ts: 559ms, render: 72ms)
+ GET /dashboard 200 in 1351ms (compile: 9ms, proxy.ts: 784ms, render: 558ms)
+○ Compiling /api/chat ...
+ GET /dashboard 200 in 982ms (compile: 128ms, proxy.ts: 600ms, render: 255ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 11.4s (compile: 4.9s, render: 6.5s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 7.6s (compile: 12ms, render: 7.6s)
+ GET /dashboard/task?surface=customers 200 in 259ms (compile: 53ms, proxy.ts: 151ms, render: 55ms)
+○ Compiling /api/customers ...
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 6.0s (compile: 5.0s, render: 1014ms)
+ GET /dashboard/task?surface=customers 200 in 1012ms (compile: 136ms, proxy.ts: 570ms, render: 305ms)
+ GET /dashboard/task?surface=customers 200 in 1741ms (compile: 334ms, proxy.ts: 1082ms, render: 325ms)
+ GET /dashboard/task?surface=customers 200 in 724ms (compile: 11ms, proxy.ts: 584ms, render: 129ms)
+ GET /dashboard/task?surface=customers 200 in 708ms (compile: 10ms, proxy.ts: 601ms, render: 97ms)
+ GET /dashboard/task?surface=customers 200 in 746ms (compile: 21ms, proxy.ts: 558ms, render: 167ms)
+ GET /dashboard/task?surface=customers 200 in 740ms (compile: 11ms, proxy.ts: 638ms, render: 91ms)
+ GET /dashboard/task?surface=customers 200 in 708ms (compile: 12ms, proxy.ts: 543ms, render: 153ms)
+ GET /dashboard/task?surface=customers 200 in 889ms (compile: 12ms, proxy.ts: 770ms, render: 107ms)
+ GET /dashboard/task?surface=customers 200 in 261ms (compile: 15ms, proxy.ts: 149ms, render: 98ms)
+ GET /dashboard 200 in 871ms (compile: 45ms, proxy.ts: 777ms, render: 49ms)
+○ Compiling /api/chat ...
+ GET /dashboard 200 in 959ms (compile: 134ms, proxy.ts: 593ms, render: 231ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 11.6s (compile: 5.7s, render: 5.9s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 5.3s (compile: 19ms, render: 5.3s)
+ GET /dashboard/task?surface=customers 200 in 236ms (compile: 34ms, proxy.ts: 164ms, render: 38ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B%E5%95%8A 200 in 1909ms (compile: 1589ms, render: 320ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.0s (compile: 65ms, render: 5.9s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 5.2s (compile: 21ms, render: 5.2s)
+ GET /dashboard/task?surface=customers 200 in 297ms (compile: 87ms, proxy.ts: 149ms, render: 61ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 319ms (compile: 4ms, render: 314ms)
+ GET /dashboard/task?surface=customers 200 in 2.1s (compile: 369ms, proxy.ts: 1516ms, render: 241ms)
+ GET /dashboard/task?surface=customers 200 in 1483ms (compile: 10ms, proxy.ts: 1309ms, render: 164ms)
+ GET /dashboard/task?surface=customers 200 in 1795ms (compile: 20ms, proxy.ts: 1427ms, render: 348ms)
+ GET /dashboard/task?surface=customers 200 in 2.4s (compile: 11ms, proxy.ts: 2.3s, render: 110ms)
+ GET /dashboard/task?surface=customers 200 in 2.1s (compile: 12ms, proxy.ts: 2.0s, render: 118ms)
+ GET /dashboard/task?surface=customers 200 in 2.3s (compile: 9ms, proxy.ts: 2.2s, render: 90ms)
+○ Compiling /api/customers ...
+ GET /dashboard/task?surface=customers 200 in 12.5s (compile: 7.6s, proxy.ts: 4.5s, render: 440ms)
+ GET /dashboard/task?surface=customers 200 in 991ms (compile: 12ms, proxy.ts: 843ms, render: 136ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 13.7s (compile: 11.8s, render: 1876ms)
+ GET /dashboard/task?surface=customers 200 in 1574ms (compile: 235ms, proxy.ts: 1017ms, render: 322ms)
+ GET /dashboard/task?surface=customers 200 in 1790ms (compile: 25ms, proxy.ts: 1655ms, render: 111ms)
+ GET /dashboard/task?surface=customers 200 in 458ms (compile: 9ms, proxy.ts: 345ms, render: 105ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 7.4s (compile: 3.4s, render: 4.0s)
+ GET /dashboard/task?surface=customers 200 in 4.6s (compile: 247ms, proxy.ts: 3.9s, render: 520ms)
+ GET /dashboard/task?surface=customers 200 in 1649ms (compile: 105ms, proxy.ts: 1397ms, render: 147ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 4.0s (compile: 2.1s, render: 1891ms)
+ GET /dashboard/task?surface=customers 200 in 1189ms (compile: 119ms, proxy.ts: 904ms, render: 167ms)
+ GET /dashboard/task?surface=customers 200 in 3.1s (compile: 9ms, proxy.ts: 3.0s, render: 98ms)
+ GET /dashboard/task?surface=customers 200 in 651ms (compile: 10ms, proxy.ts: 559ms, render: 83ms)
+ GET /dashboard 200 in 1459ms (compile: 34ms, proxy.ts: 1372ms, render: 54ms)
+○ Compiling /api/chat ...
+ GET /dashboard 200 in 1620ms (compile: 155ms, proxy.ts: 1235ms, render: 231ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 13.4s (compile: 5.0s, render: 8.4s)
+ GET /dashboard 200 in 1457ms (compile: 10ms, proxy.ts: 1376ms, render: 71ms)
+ GET /dashboard 200 in 3.9s (compile: 474ms, proxy.ts: 3.0s, render: 439ms)
+ GET /dashboard 200 in 305ms (compile: 10ms, proxy.ts: 169ms, render: 125ms)
+ GET /dashboard 200 in 8.0s (compile: 186ms, proxy.ts: 7.6s, render: 247ms)
+ GET /dashboard 200 in 1383ms (compile: 106ms, proxy.ts: 1035ms, render: 242ms)
+ GET /dashboard 200 in 393ms (compile: 13ms, proxy.ts: 300ms, render: 79ms)
+ GET /dashboard 200 in 2.3s (compile: 92ms, proxy.ts: 1986ms, render: 175ms)
+ GET /dashboard 200 in 2.5s (compile: 82ms, proxy.ts: 2.3s, render: 167ms)
+ GET /dashboard 200 in 939ms (compile: 90ms, proxy.ts: 678ms, render: 171ms)
+ GET /dashboard 200 in 1949ms (compile: 89ms, proxy.ts: 1686ms, render: 175ms)
+ GET /dashboard 200 in 2.4s (compile: 8ms, proxy.ts: 2.3s, render: 70ms)
+ GET /dashboard 200 in 3.2s (compile: 15ms, proxy.ts: 2.2s, render: 917ms)
+○ Compiling /api/chat ...
+ GET /dashboard 200 in 1439ms (compile: 151ms, proxy.ts: 1015ms, render: 272ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 19.5s (compile: 9.5s, render: 10.0s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 10.3s (compile: 38ms, render: 10.3s)
+ GET /dashboard/task?surface=customers 200 in 1106ms (compile: 70ms, proxy.ts: 944ms, render: 92ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 1860ms (compile: 1484ms, render: 376ms)
+ GET /dashboard/task?surface=customers 200 in 6.3s (compile: 107ms, proxy.ts: 5.7s, render: 509ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 6.1s (compile: 2.2s, render: 3.9s)
+ GET /dashboard/task?surface=customers 200 in 2.9s (compile: 138ms, proxy.ts: 2.2s, render: 599ms)
+ GET /dashboard/task?surface=customers 200 in 1991ms (compile: 100ms, proxy.ts: 1454ms, render: 437ms)
+ GET /dashboard/task?surface=customers 200 in 7.2s (compile: 2.9s, proxy.ts: 3.3s, render: 1011ms)
+ GET /dashboard/task?surface=customers 200 in 2.3s (compile: 95ms, proxy.ts: 2.0s, render: 162ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 4.4s (compile: 1701ms, render: 2.7s)
+⨯ ./src/components/customers/customer-crm-panel.tsx
+Error:   x Unterminated regexp literal
+     ,-[c:\Users\郑理\.codebuddy\保险代理人助手\insurance-agent-assistant\src\components\customers\customer-crm-panel.tsx:585:1]
+ 582 | 
+ 583 | 
+ 584 |           </div>
+ 585 |         </div>
+     :          ^^^^^
+ 586 | 
+ 587 |         {!assistantMode && (
+ 587 |           <div className="space-y-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/customers/customer-crm-panel.tsx
+./src/components/dashboard/assistant-task-shell.tsx
+ GET /dashboard/task?surface=customers 200 in 2.5s (compile: 101ms, proxy.ts: 2.2s, render: 188ms)
+ GET /dashboard/task?surface=customers 200 in 1958ms (compile: 11ms, proxy.ts: 1877ms, render: 71ms)
+ GET /dashboard 200 in 672ms (compile: 29ms, proxy.ts: 585ms, render: 58ms)
+○ Compiling /api/chat ...
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 12.5s (compile: 6.4s, render: 6.0s)
+ GET /dashboard 200 in 1966ms (compile: 123ms, proxy.ts: 1226ms, render: 617ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 5.6s (compile: 23ms, render: 5.6s)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 6.0s (compile: 13ms, render: 5.9s)
+ GET /dashboard/task?surface=customers 200 in 287ms (compile: 45ms, proxy.ts: 198ms, render: 44ms)
+○ Compiling /api/customers ...
+ GET /dashboard/task?surface=customers 200 in 1023ms (compile: 90ms, proxy.ts: 667ms, render: 266ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 5.1s (compile: 3.7s, render: 1339ms)
+ PATCH /api/customers 200 in 1043ms (compile: 18ms, render: 1025ms)
+ GET /api/customers?search=%E5%88%98%E6%B6%9B 200 in 270ms (compile: 19ms, render: 250ms)
+ GET /dashboard/task?surface=visit 200 in 1244ms (compile: 13ms, proxy.ts: 1186ms, render: 44ms)
+ GET /api/customers 200 in 1158ms (compile: 5ms, render: 1153ms)
+○ Compiling /api/visits ...
+ GET /api/visits 200 in 5.4s (compile: 5.0s, render: 323ms)
+ GET /dashboard/task?surface=visit 200 in 3.2s (compile: 238ms, proxy.ts: 1979ms, render: 1024ms)
+ GET /api/customers 200 in 826ms (compile: 72ms, render: 753ms)
+ GET /api/visits 200 in 828ms (compile: 66ms, render: 762ms)
+ GET /dashboard/task?surface=visit 200 in 3.4s (compile: 26ms, proxy.ts: 2.9s, render: 550ms)
+ GET /dashboard/task?surface=visit 200 in 1987ms (compile: 173ms, proxy.ts: 1447ms, render: 367ms)
+ GET /dashboard/task?surface=visit 200 in 408ms (compile: 11ms, proxy.ts: 232ms, render: 166ms)
+ GET /dashboard/task?surface=visit 200 in 1952ms (compile: 423ms, proxy.ts: 1162ms, render: 366ms)
+ GET /dashboard/task?surface=visit 200 in 1144ms (compile: 11ms, proxy.ts: 997ms, render: 136ms)
+ GET /dashboard/task?surface=visit 200 in 243ms (compile: 8ms, proxy.ts: 149ms, render: 87ms)
+ GET /dashboard/task?surface=visit 200 in 5.9s (compile: 4.3s, proxy.ts: 1307ms, render: 312ms)
+ GET /dashboard/task?surface=visit 200 in 771ms (compile: 7ms, proxy.ts: 648ms, render: 116ms)
+ GET /dashboard/task?surface=visit 200 in 274ms (compile: 8ms, proxy.ts: 157ms, render: 108ms)
+ GET /dashboard/task?surface=visit 200 in 236ms (compile: 8ms, proxy.ts: 149ms, render: 79ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /dashboard/task?surface=visit 200 in 1396ms (compile: 192ms, proxy.ts: 719ms, render: 485ms)
+ GET /dashboard/task?surface=visit 200 in 1652ms (compile: 194ms, proxy.ts: 617ms, render: 841ms)
+ GET /dashboard/task?surface=visit 200 in 922ms (compile: 92ms, proxy.ts: 649ms, render: 181ms)
+ GET /dashboard/task?surface=visit 200 in 981ms (compile: 146ms, proxy.ts: 621ms, render: 214ms)
+ GET /dashboard/task?surface=visit 200 in 828ms (compile: 96ms, proxy.ts: 571ms, render: 161ms)
+ GET /dashboard/task?surface=visit 200 in 1137ms (compile: 193ms, proxy.ts: 697ms, render: 247ms)
+ GET /dashboard/task?surface=visit 200 in 858ms (compile: 8ms, proxy.ts: 782ms, render: 68ms)
+ GET /dashboard/task?surface=visit 200 in 1028ms (compile: 185ms, proxy.ts: 568ms, render: 276ms)
+ GET /dashboard/task?surface=visit 200 in 694ms (compile: 11ms, proxy.ts: 599ms, render: 85ms)
+○ Compiling /api/visits ...
+ GET /api/visits 200 in 10.0s (compile: 8.7s, render: 1317ms)
+ GET /api/customers 200 in 10.0s (compile: 8.7s, render: 1350ms)
+ GET /dashboard/task?surface=visit 200 in 6.0s (compile: 248ms, proxy.ts: 4.1s, render: 1634ms)
+ GET /api/customers 200 in 825ms (compile: 32ms, render: 793ms)
+ GET /api/visits 200 in 910ms (compile: 68ms, render: 842ms)
+ GET /dashboard 200 in 997ms (compile: 86ms, proxy.ts: 572ms, render: 339ms)
+ GET /dashboard 200 in 1136ms (compile: 12ms, proxy.ts: 1036ms, render: 88ms)
+○ Compiling /api/chat ...
+ GET /dashboard 200 in 1059ms (compile: 122ms, proxy.ts: 616ms, render: 322ms)
+[assistant-understanding] DeepSeek 调用失败，已回退本地规则。 DeepSeek 返回结构不合法：[
+  {
+    "code": "invalid_value",
+    "values": [
+      "visit",
+      "activities",
+      "customers",
+      "tasks",
+      "unknown"
+    ],
+    "path": [
+      "suggestedSurface"
+    ],
+    "message": "Invalid option: expected one of \"visit\"|\"activities\"|\"customers\"|\"tasks\"|\"unknown\""
+  }
+]
+ POST /api/chat 200 in 11.1s (compile: 4.5s, render: 6.6s)
+ GET /dashboard/task?surface=customers 200 in 758ms (compile: 72ms, proxy.ts: 608ms, render: 78ms)
+ GET /api/customers?search=%E7%8E%8B%E6%95%8F 200 in 1922ms (compile: 1258ms, render: 664ms)
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND cysjmjxvwpcxmpfyvmoh.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'cysjmjxvwpcxmpfyvmoh.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND cysjmjxvwpcxmpfyvmoh.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'cysjmjxvwpcxmpfyvmoh.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND cysjmjxvwpcxmpfyvmoh.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'cysjmjxvwpcxmpfyvmoh.supabase.co'
+  }
+}
+ GET /login?surface=customers&message=%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95%E5%90%8E%E5%86%8D%E8%AE%BF%E9%97%AE%E5%B7%A5%E4%BD%9C%E5%8F%B0%E3%80%82 200 in 742ms (compile: 125ms, proxy.ts: 44ms, render: 572ms)

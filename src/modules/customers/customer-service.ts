@@ -5,10 +5,12 @@ import {
   createCustomerRepository,
   deleteCustomerRepository,
   findCustomerSnapshotsByNameRepository,
+  findCustomerSnapshotsByNicknameRepository,
   listCustomerSnapshotsByIdsRepository,
   listCustomersRepository,
   updateCustomerRepository,
 } from "@/lib/repositories/customer-repository";
+
 import { customerCreateSchema, customerUpdateSchema } from "@/lib/validation/customer";
 import type { CustomerSnapshot } from "@/types/customer";
 
@@ -77,7 +79,9 @@ export async function createCustomerService(supabase: SupabaseClient, ownerId: s
     source: toNullableText(parsed.data.source),
     nickname: toNullableText(parsed.data.nickname),
     recent_money: toNullableText(parsed.data.recentMoney),
+    remark: toNullableText(parsed.data.remark),
   });
+
 
   return {
     status: error ? customerErrorStatus(error) : 200,
@@ -106,7 +110,9 @@ export async function updateCustomerService(supabase: SupabaseClient, ownerId: s
     source: fields.source !== undefined ? toNullableText(fields.source) : undefined,
     nickname: fields.nickname !== undefined ? toNullableText(fields.nickname) : undefined,
     recent_money: fields.recentMoney !== undefined ? toNullableText(fields.recentMoney) : undefined,
+    remark: fields.remark !== undefined ? toNullableText(fields.remark) : undefined,
   });
+
 
   const { data, error } = await updateCustomerRepository(supabase, fields.id, ownerId, updates);
   return {
@@ -224,23 +230,65 @@ export async function resolveCustomerSnapshotService(
   }
 
   const name = payload.name?.trim() ?? "";
-  if (!name) {
+  const nickName = payload.nickName?.trim() ?? "";
+
+  if (!name && !nickName) {
     return { data: null, error: customerResolutionError("缺少客户标识", "CUSTOMER_IDENTIFIER_MISSING") };
+  }
+
+  if (!name && nickName) {
+    const { data, error } = await findCustomerSnapshotsByNicknameRepository(supabase, ownerId, nickName);
+    if (error) {
+      return { data: null, error: customerResolutionError(error.message, "CUSTOMER_LOOKUP_FAILED") };
+    }
+
+    const nicknameMatches = data ?? [];
+    if (nicknameMatches.length === 0) {
+      return { data: null, error: customerResolutionError(`当前还没有查到昵称“${nickName}”的已保存客户档案`, "CUSTOMER_NOT_FOUND") };
+    }
+
+    if (nicknameMatches.length > 1) {
+      return { data: null, error: customerResolutionError(`昵称“${nickName}”命中了多位客户，请补一句姓名、来源或职业，我再继续核对。`, "CUSTOMER_AMBIGUOUS") };
+    }
+
+    return { data: nicknameMatches[0], error: null };
   }
 
   const { data, error } = await findCustomerSnapshotsByNameRepository(supabase, ownerId, name, payload.nickName);
   if (error) {
-    return { data: null, error: customerResolutionError(error.message, "CUSTOMER_LOOKUP_FAILED") };
+    return { data: null, candidate: null, error: customerResolutionError(error.message, "CUSTOMER_LOOKUP_FAILED") };
   }
 
   const matches = data ?? [];
+  if (matches.length === 0 && payload.nickName?.trim()) {
+    const fallbackByName = await findCustomerSnapshotsByNameRepository(supabase, ownerId, name);
+    if (fallbackByName.error) {
+      return { data: null, candidate: null, error: customerResolutionError(fallbackByName.error.message, "CUSTOMER_LOOKUP_FAILED") };
+    }
+
+    const fallbackMatches = fallbackByName.data ?? [];
+    if (fallbackMatches.length === 1) {
+      return {
+        data: null,
+        candidate: fallbackMatches[0],
+        error: customerResolutionError(`已查到姓名为“${name}”的客户档案，但昵称与当前补充信息不完全一致，请先确认是否为同一位客户`, "CUSTOMER_MISMATCH"),
+      };
+    }
+
+    if (fallbackMatches.length > 1) {
+      return { data: null, candidate: null, error: customerResolutionError(`客户“${name}”存在多条档案，请补充客户来源、职业或更明确的身份信息后再继续核对`, "CUSTOMER_AMBIGUOUS") };
+    }
+  }
+
   if (matches.length === 0) {
-    return { data: null, error: customerResolutionError("涉及的客户必须先保存在客户基础信息表中", "CUSTOMER_NOT_FOUND") };
+    return { data: null, candidate: null, error: customerResolutionError("涉及的客户必须先保存在客户基础信息表中", "CUSTOMER_NOT_FOUND") };
   }
 
   if (matches.length > 1) {
-    return { data: null, error: customerResolutionError(`客户“${name}”存在多条档案，请补充客户昵称后再保存记录`, "CUSTOMER_AMBIGUOUS") };
+    return { data: null, candidate: null, error: customerResolutionError(`客户“${name}”存在多条档案，请补充客户昵称后再保存记录`, "CUSTOMER_AMBIGUOUS") };
   }
 
-  return { data: matches[0], error: null };
+  return { data: matches[0], candidate: null, error: null };
 }
+
+

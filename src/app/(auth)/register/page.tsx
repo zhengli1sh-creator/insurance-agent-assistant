@@ -60,9 +60,10 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
                 <Label htmlFor="region">服务城市</Label>
                 <Input id="region" name="region" placeholder="例如：上海 / 杭州" className="h-12 rounded-2xl border-slate-200/80 bg-white" />
               </div>
-              <Button className="h-12 cursor-pointer rounded-2xl bg-gradient-to-r from-[#1E3A8A] via-[#285DA8] to-[#B8894A] text-white shadow-lg shadow-[#1E3A8A]/25 hover:opacity-95 md:col-span-2">
+              <Button type="submit" className="h-12 cursor-pointer rounded-2xl bg-gradient-to-r from-[#1E3A8A] via-[#285DA8] to-[#B8894A] text-white shadow-lg shadow-[#1E3A8A]/25 hover:opacity-95 md:col-span-2">
                 创建账户并开始使用
               </Button>
+
 
             </form>
             <p className="text-sm text-slate-500">

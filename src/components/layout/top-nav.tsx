@@ -1,4 +1,4 @@
-import { BellRing, Compass, LogOut, Sparkles } from "lucide-react";
+import { LogOut, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/features/auth/actions";
@@ -24,14 +24,6 @@ export function TopNav() {
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
-          <div className="hidden items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-4 py-2 text-sm text-slate-600 lg:flex">
-            <Compass className="h-4 w-4 text-[#1E3A8A]" />
-            今天的重点客户与待办已准备好
-          </div>
-
-          <button type="button" className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-slate-200/70 bg-white/80 text-slate-700 transition hover:-translate-y-0.5 hover:border-[#B8894A]/60 hover:text-[#1E3A8A] md:h-11 md:w-11">
-            <BellRing className="h-4 w-4" />
-          </button>
           <div className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-1.5 py-1.5 shadow-sm md:gap-3 md:px-2 md:py-2">
             <Avatar className="h-8 w-8 border border-white md:h-9 md:w-9">
               <AvatarFallback className="bg-gradient-to-br from-[#1E3A8A] to-[#B8894A] text-white">林</AvatarFallback>

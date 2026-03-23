@@ -63,9 +63,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 <Label htmlFor="password">登录密码</Label>
                 <Input id="password" name="password" type="password" placeholder="请输入你的安全登录密码" className="h-12 rounded-2xl border-slate-200/80 bg-white" />
               </div>
-              <Button className="h-12 w-full cursor-pointer rounded-2xl bg-gradient-to-r from-[#1E3A8A] via-[#285DA8] to-[#B8894A] text-white shadow-lg shadow-[#1E3A8A]/25 hover:opacity-95">
+              <Button type="submit" className="h-12 w-full cursor-pointer rounded-2xl bg-gradient-to-r from-[#1E3A8A] via-[#285DA8] to-[#B8894A] text-white shadow-lg shadow-[#1E3A8A]/25 hover:opacity-95">
                 安全登录
               </Button>
+
             </form>
             <p className="text-sm text-slate-500">
               还没有账号？

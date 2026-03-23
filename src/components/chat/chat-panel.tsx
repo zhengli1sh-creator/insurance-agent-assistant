@@ -57,9 +57,16 @@ export function ChatPanel({
 }: ChatPanelProps = {}) {
   const [messages, setMessages] = useState<AgentMessage[]>(customInitialMessages ?? initialMessages);
   const [draft, setDraft] = useState(initialDraft);
+  const [pendingContinuationContext, setPendingContinuationContext] = useState("");
   const [sending, setSending] = useState(false);
+  const [forceShowInput, setForceShowInput] = useState(false);
   const hasHeaderText = Boolean(title || description);
   const hasMessages = messages.length > 0;
+
+  const latestMessage = messages[messages.length - 1];
+  const hasDraftAction = latestMessage?.role === "assistant" && latestMessage.preview?.actions?.some((a) => a.draft !== undefined);
+  const showInputArea = !hasDraftAction || forceShowInput;
+
 
 
   function appendAssistant(data: ChatResponse) {
@@ -75,11 +82,19 @@ export function ChatPanel({
     setMessages((current) => [...current, assistantMessage]);
   }
 
-  function sendMessage(content: string) {
+  function sendMessage(content: string, continuationContextOverride?: string | null) {
     const value = content.trim();
     if (!value || sending) {
       return;
     }
+
+    const activeContinuationContext = continuationContextOverride === undefined
+      ? pendingContinuationContext
+      : continuationContextOverride || "";
+    const requestMessage = activeContinuationContext
+      ? `${activeContinuationContext} 用户补充：${value}`
+      : value;
+
 
     const userMessage: AgentMessage = {
       id: crypto.randomUUID(),
@@ -91,9 +106,11 @@ export function ChatPanel({
 
     setMessages((current) => [...current, userMessage]);
     setDraft("");
+    setPendingContinuationContext("");
+    setForceShowInput(false);
     setSending(true);
 
-    requestChatAssistant(value, mode)
+    requestChatAssistant(requestMessage, mode)
       .then(({ ok, data }) => {
         if (data.workflow) {
           onWorkflowChange?.(data.workflow);
@@ -107,6 +124,7 @@ export function ChatPanel({
       })
       .finally(() => setSending(false));
   }
+
 
   return (
     <Card
@@ -146,7 +164,12 @@ export function ChatPanel({
               <button
                 key={actionLabel}
                 type="button"
-                onClick={() => sendMessage(actionPrompt)}
+                onClick={() => {
+                  setPendingContinuationContext("");
+                  sendMessage(actionPrompt, null);
+                }}
+
+
                 className="cursor-pointer rounded-full border border-slate-200/80 bg-white/80 px-3 py-1.5 text-[13px] text-slate-600 transition hover:-translate-y-0.5 hover:border-[#1E3A8A]/30 hover:text-[#1E3A8A] sm:px-4 sm:py-2 sm:text-sm"
               >
                 {actionLabel}
@@ -192,6 +215,44 @@ export function ChatPanel({
                               </li>
                             ))}
                           </ul>
+                          {message.preview.actions && message.preview.actions.length > 0 && (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {message.preview.actions.map((action) => (
+                                <Button
+                                  key={action.label}
+                                  type="button"
+                                  variant={action.variant === "secondary" ? "outline" : "default"}
+                                  onClick={() => {
+                                    if (action.workflow) {
+                                      setPendingContinuationContext("");
+                                      onWorkflowChange?.(action.workflow);
+                                      return;
+                                    }
+
+                                    if (action.command) {
+                                      setPendingContinuationContext("");
+                                      sendMessage(action.command, action.continuationContext ?? null);
+                                      return;
+                                    }
+
+
+                                    if (action.draft !== undefined) {
+                                      setPendingContinuationContext(action.continuationContext ?? "");
+                                      setDraft(action.draft);
+                                      setForceShowInput(true);
+                                    }
+                                  }}
+
+                                  className={action.variant === "secondary"
+                                    ? "cursor-pointer rounded-full border-slate-300 bg-transparent"
+                                    : "cursor-pointer rounded-full bg-[#1E3A8A] text-white hover:bg-[#17306F]"
+                                  }
+                                >
+                                  {action.label}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
                           {message.preview.requiresConfirmation && (
                             <div className="mt-4 flex gap-2">
                               <Button
@@ -213,6 +274,7 @@ export function ChatPanel({
                           )}
                         </div>
                       )}
+
                     </div>
                   </div>
                 );
@@ -221,29 +283,31 @@ export function ChatPanel({
           </ScrollArea>
         ) : null}
 
-        <div className="rounded-[28px] border border-slate-200/70 bg-white/90 p-4 shadow-sm">
-          {promptHint ? (
-            <div className="mb-3 flex items-center gap-2 text-sm text-slate-500">
-              <Sparkles className="h-4 w-4 text-[#B8894A]" />
-              {promptHint}
+        {showInputArea && (
+          <div className="rounded-[28px] border border-slate-200/70 bg-white/90 p-4 shadow-sm">
+            {promptHint ? (
+              <div className="mb-3 flex items-center gap-2 text-sm text-slate-500">
+                <Sparkles className="h-4 w-4 text-[#B8894A]" />
+                {promptHint}
+              </div>
+            ) : null}
+
+            <Textarea
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              className="min-h-24 rounded-3xl border-0 bg-slate-50/80 px-4 py-3 text-sm leading-6 shadow-none focus-visible:ring-2 focus-visible:ring-[#1E3A8A]/30 sm:min-h-28 sm:leading-7"
+              placeholder={placeholder}
+            />
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-5 text-slate-500">{mode === "workflow" ? "我会先理解你的目标，再带你进入合适的内容。" : "需要确认的操作会先提醒你，不会直接改动客户资料。"}</p>
+
+              <Button type="button" disabled={sending} onClick={() => sendMessage(draft)} className="cursor-pointer rounded-full bg-gradient-to-r from-[#1E3A8A] via-[#285DA8] to-[#B8894A] px-5 text-white shadow-lg shadow-[#1E3A8A]/25 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70">
+                {sending ? sendingLabel : submitLabel}
+                <SendHorizonal className="h-4 w-4" />
+              </Button>
             </div>
-          ) : null}
-
-          <Textarea
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            className="min-h-24 rounded-3xl border-0 bg-slate-50/80 px-4 py-3 text-sm leading-6 shadow-none focus-visible:ring-2 focus-visible:ring-[#1E3A8A]/30 sm:min-h-28 sm:leading-7"
-            placeholder={placeholder}
-          />
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs leading-5 text-slate-500">{mode === "workflow" ? "我会先理解你的目标，再带你进入合适的内容。" : "需要确认的操作会先提醒你，不会直接改动客户资料。"}</p>
-
-            <Button type="button" disabled={sending} onClick={() => sendMessage(draft)} className="cursor-pointer rounded-full bg-gradient-to-r from-[#1E3A8A] via-[#285DA8] to-[#B8894A] px-5 text-white shadow-lg shadow-[#1E3A8A]/25 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70">
-              {sending ? sendingLabel : submitLabel}
-              <SendHorizonal className="h-4 w-4" />
-            </Button>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

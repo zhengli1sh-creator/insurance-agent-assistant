@@ -12,7 +12,9 @@ const customerFieldsSchema = z.object({
   source: z.string().trim().optional().default(""),
   nickname: z.string().trim().optional().default(""),
   recentMoney: z.string().trim().optional().default(""),
+  remark: z.string().trim().optional().default(""),
 });
+
 
 export const customerCreateSchema = customerFieldsSchema;
 

@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Textarea } from "@/components/ui/textarea";
 import { ApiRequestError, fetchJson } from "@/lib/crm-api";
 import { customers as demoCustomers, records as demoRecords } from "@/lib/demo-data";
+import type { VisitDraftExtraction } from "@/modules/visits/visit-draft-extractor";
 import type { VisitWorkflowDraftSeed } from "@/types/agent";
 import type { CustomerRecord } from "@/types/customer";
 import type { VisitRecordEntity } from "@/types/visit";
@@ -103,6 +104,10 @@ export function VisitManager({
 
   const [customerForm, setCustomerForm] = useState<CustomerProfileFormValue>({ ...emptyCustomerProfileForm });
   const [resumeContext, setResumeContext] = useState<ResumeContext | null>(null);
+
+  const [assistantDetailInput, setAssistantDetailInput] = useState("");
+  const [assistantReviewPrompt, setAssistantReviewPrompt] = useState("");
+  const [highlightedFields, setHighlightedFields] = useState<string[]>([]);
 
   const customersQuery = useQuery({ queryKey: ["customers-options"], queryFn: () => fetchJson<CustomerRecord[]>("/api/customers") });
   const visitsQuery = useQuery({ queryKey: ["visits-crm"], queryFn: () => fetchJson<VisitRecordEntity[]>("/api/visits") });
@@ -256,6 +261,56 @@ export function VisitManager({
     onError: (error) => setFeedback(error.message),
   });
 
+  const extractMutation = useMutation({
+    mutationFn: (message: string) =>
+      fetchJson<{ fields: VisitDraftExtraction; extractedFields: Array<{ label: string; value: string }>; message: string }>("/api/visits/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      }),
+    onSuccess: (data) => {
+      const extractedFieldKeys: string[] = [];
+
+      if (data.fields.timeVisit) {
+        patchForm({ timeVisit: data.fields.timeVisit });
+        extractedFieldKeys.push("timeVisit");
+      }
+      if (data.fields.location) {
+        patchForm({ location: data.fields.location });
+        extractedFieldKeys.push("location");
+      }
+      if (data.fields.methodCommunicate) {
+        patchForm({ methodCommunicate: data.fields.methodCommunicate });
+        extractedFieldKeys.push("methodCommunicate");
+      }
+      if (data.fields.corePain) {
+        patchForm({ corePain: data.fields.corePain });
+        extractedFieldKeys.push("corePain");
+      }
+      if (data.fields.briefContent) {
+        patchForm({ briefContent: data.fields.briefContent });
+        extractedFieldKeys.push("briefContent");
+      }
+      if (data.fields.followWork) {
+        patchForm({ followWork: data.fields.followWork });
+        extractedFieldKeys.push("followWork");
+      }
+
+      setHighlightedFields(extractedFieldKeys);
+
+      if (extractedFieldKeys.length > 0) {
+        setAssistantDetailInput("");
+        setAssistantReviewPrompt("已根据你的补充更新拜访信息，请核对绿色标记项；如还需补充，可继续输入。");
+      } else {
+        setAssistantReviewPrompt(data.message);
+      }
+    },
+    onError: (error) => {
+      setAssistantReviewPrompt("");
+      setFeedback(error.message);
+    },
+  });
+
   function patchForm(patch: Partial<VisitFormState>) {
     setForm((current) => ({ ...current, ...patch }));
   }
@@ -309,6 +364,9 @@ export function VisitManager({
     setForm({ ...emptyForm });
     setResumeContext(null);
     setFeedback("");
+    setAssistantDetailInput("");
+    setAssistantReviewPrompt("");
+    setHighlightedFields([]);
   }
 
   function openCustomerSheetFromVisit() {
@@ -413,28 +471,116 @@ export function VisitManager({
               </div>
             </div>
 
-            <div className={embedded ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>
-              <Input value={form.timeVisit} onChange={(event) => patchForm({ timeVisit: event.target.value })} type="date" className="h-11 rounded-2xl border-white bg-white" />
-              <Input value={form.location} onChange={(event) => patchForm({ location: event.target.value })} placeholder="地点" className="h-11 rounded-2xl border-white bg-white" />
-            </div>
-            <Input value={form.methodCommunicate} onChange={(event) => patchForm({ methodCommunicate: event.target.value })} placeholder="沟通方式，例如：面谈、电话、微信" className="h-11 rounded-2xl border-white bg-white" />
-            <Textarea value={form.corePain} onChange={(event) => patchForm({ corePain: event.target.value })} placeholder="客户当下最在意的问题 / 核心痛点" className="min-h-24 rounded-[24px] border-white bg-white" />
-            <Textarea value={form.briefContent} onChange={(event) => patchForm({ briefContent: event.target.value })} placeholder="把这次沟通的关键信息沉淀下来" className="min-h-28 rounded-[24px] border-white bg-white" />
-            <Textarea value={form.followWork} onChange={(event) => patchForm({ followWork: event.target.value })} placeholder="后续动作，可用换行或分号分隔" className="min-h-24 rounded-[24px] border-white bg-white" />
-            <div className="flex flex-wrap gap-3">
-              <Button onClick={submitVisit} disabled={saveMutation.isPending || createCustomerMutation.isPending} className={`cursor-pointer rounded-full text-white ${embedded ? "bg-[#123B5D] hover:bg-[#0E2E49]" : "bg-[#1E3A8A] hover:bg-[#17306F]"}`}>
-                {saveMutation.isPending ? "正在保存" : editingId ? "保存修改" : embedded ? source === "assistant-task" ? "保存并返回" : "保存这次拜访" : "保存记录"}
-              </Button>
+            {assistantTaskMode ? (
+              <div className="space-y-5">
+                <div className="rounded-[26px] border border-white/85 bg-white/96 p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+                  {assistantReviewPrompt && (
+                    <div className="mb-5 rounded-[24px] border border-[#0F766E]/16 bg-[#F3FBF8] p-4 text-sm leading-6 text-slate-700">
+                      <p className="font-medium text-slate-900">助手已整理到拜访信息</p>
+                      <p className="mt-2">{assistantReviewPrompt}</p>
+                    </div>
+                  )}
 
-              <Button variant="outline" onClick={resetForm} className="cursor-pointer rounded-full border-slate-300 bg-transparent">清空</Button>
-              {embedded && (
-                <Link href={expandHref} className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:border-[#123B5D]/30 hover:text-[#123B5D]">
-                  {assistantTaskMode ? "查看全部记录" : "进入记录中心"}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              )}
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                    <div>
+                      <p className="text-xs font-semibold tracking-[0.18em] text-slate-500 uppercase">拜访信息</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-500">请核对已填入内容，绿色字段为助手整理或更新。</p>
+                    </div>
+                    <span className="rounded-full border border-[#0F766E]/14 bg-[#F3FBF8] px-3 py-1 text-xs font-medium text-[#0F766E]">
+                      已填信息区
+                    </span>
+                  </div>
 
-            </div>
+                  <div className="space-y-4">
+                    <div className={highlightedFields.includes("timeVisit") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                      <p className="mb-2 text-sm font-medium text-slate-700">拜访日期</p>
+                      <Input value={form.timeVisit} onChange={(event) => patchForm({ timeVisit: event.target.value })} type="date" className="h-11 rounded-2xl border-white bg-white" />
+                    </div>
+
+                    <div className={highlightedFields.includes("location") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                      <p className="mb-2 text-sm font-medium text-slate-700">地点</p>
+                      <Input value={form.location} onChange={(event) => patchForm({ location: event.target.value })} placeholder="请输入拜访地点" className="h-11 rounded-2xl border-white bg-white" />
+                    </div>
+
+                    <div className={highlightedFields.includes("methodCommunicate") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                      <p className="mb-2 text-sm font-medium text-slate-700">沟通方式</p>
+                      <Input value={form.methodCommunicate} onChange={(event) => patchForm({ methodCommunicate: event.target.value })} placeholder="例如：面谈、电话、微信" className="h-11 rounded-2xl border-white bg-white" />
+                    </div>
+
+                    <div className={highlightedFields.includes("corePain") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                      <p className="mb-2 text-sm font-medium text-slate-700">客户当下最在意的问题 / 核心痛点</p>
+                      <Textarea value={form.corePain} onChange={(event) => patchForm({ corePain: event.target.value })} placeholder="请描述客户当前最关注的问题" className="min-h-24 rounded-[24px] border-white bg-white" />
+                    </div>
+
+                    <div className={highlightedFields.includes("briefContent") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                      <p className="mb-2 text-sm font-medium text-slate-700">沟通关键信息</p>
+                      <Textarea value={form.briefContent} onChange={(event) => patchForm({ briefContent: event.target.value })} placeholder="把这次沟通的关键信息沉淀下来" className="min-h-28 rounded-[24px] border-white bg-white" />
+                    </div>
+
+                    <div className={highlightedFields.includes("followWork") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                      <p className="mb-2 text-sm font-medium text-slate-700">后续动作</p>
+                      <Textarea value={form.followWork} onChange={(event) => patchForm({ followWork: event.target.value })} placeholder="后续需要跟进的事项，可用换行或分号分隔" className="min-h-24 rounded-[24px] border-white bg-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[26px] border border-[#0F766E]/16 bg-[linear-gradient(180deg,rgba(238,247,245,0.95)_0%,rgba(248,252,251,0.98)_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold tracking-[0.18em] text-[#0F766E] uppercase">继续补充</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-700">核对完上方已填入信息后，如需补充和修改，可以在下面输入框中输入</p>
+                    </div>
+                  </div>
+                  <Textarea
+                    value={assistantDetailInput}
+                    onChange={(event) => {
+                      setAssistantDetailInput(event.target.value);
+                      if (assistantReviewPrompt) {
+                        setAssistantReviewPrompt("");
+                      }
+                    }}
+                    disabled={extractMutation.isPending || saveMutation.isPending}
+                    className="mt-4 min-h-24 rounded-[24px] border-white/80 bg-white shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+                    placeholder="例如：今天3月15日在客户公司面谈，客户主要想了解教育金规划，后续需要跟进方案..."
+                  />
+
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Button
+                      type="button"
+                      onClick={() => extractMutation.mutate(assistantDetailInput.trim())}
+                      disabled={!assistantDetailInput.trim() || extractMutation.isPending || saveMutation.isPending}
+                      className="cursor-pointer rounded-full bg-[#0F766E] text-white hover:bg-[#0B5F59]"
+                    >
+                      {extractMutation.isPending ? "正在整理" : "交给助手"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-3 border-t border-slate-200/70 pt-4">
+                  <Button onClick={submitVisit} disabled={saveMutation.isPending || createCustomerMutation.isPending} className="cursor-pointer rounded-full bg-[#123B5D] text-white hover:bg-[#0E2E49]">
+                    {saveMutation.isPending ? "正在保存" : "保存并返回"}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className={embedded ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>
+                  <Input value={form.timeVisit} onChange={(event) => patchForm({ timeVisit: event.target.value })} type="date" className="h-11 rounded-2xl border-white bg-white" />
+                  <Input value={form.location} onChange={(event) => patchForm({ location: event.target.value })} placeholder="地点" className="h-11 rounded-2xl border-white bg-white" />
+                </div>
+                <Input value={form.methodCommunicate} onChange={(event) => patchForm({ methodCommunicate: event.target.value })} placeholder="沟通方式，例如：面谈、电话、微信" className="h-11 rounded-2xl border-white bg-white" />
+                <Textarea value={form.corePain} onChange={(event) => patchForm({ corePain: event.target.value })} placeholder="客户当下最在意的问题 / 核心痛点" className="min-h-24 rounded-[24px] border-white bg-white" />
+                <Textarea value={form.briefContent} onChange={(event) => patchForm({ briefContent: event.target.value })} placeholder="把这次沟通的关键信息沉淀下来" className="min-h-28 rounded-[24px] border-white bg-white" />
+                <Textarea value={form.followWork} onChange={(event) => patchForm({ followWork: event.target.value })} placeholder="后续动作，可用换行或分号分隔" className="min-h-24 rounded-[24px] border-white bg-white" />
+                <div className="flex flex-wrap gap-3">
+                  <Button onClick={submitVisit} disabled={saveMutation.isPending || createCustomerMutation.isPending} className={`cursor-pointer rounded-full text-white ${embedded ? "bg-[#123B5D] hover:bg-[#0E2E49]" : "bg-[#1E3A8A] hover:bg-[#17306F]"}`}>
+                    {saveMutation.isPending ? "正在保存" : editingId ? "保存修改" : embedded ? "保存这次拜访" : "保存记录"}
+                  </Button>
+
+                  <Button variant="outline" onClick={resetForm} className="cursor-pointer rounded-full border-slate-300 bg-transparent">清空</Button>
+                </div>
+              </>
+            )}
 
             {feedback && <p className="text-sm leading-6 text-slate-600">{feedback}</p>}
           </CardContent>

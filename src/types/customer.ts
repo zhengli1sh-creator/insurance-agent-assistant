@@ -15,7 +15,9 @@ export interface CustomerRecord {
   source: string | null;
   nickname: string | null;
   recent_money: string | null;
+  remark: string | null;
   created_at: string;
+
   updated_at: string;
 }
 
@@ -37,7 +39,9 @@ export interface CustomerInput {
   source?: string;
   nickname?: string;
   recentMoney?: string;
+  remark?: string;
 }
+
 
 export interface CustomerCreatePayload {
   owner_id: string;
@@ -53,7 +57,9 @@ export interface CustomerCreatePayload {
   source?: string | null;
   nickname?: string | null;
   recent_money?: string | null;
+  remark?: string | null;
 }
+
 
 export interface CustomerUpdatePayload {
   name?: string;
@@ -67,4 +73,6 @@ export interface CustomerUpdatePayload {
   source?: string | null;
   nickname?: string | null;
   recent_money?: string | null;
+  remark?: string | null;
 }
+

@@ -2,13 +2,25 @@ export type AgentRole = "assistant" | "user";
 export type AgentMood = "鼓舞" | "安慰" | "执行";
 export type ChatRequestMode = "chat" | "workflow";
 
+export interface AgentPreviewAction {
+  label: string;
+  command?: string;
+  draft?: string;
+  continuationContext?: string;
+  workflow?: AssistantWorkflowDirective;
+  variant?: "primary" | "secondary";
+}
+
+
 export interface AgentActionPreview {
   title: string;
   description: string;
   items: string[];
   requiresConfirmation: boolean;
   confirmCommand?: string;
+  actions?: AgentPreviewAction[];
 }
+
 
 export interface AgentMessage {
   id: string;
@@ -60,20 +72,34 @@ export interface ActivityWorkflowDraftSeed {
   assistantNote?: string;
 }
 
+export interface WorkflowSeedField {
+  label: string;
+  value: string;
+}
+
 export interface CustomerWorkflowDraftValues {
   name?: string;
   nickname?: string;
+  age?: string;
+  sex?: string;
   profession?: string;
+  familyProfile?: string;
+  wealthProfile?: string;
   source?: string;
   coreInteresting?: string;
   preferCommunicate?: string;
   recentMoney?: string;
+  remark?: string;
 }
+
+
 
 export interface CustomerWorkflowDraftSeed {
   id: string;
   values: CustomerWorkflowDraftValues;
   assistantNote?: string;
+  suggestedFields?: WorkflowSeedField[];
+  resumeVisitSeed?: VisitWorkflowDraftSeed | null;
 }
 
 export interface AssistantSecondaryAction {

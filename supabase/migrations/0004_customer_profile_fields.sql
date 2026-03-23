@@ -13,12 +13,33 @@ alter table public.customers
   add column if not exists nickname text,
   add column if not exists recent_money text;
 
-update public.customers
-set
-  core_interesting = coalesce(core_interesting, asset_focus),
-  family_profile = coalesce(family_profile, note),
-  bstudio_create_time = coalesce(bstudio_create_time, created_at)
-where true;
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'customers'
+      and column_name = 'asset_focus'
+  ) then
+    execute 'update public.customers set core_interesting = coalesce(core_interesting, asset_focus) where true';
+  end if;
+
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'customers'
+      and column_name = 'note'
+  ) then
+    execute 'update public.customers set family_profile = coalesce(family_profile, note) where true';
+  end if;
+
+  update public.customers
+  set bstudio_create_time = coalesce(bstudio_create_time, created_at)
+  where true;
+end $$;
+
 
 create index if not exists customers_owner_created_at_idx on public.customers (owner_id, bstudio_create_time desc);
 create unique index if not exists customers_uuid_unique_idx on public.customers (uuid);

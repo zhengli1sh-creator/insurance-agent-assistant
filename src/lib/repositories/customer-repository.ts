@@ -19,6 +19,7 @@ export async function listCustomersRepository(supabase: SupabaseClient, ownerId:
         `wealth_profile.ilike.%${search}%`,
         `prefer_communicate.ilike.%${search}%`,
         `source.ilike.%${search}%`,
+        `remark.ilike.%${search}%`,
       ].join(","),
     );
   }
@@ -38,6 +39,8 @@ export async function updateCustomerRepository(
 ) {
   return supabase.from("customers").update(payload).eq("id", id).eq("owner_id", ownerId).select("*").single();
 }
+
+
 
 export async function deleteCustomerRepository(supabase: SupabaseClient, id: string, ownerId: string) {
   return supabase.from("customers").delete().eq("id", id).eq("owner_id", ownerId);
@@ -72,4 +75,19 @@ export async function findCustomerSnapshotsByNameRepository(
   const { data, error } = await query;
   return { data: (data ?? []) as CustomerSnapshot[], error };
 }
+
+export async function findCustomerSnapshotsByNicknameRepository(
+  supabase: SupabaseClient,
+  ownerId: string,
+  nickname: string,
+) {
+  const { data, error } = await supabase
+    .from("customers")
+    .select("id, name, nickname")
+    .eq("owner_id", ownerId)
+    .eq("nickname", nickname.trim());
+
+  return { data: (data ?? []) as CustomerSnapshot[], error };
+}
+
 
