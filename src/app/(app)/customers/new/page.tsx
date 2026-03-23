@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { FileText, Sparkles, Save, Trash2, ChevronLeft } from "lucide-react";
+import { FileText, Sparkles, Save, Trash2, ChevronLeft, ChevronUp, ChevronDown, Users } from "lucide-react";
 
 import { fetchJson } from "@/lib/crm-api";
 import type { CustomerRecord } from "@/types/customer";
@@ -82,6 +82,7 @@ export default function NewCustomerPage() {
   });
   const [feedback, setFeedback] = useState<MessageData | string>("");
   const [duplicateConfirm, setDuplicateConfirm] = useState<{ name: string; confirmed: boolean } | null>(null);
+  const [isExistingCustomersOpen, setIsExistingCustomersOpen] = useState(false);
 
   // 获取客户列表 - 按创建时间倒序
   const customersQuery = useQuery({
@@ -306,8 +307,8 @@ export default function NewCustomerPage() {
         </div>
       </div>
 
-      {/* 主内容网格 */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-stretch">
+      {/* 主内容网格 - 手机端添加底部padding给固定区域留空间 */}
+      <div className="grid gap-6 pb-16 lg:grid-cols-[1fr_320px] lg:items-stretch lg:pb-0">
         {/* 左侧内容 */}
         <div className="flex flex-col gap-6">
           {/* 待保存客户档案区域 - 始终显示所有字段 */}
@@ -426,7 +427,7 @@ export default function NewCustomerPage() {
         </Card>
       </div>
 
-        {/* 右侧客户列表边栏 */}
+        {/* 右侧客户列表边栏 - 桌面端 */}
         <Card className="hidden h-full border-slate-200/50 bg-[#F7F5F2]/80 backdrop-blur-sm lg:flex lg:flex-col">
           <CardContent className="flex h-full flex-col p-0">
             <div className="border-b border-[#E8E4DE] bg-[#EFEBE6]/50 p-4">
@@ -468,6 +469,66 @@ export default function NewCustomerPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 底部现有客户区域 - 手机端可折叠 */}
+      <Card className="fixed inset-x-4 bottom-4 z-40 border-slate-200/50 bg-[#F7F5F2]/95 backdrop-blur-sm lg:hidden">
+        {/* 折叠状态：点击展开 */}
+        <div
+          className="flex cursor-pointer items-center justify-between p-3"
+          onClick={() => setIsExistingCustomersOpen(!isExistingCustomersOpen)}
+        >
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-[#123B5D]" />
+            <span className="text-sm font-medium text-slate-700">
+              现有 {customers.length} 位客户
+            </span>
+            <span className="text-xs text-slate-400">（避免重复建档）</span>
+          </div>
+          {isExistingCustomersOpen ? (
+            <ChevronDown className="h-5 w-5 text-slate-400" />
+          ) : (
+            <ChevronUp className="h-5 w-5 text-slate-400" />
+          )}
+        </div>
+
+        {/* 展开状态：显示客户列表 */}
+        {isExistingCustomersOpen && (
+          <div className="border-t border-[#E8E4DE]">
+            <ScrollArea className="h-[200px] px-3 py-2">
+              <div className="space-y-2">
+                {customers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg bg-white/60 p-2 shadow-sm transition-all hover:bg-white hover:shadow-md"
+                    onClick={() => router.push(`/customers`)}
+                  >
+                    <Avatar className="h-8 w-8 border border-[#E8E4DE]">
+                      <AvatarFallback className="bg-[#F0F4F8] text-xs font-medium text-[#123B5D]">
+                        {customer.name.slice(0, 1)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-slate-900">
+                        {customer.name}
+                      </p>
+                      {customer.nickname && (
+                        <p className="truncate text-xs text-slate-500">
+                          {customer.nickname}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {customers.length === 0 && (
+                  <div className="py-6 text-center text-sm text-slate-400">
+                    暂无客户数据
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

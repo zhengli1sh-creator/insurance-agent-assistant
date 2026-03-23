@@ -15,7 +15,7 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
 
-  if (pathname === "/dashboard") {
+  if (pathname === "/dashboard" || pathname === "/customers/new") {
     return null;
   }
 
