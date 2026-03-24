@@ -34,7 +34,7 @@ export function TopNav() {
             </div>
 
             <form action={signOutAction}>
-              <Button variant="ghost" className="cursor-pointer rounded-full px-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 md:px-3">
+              <Button type="submit" variant="ghost" className="cursor-pointer rounded-full px-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 md:px-3">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden lg:inline">退出</span>
               </Button>
