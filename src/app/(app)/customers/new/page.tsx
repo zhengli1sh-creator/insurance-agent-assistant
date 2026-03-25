@@ -10,11 +10,65 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { FileText, Sparkles, Save, Trash2, ChevronLeft, ChevronUp, ChevronDown, Users } from "lucide-react";
+import { FileText, Sparkles, Save, Trash2, ChevronLeft, ChevronUp, ChevronDown, Users, Lightbulb, RefreshCw } from "lucide-react";
 
 import { fetchJson } from "@/lib/crm-api";
 import type { CustomerRecord } from "@/types/customer";
 import { customers as demoCustomers } from "@/lib/demo-data";
+
+// 信息引导卡片组件
+function InfoGuidanceCard() {
+  const infoCategories = [
+    { title: "基础信息", items: ["姓名（必填）", "昵称", "年龄", "性别", "职业"] },
+    { title: "家庭与财富", items: ["家庭情况", "财富状况", "近期资金情况"] },
+    { title: "经营相关", items: ["核心关注点", "沟通偏好", "客户来源"] },
+    { title: "其他", items: ["备注（可保存其他任意信息）"] },
+  ];
+
+  return (
+    <Card className="border-[#0F766E]/10 bg-gradient-to-br from-[#F3FBF8] to-[#E8F5F1]">
+      <CardContent className="p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F766E]/15">
+            <Lightbulb className="h-4 w-4 text-[#0F766E]" />
+          </div>
+          <span className="font-medium text-slate-900">可提供的信息项</span>
+        </div>
+        
+        <div className="grid gap-4 md:grid-cols-2">
+          {infoCategories.map((category) => (
+            <div key={category.title} className="rounded-xl bg-white/70 p-3">
+              <h4 className="mb-2 text-sm font-medium text-slate-700">{category.title}</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {category.items.map((item) => (
+                  <Badge
+                    key={item}
+                    variant="secondary"
+                    className="rounded-md bg-[#0F766E]/10 text-[#0F5C56] font-normal"
+                  >
+                    {item}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <p className="mt-4 text-sm text-slate-500">
+          在下方输入框中描述客户信息，助手会帮你整理成结构化档案
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+// 获取档案卡片标题和图标
+function getArchiveCardTitle(extractCount: number) {
+  if (extractCount === 1) {
+    return { title: "助手已整理的客户信息", icon: <FileText className="h-4 w-4 text-[#B8894A]" /> };
+  }
+  return { title: "已更新的客户信息", icon: <RefreshCw className="h-4 w-4 text-[#B8894A]" /> };
+}
 
 // 客户字段定义
 const customerFields = [
@@ -66,6 +120,7 @@ export default function NewCustomerPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [inputText, setInputText] = useState("");
+  const [extractCount, setExtractCount] = useState(0);
   const [extractedData, setExtractedData] = useState<Record<CustomerFieldKey, string>>({
     name: "",
     nickname: "",
@@ -131,6 +186,7 @@ export default function NewCustomerPage() {
       
       setExtractedData(newData);
       setInputText(""); // 清空输入框
+      setExtractCount((prev) => prev + 1); // 增加提取次数
       
       // 构建增量反馈消息
       if (updatedFields.length > 0) {
@@ -177,6 +233,7 @@ export default function NewCustomerPage() {
       queryClient.invalidateQueries({ queryKey: ["customers-options"] });
       // 清空表单，准备添加下一位客户
       setInputText("");
+      setExtractCount(0);
       setExtractedData({
         name: "",
         nickname: "",
@@ -209,6 +266,7 @@ export default function NewCustomerPage() {
 
   const handleClear = () => {
     setInputText("");
+    setExtractCount(0);
     setExtractedData({
       name: "",
       nickname: "",
@@ -287,7 +345,8 @@ export default function NewCustomerPage() {
   };
 
   // 检查是否有任何字段被填充
-  const hasExtractedData = Object.values(extractedData).some((v) => v.trim() !== "");
+  const hasAnyExtractedData = Object.values(extractedData).some((v) => v.trim() !== "");
+  const { title: archiveTitle, icon: archiveIcon } = getArchiveCardTitle(extractCount);
 
   return (
     <div className="space-y-6">
@@ -308,67 +367,82 @@ export default function NewCustomerPage() {
       </div>
 
       {/* 主内容网格 - 手机端添加底部padding给固定区域留空间 */}
-      <div className="grid gap-6 pb-16 lg:grid-cols-[1fr_320px] lg:items-stretch lg:pb-0">
+      <div className="grid gap-6 pb-16 lg:grid-cols-[1fr_320px] lg:items-start lg:pb-0">
         {/* 左侧内容 */}
         <div className="flex flex-col gap-6">
-          {/* 待保存客户档案区域 - 始终显示所有字段 */}
-          <Card className="border-[#B8894A]/20 bg-[#FFF8EE]/80 backdrop-blur-sm">
-          <CardContent className="p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#B8894A]/15">
-                <FileText className="h-4 w-4 text-[#B8894A]" />
-              </div>
-              <span className="font-medium text-slate-900">待保存客户档案</span>
-            </div>
-            
-            <div className="grid gap-3 md:grid-cols-2">
-              {customerFields.map((field) => (
-                <div
-                  key={field.key}
-                  className="flex items-start gap-3 rounded-xl bg-white/60 p-3"
-                >
-                  <Badge
-                    variant="secondary"
-                    className={`shrink-0 rounded-md ${
-                      field.required 
-                        ? "bg-rose-100 text-rose-700" 
-                        : "bg-[#B8894A]/10 text-[#8B6914]"
-                    }`}
+          {/* 信息引导区或档案展示区 - 根据是否有提取数据动态切换 */}
+          {hasAnyExtractedData ? (
+            <Card className="border-[#B8894A]/20 bg-[#FFF8EE]/80 backdrop-blur-sm">
+              <CardContent className="p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#B8894A]/15">
+                      {archiveIcon}
+                    </div>
+                    <span className="font-medium text-slate-900">{archiveTitle}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClear}
+                    className="h-8 rounded-full text-slate-500 hover:text-slate-700"
                   >
-                    {field.label}
-                    {field.required && <span className="ml-0.5">*</span>}
-                  </Badge>
-                  <span className={`text-sm ${
-                    extractedData[field.key] 
-                      ? "text-slate-700" 
-                      : "text-slate-400 italic"
-                  }`}>
-                    {extractedData[field.key] || "待填写"}
-                  </span>
+                    <Trash2 className="mr-1.5 h-4 w-4" />
+                    清空
+                  </Button>
                 </div>
-              ))}
-            </div>
-            
-            {feedback && (
-              <div className="mt-4 text-sm text-slate-600">
-                {typeof feedback === 'string' ? (
-                  feedback
-                ) : (
-                  <>
-                    {feedback.text}
-                    {feedback.fields.map((field, idx) => (
-                      <span key={idx}>
-                        <span className="font-bold text-slate-900">"{field}"</span>
-                        {idx < feedback.fields.length - 1 ? '、' : ''}
+                
+                <div className="grid gap-3 md:grid-cols-2">
+                  {customerFields.map((field) => (
+                    <div
+                      key={field.key}
+                      className="flex items-start gap-3 rounded-xl bg-white/60 p-3"
+                    >
+                      <Badge
+                        variant="secondary"
+                        className={`shrink-0 rounded-md ${
+                          field.required 
+                            ? "bg-rose-100 text-rose-700" 
+                            : "bg-[#B8894A]/10 text-[#8B6914]"
+                        }`}
+                      >
+                        {field.label}
+                        {field.required && <span className="ml-0.5">*</span>}
+                      </Badge>
+                      <span className={`text-sm ${
+                        extractedData[field.key] 
+                          ? "text-slate-700" 
+                          : "text-slate-400 italic"
+                      }`}>
+                        {extractedData[field.key] || "待填写"}
                       </span>
-                    ))}
-                    {feedback.suffix}
-                  </>
+                    </div>
+                  ))}
+                </div>
+                
+                {feedback && (
+                  <div className="mt-4 text-sm text-slate-600">
+                    {typeof feedback === 'string' ? (
+                      feedback
+                    ) : (
+                      <>
+                        {feedback.text}
+                        {feedback.fields.map((field, idx) => (
+                          <span key={idx}>
+                            <span className="font-bold text-slate-900">"{field}"</span>
+                            {idx < feedback.fields.length - 1 ? '、' : ''}
+                          </span>
+                        ))}
+                        {feedback.suffix}
+                      </>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <InfoGuidanceCard />
+          )}
 
         {/* 文本输入区 */}
         <Card className="flex-1 border-slate-200/70 bg-white/90 backdrop-blur-sm">
