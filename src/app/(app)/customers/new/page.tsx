@@ -16,7 +16,7 @@ import { fetchJson } from "@/lib/crm-api";
 import type { CustomerRecord } from "@/types/customer";
 import { customers as demoCustomers } from "@/lib/demo-data";
 
-// 信息引导卡片组件
+// 信息引导卡片组件 - 紧凑布局版本
 function InfoGuidanceCard() {
   const infoCategories = [
     { title: "基础信息", items: ["姓名（必填）", "昵称", "年龄", "性别", "职业"] },
@@ -27,24 +27,30 @@ function InfoGuidanceCard() {
 
   return (
     <Card className="border-[#0F766E]/10 bg-gradient-to-br from-[#F3FBF8] to-[#E8F5F1]">
-      <CardContent className="p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F766E]/15">
-            <Lightbulb className="h-4 w-4 text-[#0F766E]" />
+      <CardContent className="p-4">
+        {/* 标题行 */}
+        <div className="mb-3 flex items-center gap-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0F766E]/15">
+            <Lightbulb className="h-3 w-3 text-[#0F766E]" />
           </div>
-          <span className="font-medium text-slate-900">可提供的信息项</span>
+          <span className="text-sm font-medium text-slate-700">可提供的信息项</span>
         </div>
-        
-        <div className="grid gap-4 md:grid-cols-2">
+
+        {/* 分类列表 - 紧凑布局 */}
+        <div className="space-y-2">
           {infoCategories.map((category) => (
-            <div key={category.title} className="rounded-xl bg-white/70 p-3">
-              <h4 className="mb-2 text-sm font-medium text-slate-700">{category.title}</h4>
-              <div className="flex flex-wrap gap-1.5">
+            <div key={category.title} className="flex items-center gap-2">
+              {/* 分类标题 - 固定宽度 */}
+              <span className="shrink-0 text-xs font-medium text-slate-500 w-16">
+                {category.title}
+              </span>
+              {/* 字段标签 - 横向排列 */}
+              <div className="flex flex-wrap gap-1">
                 {category.items.map((item) => (
                   <Badge
                     key={item}
                     variant="secondary"
-                    className="rounded-md bg-[#0F766E]/10 text-[#0F5C56] font-normal"
+                    className="rounded bg-[#0F766E]/10 text-[#0F5C56] font-normal text-xs px-1.5 py-0"
                   >
                     {item}
                   </Badge>
@@ -53,8 +59,8 @@ function InfoGuidanceCard() {
             </div>
           ))}
         </div>
-        
-        <p className="mt-4 text-sm text-slate-500">
+
+        <p className="mt-3 text-xs text-slate-500">
           在下方输入框中描述客户信息，助手会帮你整理成结构化档案
         </p>
       </CardContent>
