@@ -224,12 +224,38 @@ export function extractCustomerDraftByRules(message: string, currentName?: strin
 }
 
 
-function buildDeepSeekPrompt(currentName?: string) {
-  return [
+function buildDeepSeekPrompt(currentName?: string, currentRemark?: string) {
+  const lines = [
     "你是保险代理人助手里的客户信息提取器，只负责从自然语言里抽取客户档案字段，不负责解释。",
     "你必须只输出一个 JSON 对象，不要输出任何 markdown、说明或代码块。",
     "禁止编造。没有提到的字段输出空字符串。",
-    currentName ? `当前客户姓名：${currentName}。若用户只说“她/他”，且没有新名字，可沿用当前客户姓名。` : "若用户没有明确说出客户姓名，name 输出空字符串。",
+    currentName ? `当前客户姓名：${currentName}。若用户只说"她/他"，且没有新名字，可沿用当前客户姓名。` : "若用户没有明确说出客户姓名，name 输出空字符串。",
+  ];
+
+  // 关键：让大模型理解备注的意图
+  if (currentRemark && currentRemark.trim()) {
+    lines.push(
+      "",
+      "【备注处理规则 - 重要】",
+      `当前已有备注内容："${currentRemark.trim()}"`,
+      "请分析用户输入中对备注的意图，并输出处理后的完整备注内容：",
+      "- 若用户说'补充'、'还有'、'另外'、'再记一下'、'再补充'等 → 将新内容追加到现有备注之后，用分号分隔",
+      "- 若用户说'改为'、'应该是'、'修改为'、'更正'、'不对'等 → 用新内容完全替换现有备注",
+      "- 若用户说'删除'、'清空'、'去掉备注'、'不要了'等 → remark 输出空字符串",
+      "- 若用户只是描述一些难以归入标准字段的信息，但未明确表达追加或替换意图 → 默认追加到现有备注",
+      "- 如果用户输入中没有涉及备注相关内容 → 保持现有备注不变（直接输出当前备注内容）",
+      "输出时 remark 字段应包含根据用户意图处理后的完整备注内容"
+    );
+  } else {
+    lines.push(
+      "",
+      "【备注处理】",
+      "当前无备注。若用户输入包含备注信息，直接写入 remark 字段。"
+    );
+  }
+
+  lines.push(
+    "",
     "请尽量提取这些字段：name、nickname、age、sex、profession、familyProfile、wealthProfile、coreInteresting、preferCommunicate、source、recentMoney、remark。",
     "若文中出现家庭成员、婚姻、孩子、父母等，写入 familyProfile。",
     "若文中出现资产、收入、存款、房车、理财、企业等，写入 wealthProfile。",
@@ -237,12 +263,13 @@ function buildDeepSeekPrompt(currentName?: string) {
     "若文中出现较个性化、难以归入标准字段、但对后续经营有价值的信息，例如性格特点、决策习惯、服务禁忌、相处提醒等，写入 remark。",
     "remark 不要机械重复其他字段已经承接的信息。",
     "sex 只允许输出：男、女或空字符串。",
-    '输出结构严格为：{"name":"","nickname":"","age":"","sex":"","profession":"","familyProfile":"","wealthProfile":"","coreInteresting":"","preferCommunicate":"","source":"","recentMoney":"","remark":""}',
+    '输出结构严格为：{"name":"","nickname":"","age":"","sex":"","profession":"","familyProfile":"","wealthProfile":"","coreInteresting":"","preferCommunicate":"","source":"","recentMoney":"","remark":""}'
+  );
 
-  ].join("\n");
+  return lines.join("\n");
 }
 
-async function extractWithDeepSeek(message: string, currentName?: string) {
+async function extractWithDeepSeek(message: string, currentName?: string, currentRemark?: string) {
   if (!hasDeepSeekEnv()) {
     return null;
   }
@@ -258,12 +285,12 @@ async function extractWithDeepSeek(message: string, currentName?: string) {
     body: JSON.stringify({
       model: deepSeekEnv.model,
       temperature: 0.1,
-      max_tokens: 500,
+      max_tokens: 800,
       response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: buildDeepSeekPrompt(currentName),
+          content: buildDeepSeekPrompt(currentName, currentRemark),
         },
         {
           role: "user",
@@ -299,14 +326,14 @@ async function extractWithDeepSeek(message: string, currentName?: string) {
   return parsed.data;
 }
 
-export async function extractCustomerDraft(message: string, currentName?: string): Promise<CustomerDraftExtraction> {
+export async function extractCustomerDraft(message: string, currentName?: string, currentRemark?: string): Promise<CustomerDraftExtraction> {
   const normalized = message.trim();
   if (!normalized) {
-    return { ...emptyExtraction, name: currentName?.trim() ?? "" };
+    return { ...emptyExtraction, name: currentName?.trim() ?? "", remark: currentRemark?.trim() ?? "" };
   }
 
   try {
-    const deepSeekResult = await extractWithDeepSeek(normalized, currentName);
+    const deepSeekResult = await extractWithDeepSeek(normalized, currentName, currentRemark);
     if (deepSeekResult) {
       return deepSeekResult;
     }
@@ -314,6 +341,12 @@ export async function extractCustomerDraft(message: string, currentName?: string
     console.warn("[customer-draft-extractor] DeepSeek 调用失败，已回退本地规则。", error instanceof Error ? error.message : error);
   }
 
-  return extractCustomerDraftByRules(normalized, currentName);
+  // 规则提取回退：将当前备注传递给规则提取器
+  const ruleResult = extractCustomerDraftByRules(normalized, currentName);
+  // 如果规则提取没有提取到新备注，但用户有当前备注，则保留当前备注
+  if (!ruleResult.remark && currentRemark) {
+    ruleResult.remark = currentRemark.trim();
+  }
+  return ruleResult;
 }
 

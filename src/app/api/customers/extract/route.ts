@@ -8,6 +8,7 @@ import type { WorkflowSeedField } from "@/types/agent";
 const requestSchema = z.object({
   message: z.string().trim().min(1, "请先输入一段客户信息"),
   currentName: z.string().trim().optional().default(""),
+  currentRemark: z.string().trim().optional().default(""),
 });
 
 const fieldLabelMap = {
@@ -37,9 +38,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: payload.error.issues[0]?.message ?? "请求参数不正确", errorCode: "VALIDATION_ERROR" }, { status: 400 });
   }
 
-  const fields = await extractCustomerDraft(payload.data.message, payload.data.currentName);
+  const fields = await extractCustomerDraft(payload.data.message, payload.data.currentName, payload.data.currentRemark);
   const extractedFields = Object.entries(fieldLabelMap).flatMap(([key, label]) => {
     const value = fields[key as keyof typeof fields]?.trim();
+    const currentRemark = payload.data.currentRemark;
+
+    // remark 字段特殊处理：如果用户有当前备注，即使返回空也要包含（可能是清空操作）
+    if (key === 'remark' && currentRemark && fields.remark !== undefined) {
+      return [{ label, value: fields.remark }] satisfies WorkflowSeedField[];
+    }
+
     return value ? ([{ label, value }] satisfies WorkflowSeedField[]) : [];
   });
 

@@ -167,10 +167,11 @@ export default function NewCustomerPage() {
       fetchJson<CustomerDraftExtractResponse>("/api/customers/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           message,
-          // 传递当前已提取的数据，帮助大模型理解上下文
-          currentData: extractedData,
+          // 传递当前客户姓名和备注，帮助大模型理解上下文和判断备注意图
+          currentName: extractedData.name,
+          currentRemark: extractedData.remark,
         }),
       }),
     onSuccess: (result) => {
