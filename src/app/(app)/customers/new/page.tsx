@@ -33,7 +33,7 @@ function InfoGuidanceCard() {
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0F766E]/15">
             <Lightbulb className="h-3 w-3 text-[#0F766E]" />
           </div>
-          <span className="text-sm font-medium text-slate-700">可提供的信息项</span>
+          <span className="text-sm font-medium text-slate-700">可保存的信息项</span>
         </div>
 
         {/* 分类列表 - 紧凑布局 */}
@@ -368,7 +368,6 @@ export default function NewCustomerPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">添加客户档案</h1>
-          <p className="text-sm text-slate-500">描述客户信息，让助手帮你整理成结构化档案</p>
         </div>
       </div>
 
