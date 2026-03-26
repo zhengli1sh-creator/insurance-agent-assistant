@@ -12,8 +12,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   Sparkles, 
-  Save, 
-  Trash2, 
   ChevronLeft, 
   ChevronUp, 
   ChevronDown, 
@@ -744,8 +742,7 @@ export default function NewCustomerPage() {
                         disabled={!hasAnyExtractedData && !inputText}
                         className="rounded-full border-slate-300 bg-transparent px-4 text-sm"
                       >
-                        <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                        清空
+                        清空输入框
                       </Button>
 
                       <Button
@@ -753,8 +750,7 @@ export default function NewCustomerPage() {
                         disabled={extractMutation.isPending || !inputText.trim()}
                         className="rounded-full bg-[#0F766E] px-4 text-white hover:bg-[#0B5F59] text-sm"
                       >
-                        <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-                        {extractMutation.isPending ? "整理中..." : "交给助手整理"}
+                        {extractMutation.isPending ? "整理中..." : "交给助手"}
                       </Button>
 
                       <Button
@@ -762,8 +758,7 @@ export default function NewCustomerPage() {
                         disabled={saveMutation.isPending}
                         className="rounded-full bg-[#123B5D] px-4 text-white hover:bg-[#0E2E49] text-sm"
                       >
-                        <Save className="mr-1.5 h-3.5 w-3.5" />
-                        {saveMutation.isPending ? "保存中..." : "保存客户档案"}
+                        {saveMutation.isPending ? "保存中..." : "保存客户"}
                       </Button>
                     </div>
                   </CardContent>
