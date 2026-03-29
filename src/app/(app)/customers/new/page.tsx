@@ -237,15 +237,12 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
 
   const condensedCard = (
     <div className="rounded-[22px] border border-[#0F766E]/12 bg-[linear-gradient(180deg,rgba(244,250,248,0.96)_0%,rgba(250,252,251,0.96)_100%)] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:px-4 sm:py-3.5">
-      <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10 sm:h-8 sm:w-8">
+      <div className="flex items-center gap-3">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10 sm:h-8 sm:w-8">
           <Lightbulb className="h-3.5 w-3.5 text-[#0F766E] sm:h-4 sm:w-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-medium text-[#123B5D]">可继续直接描述客户情况</h3>
-          <p className="mt-1 text-[12px] leading-5 text-slate-600 sm:text-[13px]">
-            我会继续整理成结构化档案，保存前仍由你确认。
-          </p>
+          <h3 className="text-sm font-medium text-[#123B5D]">直接描述客户信息</h3>
         </div>
         <Button
           type="button"
@@ -253,12 +250,13 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
           onClick={() => setIsCardExpanded(true)}
           className="h-8 rounded-full px-3 text-xs text-[#123B5D] hover:bg-white/80 hover:text-[#0F766E]"
         >
-          查看说明
+          说明
           <ChevronDown className="ml-1 h-3.5 w-3.5" />
         </Button>
       </div>
     </div>
   );
+
 
   const expandedCard = (
     <div className="rounded-[24px] border border-[#0F766E]/14 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(248,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-5">
@@ -943,6 +941,7 @@ export default function NewCustomerPage() {
   const renderMessage = (message: ChatMessage) => {
     const isAssistant = message.role === "assistant";
     const showTextBubble = !(isAssistant && message.type === "error-hint");
+    const isWideAssistantCard = isAssistant && message.type === "welcome";
 
     return (
       <div key={message.id} className={cn("flex gap-3", isAssistant ? "justify-start" : "justify-end")}>
@@ -954,8 +953,15 @@ export default function NewCustomerPage() {
           </Avatar>
         ) : null}
 
-        <div className={cn("max-w-[88%] space-y-2", isAssistant ? "items-start" : "items-end text-right")}>
+        <div
+          className={cn(
+            "space-y-2",
+            isWideAssistantCard ? "min-w-0 flex-1" : "max-w-[88%]",
+            isAssistant ? "items-start" : "items-end text-right",
+          )}
+        >
           <span className="px-1 text-xs text-slate-400">{message.timestamp}</span>
+
 
           {showTextBubble ? (
             <div
