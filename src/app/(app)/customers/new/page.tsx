@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchJson } from "@/lib/crm-api";
 import { cn } from "@/lib/utils";
@@ -792,17 +792,15 @@ function MobileCustomersSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="flex max-h-[86dvh] flex-col rounded-t-[32px] border-x-0 border-b-0 border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,249,252,0.98)_100%)] p-0 lg:hidden"
+        className="flex max-h-[82dvh] flex-col rounded-t-[32px] border-x-0 border-b-0 border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,249,252,0.98)_100%)] p-0 lg:hidden"
       >
         <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-300/80" />
-        <SheetHeader className="px-4 pb-3 pt-4">
+        <SheetHeader className="px-4 pb-2 pt-4">
           <div className="pr-10">
             <SheetTitle className="text-[17px] font-semibold text-[#123B5D]">现有客户</SheetTitle>
-            <SheetDescription className="mt-1 text-[13px] leading-6 text-slate-500">
-              已按与你当前桌面视图一致的方式展示，关闭抽屉后可继续当前新增流程。
-            </SheetDescription>
           </div>
         </SheetHeader>
+
 
         <CustomerDirectoryPanelContent
           relatedHint={relatedHint}
@@ -816,7 +814,7 @@ function MobileCustomersSheet({
             onOpenChange(false);
             onViewAll();
           }}
-          footerClassName="bg-white/90 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3.5"
+          footerClassName="bg-white/92 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom)+12px)] pt-2.5"
         />
       </SheetContent>
     </Sheet>
