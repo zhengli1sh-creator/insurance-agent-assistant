@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchJson } from "@/lib/crm-api";
 import { cn } from "@/lib/utils";
@@ -575,76 +576,193 @@ function CustomerPreviewCard({
 }
 
 
-function ExistingCustomersInlineCard({
-  customers,
-  relatedCustomers,
-  isOpen,
-  onToggle,
-  onViewAll,
+function MobileCustomerEntryButton({
+  customerCount,
+  relatedCount,
+  onOpen,
 }: {
-  customers: CustomerRecord[];
-  relatedCustomers: CustomerRecord[];
-  isOpen: boolean;
-  onToggle: () => void;
-  onViewAll: () => void;
+  customerCount: number;
+  relatedCount: number;
+  onOpen: () => void;
 }) {
-  const previewCustomers = (relatedCustomers.length > 0 ? relatedCustomers : customers).slice(0, 4);
-  const title = relatedCustomers.length > 0 ? "已找到相近客户，建议先核对" : "查看现有客户，避免重复建档";
-  const description =
-    relatedCustomers.length > 0
-      ? "如为同一位客户，建议前往客户中心更新；如为另一位同名客户，可补充昵称后继续保存。"
-      : "你可以在保存前快速核对已有档案，降低重复建档风险。";
+  const label = relatedCount > 0 ? "先核对相近客户" : "查看现有客户";
+  const helper = relatedCount > 0 ? `已发现 ${relatedCount} 位相近客户` : customerCount > 0 ? `已保存 ${customerCount} 位客户` : "暂无已建档客户";
 
   return (
-    <div className="lg:hidden">
-      <div className="rounded-[24px] border border-[#123B5D]/10 bg-[linear-gradient(180deg,rgba(244,247,251,0.96)_0%,rgba(249,251,255,0.98)_100%)] p-3.5 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
-        <button
-          type="button"
-          onClick={onToggle}
-          className="flex w-full items-start justify-between gap-3 text-left"
-        >
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10">
-              <Users className="h-4 w-4 text-[#123B5D]" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-[#123B5D]">{title}</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
-            </div>
-          </div>
-          {isOpen ? <ChevronUp className="mt-1 h-4 w-4 text-slate-400" /> : <ChevronDown className="mt-1 h-4 w-4 text-slate-400" />}
-        </button>
+    <button
+      type="button"
+      onClick={onOpen}
+      className="flex items-center gap-2.5 rounded-full border border-white/75 bg-white/82 px-3 py-1.5 text-left shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition hover:bg-white lg:hidden"
+    >
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10">
+        <Users className="h-4 w-4 text-[#123B5D]" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[12px] font-medium text-[#123B5D]">{label}</p>
+        <p className="text-[10px] leading-4 text-slate-400">{helper}</p>
+      </div>
+    </button>
+  );
+}
 
-        {isOpen ? (
-          <div className="mt-3 border-t border-white/80 pt-3">
-            {previewCustomers.length > 0 ? (
-              <ScrollArea className="max-h-64 pr-1">
-                <div className="space-y-2.5">
-                  {previewCustomers.map((customer) => (
-                    <CustomerPreviewCard key={customer.id} customer={customer} onClick={onViewAll} />
-                  ))}
-                </div>
-              </ScrollArea>
-            ) : (
-              <div className="rounded-2xl border border-white/80 bg-white/70 px-4 py-5 text-center text-sm text-slate-500">
-                暂无客户数据
+function DuplicateReviewCard({
+  relatedCustomers,
+  hasBlockingDuplicate,
+  onOpenSheet,
+  onViewAll,
+}: {
+  relatedCustomers: CustomerRecord[];
+  hasBlockingDuplicate: boolean;
+  onOpenSheet: () => void;
+  onViewAll: () => void;
+}) {
+  const previewCustomers = relatedCustomers.slice(0, 2);
+  const title = hasBlockingDuplicate ? "检测到高度相似的已有客户，请先核对" : "保存前建议先核对相近客户";
+  const description = hasBlockingDuplicate
+    ? "当前草稿与已有档案高度一致。若为同一位客户，请改为更新已有档案；若为不同客户，请先补充更多区分信息后再保存。"
+    : "已根据当前草稿筛出可能相关的客户，确认后再决定是否继续新建。";
+
+  return (
+    <div className="mt-3 rounded-[20px] border border-[#B8894A]/16 bg-[linear-gradient(180deg,rgba(255,248,238,0.96)_0%,rgba(255,252,247,0.98)_100%)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] lg:hidden">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#B8894A]/12">
+          <Users className="h-4 w-4 text-[#8B6A32]" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-[#7A5328]">{title}</p>
+          <p className="mt-1 text-[12px] leading-5 text-slate-600">{description}</p>
+        </div>
+      </div>
+
+      <div className="mt-3 space-y-2">
+        {previewCustomers.map((customer) => (
+          <div
+            key={customer.id}
+            className="flex items-start gap-3 rounded-[18px] border border-white/80 bg-white/84 px-3 py-2.5"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F0F4F8] text-[12px] font-medium text-[#123B5D]">
+              {customer.name.slice(0, 1)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <p className="text-[13px] font-medium text-slate-900">{customer.name}</p>
+                {customer.nickname ? (
+                  <span className="rounded-full bg-[#123B5D]/8 px-1.5 py-0.5 text-[10px] text-[#123B5D]">
+                    {customer.nickname}
+                  </span>
+                ) : null}
               </div>
-            )}
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onViewAll}
-              className="mt-3 h-10 w-full rounded-full border-slate-300 bg-white/80 text-sm text-slate-700"
-            >
-              前往客户中心查看全部
-            </Button>
+              <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{getCustomerMetaLine(customer)}</p>
+            </div>
           </div>
-        ) : null}
+        ))}
+      </div>
+
+      <div className="mt-3 flex gap-2">
+        <Button
+          type="button"
+          onClick={onOpenSheet}
+          className="h-9 flex-1 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49]"
+        >
+          打开客户抽屉核对
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onViewAll}
+          className="h-9 rounded-full border-slate-300 bg-white/84 px-3 text-[12px] text-slate-700"
+        >
+          客户中心
+        </Button>
       </div>
     </div>
   );
 }
+
+function MobileCustomersSheet({
+  open,
+  onOpenChange,
+  customers,
+  relatedCustomers,
+  hasBlockingDuplicate,
+  onViewAll,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  customers: CustomerRecord[];
+  relatedCustomers: CustomerRecord[];
+  hasBlockingDuplicate: boolean;
+  onViewAll: () => void;
+}) {
+  const previewCustomers = (relatedCustomers.length > 0 ? relatedCustomers : customers).slice(0, 8);
+  const title = relatedCustomers.length > 0 ? "相近客户核对" : "现有客户";
+  const description = relatedCustomers.length > 0
+    ? hasBlockingDuplicate
+      ? "当前草稿与已有档案高度一致，请先确认是否为同一位客户。"
+      : "已根据当前草稿筛出可能相关的客户。关闭后可继续当前新增流程。"
+    : "这里展示最近已建档的客户，关闭抽屉后可继续当前新增流程。";
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        className="max-h-[86dvh] rounded-t-[32px] border-x-0 border-b-0 border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,249,252,0.98)_100%)] p-0 lg:hidden"
+      >
+        <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-300/80" />
+        <SheetHeader className="px-4 pb-3 pt-4">
+          <div className="pr-10">
+            <SheetTitle className="text-[17px] font-semibold text-[#123B5D]">{title}</SheetTitle>
+            <SheetDescription className="mt-1 text-[13px] leading-6 text-slate-500">{description}</SheetDescription>
+          </div>
+        </SheetHeader>
+
+        {relatedCustomers.length > 0 ? (
+          <div className="px-4 pb-3">
+            <span className="inline-flex rounded-full bg-[#B8894A]/12 px-3 py-1 text-[11px] font-medium text-[#8B6A32]">
+              已匹配 {relatedCustomers.length} 位相近客户
+            </span>
+          </div>
+        ) : null}
+
+        <ScrollArea className="max-h-[54dvh] px-4 pb-4">
+          <div className="space-y-2.5 pb-1">
+            {previewCustomers.length > 0 ? (
+              previewCustomers.map((customer) => (
+                <CustomerPreviewCard key={customer.id} customer={customer} onClick={onViewAll} />
+              ))
+            ) : (
+              <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
+                暂无客户数据
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        <div className="border-t border-slate-200/70 bg-white/90 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3.5">
+          <p className="text-[12px] leading-5 text-slate-500">
+            {previewCustomers.length > 0
+              ? `已展示 ${previewCustomers.length} 位客户；如需查看完整列表，可前往客户中心。`
+              : "当前还没有客户档案，关闭后可继续新增当前客户。"}
+          </p>
+          {customers.length > 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+                onViewAll();
+              }}
+              className="mt-3 h-10 w-full rounded-full border-slate-300 bg-white/84 text-sm text-slate-700"
+            >
+              前往客户中心查看全部
+            </Button>
+          ) : null}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -702,7 +820,7 @@ export default function NewCustomerPage() {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [isExistingCustomersOpen, messages]);
+  }, [messages]);
 
   useEffect(() => {
     setDesktopCustomerPage((prev) => {
@@ -748,6 +866,22 @@ export default function NewCustomerPage() {
       })
       .slice(0, 5);
   }, [currentDraft.name, currentDraft.nickname, customers]);
+
+  const exactDuplicateCustomer = useMemo(() => {
+    const name = currentDraft.name.trim();
+    const nickname = currentDraft.nickname.trim();
+
+    if (!name) {
+      return null;
+    }
+
+    return customers.find((customer) => {
+      const sameName = customer.name.trim() === name;
+      const sameNickname = (customer.nickname ?? "").trim() === nickname;
+      return sameName && sameNickname;
+    }) ?? null;
+  }, [currentDraft.name, currentDraft.nickname, customers]);
+  const hasBlockingDuplicate = Boolean(exactDuplicateCustomer);
 
   const extractMutation = useMutation({
     mutationFn: (message: string) =>
@@ -829,11 +963,11 @@ export default function NewCustomerPage() {
         savedCustomer,
       });
       setDesktopCustomerPage(1);
-
+      setCurrentDraft(createEmptyDraft());
+      setInputText("");
+      setIsExistingCustomersOpen(false);
 
       setTimeout(() => {
-        setCurrentDraft(createEmptyDraft());
-        setIsExistingCustomersOpen(false);
         addMessage({
           id: crypto.randomUUID(),
           role: "assistant",
@@ -884,17 +1018,8 @@ export default function NewCustomerPage() {
     setIsExistingCustomersOpen(false);
   };
 
-  const findDuplicateCustomer = (name: string, nickname: string) => {
-    return customers.find((customer) => {
-      const sameName = customer.name === name.trim();
-      const sameNickname = (customer.nickname ?? "") === nickname.trim();
-      return sameName && sameNickname;
-    });
-  };
-
   const handleSave = () => {
     const name = currentDraft.name.trim();
-    const nickname = currentDraft.nickname.trim();
 
     if (!name) {
       addMessage({
@@ -918,20 +1043,21 @@ export default function NewCustomerPage() {
       return;
     }
 
-    const sameNameCustomer = customers.find((customer) => customer.name === name);
-    const duplicateCustomer = findDuplicateCustomer(name, nickname);
+    if (exactDuplicateCustomer) {
+      const nicknameText = exactDuplicateCustomer.nickname ? `（昵称：${exactDuplicateCustomer.nickname}）` : "";
+      const createdAt = exactDuplicateCustomer.created_at ? `，建档于 ${formatShortDate(exactDuplicateCustomer.created_at)}` : "";
 
-    if (sameNameCustomer && duplicateCustomer) {
-      const createdAt = sameNameCustomer.created_at ? `，建档于 ${formatShortDate(sameNameCustomer.created_at)}` : "";
-      const nicknameText = sameNameCustomer.nickname ? `（昵称：${sameNameCustomer.nickname}）` : "";
+      if (globalThis.matchMedia("(min-width: 1024px)").matches) {
+        addMessage({
+          id: crypto.randomUUID(),
+          role: "assistant",
+          type: "error-hint",
+          content: `已检测到相近客户：${exactDuplicateCustomer.name}${nicknameText}${createdAt}。如为同一位客户，请前往客户中心更新；如为另一位同名客户，请补充昵称后再保存。`,
+          timestamp: formatTime(),
+        });
+        return;
+      }
 
-      addMessage({
-        id: crypto.randomUUID(),
-        role: "assistant",
-        type: "error-hint",
-        content: `已检测到相近客户：${sameNameCustomer.name}${nicknameText}${createdAt}。如为同一位客户，请前往客户中心更新；如为另一位同名客户，请补充昵称后再保存。`,
-        timestamp: formatTime(),
-      });
       setIsExistingCustomersOpen(true);
       return;
     }
@@ -1069,6 +1195,11 @@ export default function NewCustomerPage() {
                   <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">助手主流程</p>
 
                   <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    <MobileCustomerEntryButton
+                      customerCount={totalCustomerCount}
+                      relatedCount={relatedCustomers.length}
+                      onOpen={() => setIsExistingCustomersOpen(true)}
+                    />
                     {hasAnyExtractedData ? (
                       <span className="rounded-full bg-[#0F766E]/10 px-2.5 py-1 text-[11px] font-medium text-[#0F766E]">
                         已整理 {filledDraftCount} 项
@@ -1083,7 +1214,6 @@ export default function NewCustomerPage() {
                     >
                       {isReadyToSave ? "当前可保存" : "最小必填：客户姓名"}
                     </span>
-
                   </div>
                 </div>
               </div>
@@ -1097,16 +1227,7 @@ export default function NewCustomerPage() {
               style={{ overscrollBehavior: "contain" }}
             >
               <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
-
                 {messages.map(renderMessage)}
-
-                <ExistingCustomersInlineCard
-                  customers={customers}
-                  relatedCustomers={relatedCustomers}
-                  isOpen={isExistingCustomersOpen}
-                  onToggle={() => setIsExistingCustomersOpen((prev) => !prev)}
-                  onViewAll={() => router.push("/customers")}
-                />
 
                 {extractMutation.isPending || saveMutation.isPending ? (
                   <div className="flex gap-3 justify-start">
@@ -1165,6 +1286,15 @@ export default function NewCustomerPage() {
                   }}
                 />
 
+                {relatedCustomers.length > 0 ? (
+                  <DuplicateReviewCard
+                    relatedCustomers={relatedCustomers}
+                    hasBlockingDuplicate={hasBlockingDuplicate}
+                    onOpenSheet={() => setIsExistingCustomersOpen(true)}
+                    onViewAll={() => router.push("/customers")}
+                  />
+                ) : null}
+
                 <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
                   <Button
                     onClick={handleExtract}
@@ -1183,7 +1313,7 @@ export default function NewCustomerPage() {
                         : "bg-[#123B5D]/82 hover:bg-[#123B5D]",
                     )}
                   >
-                    {saveMutation.isPending ? "保存中…" : "保存客户"}
+                    {saveMutation.isPending ? "保存中…" : hasBlockingDuplicate ? "先核对后保存" : "保存客户"}
                   </Button>
                 </div>
 
@@ -1196,6 +1326,15 @@ export default function NewCustomerPage() {
 
           </CardContent>
         </Card>
+
+        <MobileCustomersSheet
+          open={isExistingCustomersOpen}
+          onOpenChange={setIsExistingCustomersOpen}
+          customers={customers}
+          relatedCustomers={relatedCustomers}
+          hasBlockingDuplicate={hasBlockingDuplicate}
+          onViewAll={() => router.push("/customers")}
+        />
 
         <Card className="glass-panel hidden h-full min-h-0 overflow-hidden rounded-[32px] border-white/60 bg-white/84 shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:flex lg:flex-col">
           <CardContent className="flex h-full min-h-0 flex-col p-0">
