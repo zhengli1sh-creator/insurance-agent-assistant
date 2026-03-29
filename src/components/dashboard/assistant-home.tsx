@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Plus, ClipboardList, CheckSquare } from "lucide-react";
+import { MessageCircle, Plus, ClipboardList, CheckSquare, Users } from "lucide-react";
 import Link from "next/link";
 
 
@@ -19,6 +19,13 @@ const quickActions: QuickAction[] = [
     icon: Plus,
     color: "text-white",
     bgColor: "bg-[#123B5D]",
+  },
+  {
+    label: "客户中心",
+    href: "/customers",
+    icon: Users,
+    color: "text-[#123B5D]",
+    bgColor: "bg-white",
   },
   {
     label: "添加拜访记录",
@@ -52,8 +59,7 @@ export function AssistantHome() {
         <p className="mt-2 text-sm text-slate-500">选择下方功能，快速开始工作</p>
       </div>
 
-      {/* 四个功能按钮 - 2x2 网格布局 */}
-      <div className="grid w-full max-w-md grid-cols-2 gap-4">
+      <div className="grid w-full max-w-xl grid-cols-2 gap-4 sm:grid-cols-3">
         {quickActions.map((action) => {
           const Icon = action.icon;
           const isPrimary = action.bgColor === "bg-[#123B5D]";

@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
   CheckCircle,
-  CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronUp,
@@ -410,49 +409,27 @@ function ExtractedSummaryCard({
         </div>
       ) : null}
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-[#0F766E]" />
-            <p className="text-sm font-medium text-slate-700">当前已具备的信息</p>
-          </div>
-          <div className="mt-3 space-y-2.5">
-            {filledFields.length > 0 ? (
-              filledFields.slice(0, 6).map((field) => (
-                <div key={field.key} className="flex gap-3 text-sm leading-6">
-                  <span className="w-20 shrink-0 text-slate-500">{field.label}</span>
-                  <span className="flex-1 text-slate-700">{currentFields[field.key]}</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm leading-6 text-slate-500">当前还没有可保存的信息项。</p>
-            )}
-            {filledFields.length > 6 ? (
-              <p className="text-xs leading-5 text-slate-500">另有 {filledFields.length - 6} 项已整理，可继续查看后续卡片内容。</p>
-            ) : null}
-          </div>
+      <div className="mt-4 rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
+        <div className="flex items-center gap-2">
+          <Circle className="h-4 w-4 text-[#B8894A]" />
+          <p className="text-sm font-medium text-slate-700">可继续补充</p>
         </div>
-
-        <div className="rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
-          <div className="flex items-center gap-2">
-            <Circle className="h-4 w-4 text-[#B8894A]" />
-            <p className="text-sm font-medium text-slate-700">建议继续补充</p>
-          </div>
-          <div className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
-            {suggestedFields.length > 0 ? (
-              suggestedFields.slice(0, 5).map((field) => (
-                <div key={field.key} className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#B8894A]/80" />
-                  <span>
-                    {field.label}
-                    {field.required ? "（必填）" : ""}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p>当前信息已相当完整，可以直接保存当前客户档案。</p>
-            )}
-          </div>
+        <div className="mt-3 flex flex-wrap gap-2.5 text-sm leading-6 text-slate-600">
+          {suggestedFields.length > 0 ? (
+            suggestedFields.map((field) => (
+              <span
+                key={field.key}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#B8894A]/18 bg-[#FFF8EE]/82 px-3 py-1.5 text-[#7A5328]"
+              >
+                <span>{field.label}</span>
+                {field.required ? (
+                  <span className="rounded-full bg-[#123B5D]/8 px-1.5 py-0.5 text-[11px] leading-4 text-[#123B5D]">必填</span>
+                ) : null}
+              </span>
+            ))
+          ) : (
+            <p>当前信息已相当完整，可以直接保存当前客户档案。</p>
+          )}
         </div>
       </div>
 
@@ -867,7 +844,7 @@ export default function NewCustomerPage() {
           id: crypto.randomUUID(),
           role: "assistant",
           type: "welcome",
-          content: "已为你打开新增客户工作区。",
+          content: "",
           timestamp: formatTime(),
         },
       ]);
@@ -1126,7 +1103,9 @@ export default function NewCustomerPage() {
 
   const renderMessage = (message: ChatMessage) => {
     const isAssistant = message.role === "assistant";
-    const showTextBubble = !(isAssistant && message.type === "error-hint");
+    const bubbleContent = message.type === "user-input" ? message.rawInput : message.content;
+    const hasBubbleContent = Boolean(bubbleContent?.trim());
+    const showTextBubble = !(isAssistant && message.type === "error-hint") && hasBubbleContent;
     const isWelcomeMessage = isAssistant && message.type === "welcome";
 
     const textBubble = showTextBubble ? (
@@ -1136,7 +1115,7 @@ export default function NewCustomerPage() {
           isAssistant ? "border border-white/80 bg-white/86 text-slate-700" : "bg-gradient-to-br from-[#123B5D] to-[#0E2E49] text-white",
         )}
       >
-        <p className="leading-7">{message.type === "user-input" ? message.rawInput : message.content}</p>
+        <p className="leading-7">{bubbleContent}</p>
       </div>
     ) : null;
 
@@ -1150,7 +1129,7 @@ export default function NewCustomerPage() {
               </AvatarFallback>
             </Avatar>
             <div className="max-w-[88%] space-y-2">
-              <span className="px-1 text-xs text-slate-400">{message.timestamp}</span>
+              {showTextBubble ? <span className="px-1 text-xs text-slate-400">{message.timestamp}</span> : null}
               {textBubble}
             </div>
           </div>
