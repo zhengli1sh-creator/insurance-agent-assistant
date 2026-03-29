@@ -236,19 +236,21 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
 
   const condensedCard = (
-    <div className="rounded-[22px] border border-[#0F766E]/12 bg-[linear-gradient(180deg,rgba(244,250,248,0.96)_0%,rgba(250,252,251,0.96)_100%)] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:px-4 sm:py-3.5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10 sm:h-8 sm:w-8">
-          <Lightbulb className="h-3.5 w-3.5 text-[#0F766E] sm:h-4 sm:w-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-medium text-[#123B5D]">直接描述客户信息</h3>
+    <div className="w-full rounded-[22px] border border-[#0F766E]/12 bg-[linear-gradient(180deg,rgba(244,250,248,0.96)_0%,rgba(250,252,251,0.96)_100%)] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:px-4 sm:py-3.5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex flex-1 items-center gap-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10 sm:h-8 sm:w-8">
+            <Lightbulb className="h-3.5 w-3.5 text-[#0F766E] sm:h-4 sm:w-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-medium text-[#123B5D]">直接描述客户信息</h3>
+          </div>
         </div>
         <Button
           type="button"
           variant="ghost"
           onClick={() => setIsCardExpanded(true)}
-          className="h-8 rounded-full px-3 text-xs text-[#123B5D] hover:bg-white/80 hover:text-[#0F766E]"
+          className="h-8 shrink-0 rounded-full px-3 text-xs text-[#123B5D] hover:bg-white/80 hover:text-[#0F766E]"
         >
           说明
           <ChevronDown className="ml-1 h-3.5 w-3.5" />
@@ -257,19 +259,16 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
     </div>
   );
 
-
   const expandedCard = (
-    <div className="rounded-[24px] border border-[#0F766E]/14 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(248,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-5">
+    <div className="w-full rounded-[24px] border border-[#0F766E]/14 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(248,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
+        <div className="min-w-0 flex flex-1 items-start gap-3">
           <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/12">
             <Lightbulb className="h-4 w-4 text-[#0F766E]" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">你可以直接描述客户情况</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              我会先帮你整理成结构化档案，再由你确认保存。
-            </p>
+            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">直接描述客户信息</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-600">先说你现在记得的内容即可。</p>
           </div>
         </div>
 
@@ -278,13 +277,14 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
             type="button"
             variant="ghost"
             onClick={() => setIsCardExpanded(false)}
-            className="h-8 rounded-full px-3 text-xs text-slate-500 hover:bg-white/70 hover:text-slate-700"
+            className="h-8 shrink-0 rounded-full px-3 text-xs text-slate-500 hover:bg-white/70 hover:text-slate-700"
           >
             收起
             <ChevronUp className="ml-1 h-3.5 w-3.5" />
           </Button>
         ) : null}
       </div>
+
 
       <div className="mt-4 space-y-2.5">
         <div className="rounded-2xl border border-white/75 bg-white/72 px-3.5 py-3 text-sm leading-6 text-slate-600">
@@ -941,7 +941,37 @@ export default function NewCustomerPage() {
   const renderMessage = (message: ChatMessage) => {
     const isAssistant = message.role === "assistant";
     const showTextBubble = !(isAssistant && message.type === "error-hint");
-    const isWideAssistantCard = isAssistant && message.type === "welcome";
+    const isWelcomeMessage = isAssistant && message.type === "welcome";
+
+    const textBubble = showTextBubble ? (
+      <div
+        className={cn(
+          "rounded-[22px] px-4 py-3 text-sm shadow-[0_12px_30px_rgba(15,23,42,0.04)]",
+          isAssistant ? "border border-white/80 bg-white/86 text-slate-700" : "bg-gradient-to-br from-[#123B5D] to-[#0E2E49] text-white",
+        )}
+      >
+        <p className="leading-7">{message.type === "user-input" ? message.rawInput : message.content}</p>
+      </div>
+    ) : null;
+
+    if (isWelcomeMessage) {
+      return (
+        <div key={message.id} className="space-y-2">
+          <div className="flex gap-3 justify-start">
+            <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
+              <AvatarFallback className="bg-gradient-to-br from-[#123B5D] to-[#0F766E] text-xs text-white">
+                AI
+              </AvatarFallback>
+            </Avatar>
+            <div className="max-w-[88%] space-y-2">
+              <span className="px-1 text-xs text-slate-400">{message.timestamp}</span>
+              {textBubble}
+            </div>
+          </div>
+          <WelcomeMessageCard compact={shouldCompactWelcome} />
+        </div>
+      );
+    }
 
     return (
       <div key={message.id} className={cn("flex gap-3", isAssistant ? "justify-start" : "justify-end")}>
@@ -953,31 +983,9 @@ export default function NewCustomerPage() {
           </Avatar>
         ) : null}
 
-        <div
-          className={cn(
-            "space-y-2",
-            isWideAssistantCard ? "min-w-0 flex-1" : "max-w-[88%]",
-            isAssistant ? "items-start" : "items-end text-right",
-          )}
-        >
+        <div className={cn("max-w-[88%] space-y-2", isAssistant ? "items-start" : "items-end text-right")}>
           <span className="px-1 text-xs text-slate-400">{message.timestamp}</span>
-
-
-          {showTextBubble ? (
-            <div
-              className={cn(
-                "rounded-[22px] px-4 py-3 text-sm shadow-[0_12px_30px_rgba(15,23,42,0.04)]",
-                isAssistant
-                  ? "border border-white/80 bg-white/86 text-slate-700"
-                  : "bg-gradient-to-br from-[#123B5D] to-[#0E2E49] text-white",
-              )}
-            >
-              <p className="leading-7">{message.type === "user-input" ? message.rawInput : message.content}</p>
-            </div>
-          ) : null}
-
-          {isAssistant && message.type === "welcome" ? <WelcomeMessageCard compact={shouldCompactWelcome} /> : null}
-
+          {textBubble}
 
           {isAssistant && message.type === "extracted-summary" && message.currentFields ? (
             <ExtractedSummaryCard
@@ -995,6 +1003,7 @@ export default function NewCustomerPage() {
       </div>
     );
   };
+
 
   const shouldCompactWelcome = messages.some((message) => message.type !== "welcome");
   const mobileInputHint = hasAnyExtractedData
