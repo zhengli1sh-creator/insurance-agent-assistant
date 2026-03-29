@@ -593,11 +593,10 @@ function DuplicateReviewCard({
   onOpenSheet: () => void;
   onViewAll: () => void;
 }) {
-  const previewCustomers = relatedCustomers.slice(0, 2);
   const title = hasBlockingDuplicate ? "检测到高度相似的已有客户，请先核对" : "保存前建议先核对相近客户";
   const description = hasBlockingDuplicate
-    ? "当前草稿与已有档案高度一致。若为同一位客户，请改为更新已有档案；若为不同客户，请先补充更多区分信息后再保存。"
-    : "已根据当前草稿筛出可能相关的客户，确认后再决定是否继续新建。";
+    ? "这可能是同一位客户。你可以先打开抽屉核对，也可以先在上方补充昵称、职业等区分信息后再保存。"
+    : "已根据当前草稿筛出可能相关的客户，可先核对，再决定是否继续新建。";
 
   return (
     <div className="mt-3 rounded-[20px] border border-[#B8894A]/16 bg-[linear-gradient(180deg,rgba(255,248,238,0.96)_0%,rgba(255,252,247,0.98)_100%)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] lg:hidden">
@@ -611,28 +610,13 @@ function DuplicateReviewCard({
         </div>
       </div>
 
-      <div className="mt-3 space-y-2">
-        {previewCustomers.map((customer) => (
-          <div
-            key={customer.id}
-            className="flex items-start gap-3 rounded-[18px] border border-white/80 bg-white/84 px-3 py-2.5"
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F0F4F8] text-[12px] font-medium text-[#123B5D]">
-              {customer.name.slice(0, 1)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <p className="text-[13px] font-medium text-slate-900">{customer.name}</p>
-                {customer.nickname ? (
-                  <span className="rounded-full bg-[#123B5D]/8 px-1.5 py-0.5 text-[10px] text-[#123B5D]">
-                    {customer.nickname}
-                  </span>
-                ) : null}
-              </div>
-              <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{getCustomerMetaLine(customer)}</p>
-            </div>
-          </div>
-        ))}
+      <div className="mt-3 rounded-[18px] border border-white/80 bg-white/84 px-3 py-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-[#123B5D]/8 px-2 py-1 text-[11px] font-medium text-[#123B5D]">
+            已发现 {relatedCustomers.length} 位相近客户
+          </span>
+          <span className="text-[11px] leading-5 text-slate-500">建议先打开抽屉核对；如仍是不同客户，再补充区分信息。</span>
+        </div>
       </div>
 
       <div className="mt-3 flex gap-2">
@@ -1238,20 +1222,6 @@ export default function NewCustomerPage() {
                       relatedCount={relatedCustomers.length}
                       onOpen={() => setIsExistingCustomersOpen(true)}
                     />
-                    {hasAnyExtractedData ? (
-                      <span className="rounded-full bg-[#0F766E]/10 px-2.5 py-1 text-[11px] font-medium text-[#0F766E]">
-                        已整理 {filledDraftCount} 项
-                      </span>
-                    ) : null}
-                    <span
-                      className={cn(
-                        "rounded-full px-2.5 py-1 text-[11px] font-medium",
-                        !isReadyToSave && "hidden md:inline-flex",
-                        isReadyToSave ? "bg-[#0F766E]/10 text-[#0F766E]" : "bg-[#B8894A]/12 text-[#8B6A32]",
-                      )}
-                    >
-                      {isReadyToSave ? "当前可保存" : "最小必填：客户姓名"}
-                    </span>
                   </div>
                 </div>
               </div>
