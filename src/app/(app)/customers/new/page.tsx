@@ -234,36 +234,33 @@ function validateNameComplete(name: string) {
 function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
   const [isCardExpanded, setIsCardExpanded] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
-  const isCondensed = compact && !isCardExpanded;
 
-  if (isCondensed) {
-    return (
-      <div className="rounded-[22px] border border-[#0F766E]/12 bg-[linear-gradient(180deg,rgba(244,250,248,0.96)_0%,rgba(250,252,251,0.96)_100%)] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10">
-            <Lightbulb className="h-4 w-4 text-[#0F766E]" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-medium text-[#123B5D]">可继续直接描述客户情况</h3>
-            <p className="mt-1 text-[13px] leading-5 text-slate-600">
-              我会继续整理成结构化档案，保存前仍由你确认。
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setIsCardExpanded(true)}
-            className="h-8 rounded-full px-3 text-xs text-[#123B5D] hover:bg-white/80 hover:text-[#0F766E]"
-          >
-            查看说明
-            <ChevronDown className="ml-1 h-3.5 w-3.5" />
-          </Button>
+  const condensedCard = (
+    <div className="rounded-[22px] border border-[#0F766E]/12 bg-[linear-gradient(180deg,rgba(244,250,248,0.96)_0%,rgba(250,252,251,0.96)_100%)] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:px-4 sm:py-3.5">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10 sm:h-8 sm:w-8">
+          <Lightbulb className="h-3.5 w-3.5 text-[#0F766E] sm:h-4 sm:w-4" />
         </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-medium text-[#123B5D]">可继续直接描述客户情况</h3>
+          <p className="mt-1 text-[12px] leading-5 text-slate-600 sm:text-[13px]">
+            我会继续整理成结构化档案，保存前仍由你确认。
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setIsCardExpanded(true)}
+          className="h-8 rounded-full px-3 text-xs text-[#123B5D] hover:bg-white/80 hover:text-[#0F766E]"
+        >
+          查看说明
+          <ChevronDown className="ml-1 h-3.5 w-3.5" />
+        </Button>
       </div>
-    );
-  }
+    </div>
+  );
 
-  return (
+  const expandedCard = (
     <div className="rounded-[24px] border border-[#0F766E]/14 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(248,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -278,7 +275,7 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
 
-        {compact ? (
+        {compact || isCardExpanded ? (
           <Button
             type="button"
             variant="ghost"
@@ -337,7 +334,6 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
                           必填
                         </span>
                       ) : null}
-
                     </li>
                   ))}
                 </ul>
@@ -352,7 +348,23 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
       </p>
     </div>
   );
+
+  if (!isCardExpanded) {
+    if (compact) {
+      return condensedCard;
+    }
+
+    return (
+      <>
+        <div className="md:hidden">{condensedCard}</div>
+        <div className="hidden md:block">{expandedCard}</div>
+      </>
+    );
+  }
+
+  return expandedCard;
 }
+
 
 function ExtractedSummaryCard({
   extractedFields,
@@ -990,8 +1002,8 @@ export default function NewCustomerPage() {
 
 
   return (
-    <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-2 md:h-[calc(100dvh-8rem)] md:gap-3">
-      <Card className="glass-panel shrink-0 rounded-[28px] border-white/60 bg-white/82 shadow-[0_24px_80px_rgba(15,23,42,0.1)]">
+    <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1.5 md:h-[calc(100dvh-8rem)] md:gap-3">
+      <Card className="glass-panel hidden shrink-0 rounded-[28px] border-white/60 bg-white/82 shadow-[0_24px_80px_rgba(15,23,42,0.1)] md:block">
         <CardContent className="flex items-start gap-3 p-3.5 sm:p-4 md:px-5 md:py-3.5">
           <Button
             variant="ghost"
@@ -1011,31 +1023,56 @@ export default function NewCustomerPage() {
         </CardContent>
       </Card>
 
-
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Card className="glass-panel flex min-h-0 flex-col overflow-hidden rounded-[32px] border-white/60 bg-white/88 shadow-[0_24px_80px_rgba(15,23,42,0.1)]">
           <CardContent className="flex min-h-0 flex-1 flex-col p-0">
             <div className="shrink-0 border-b border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(247,249,252,0.9)_100%)] px-4 py-2.5 sm:px-5 md:px-6">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">助手主流程</p>
-
-                <div className="flex flex-wrap items-center justify-end gap-1.5">
-                  {hasAnyExtractedData ? (
-                    <span className="rounded-full bg-[#0F766E]/10 px-2.5 py-1 text-[11px] font-medium text-[#0F766E]">
-                      已整理 {filledDraftCount} 项
-                    </span>
-                  ) : null}
-                  <span
-                    className={cn(
-                      "rounded-full px-2.5 py-1 text-[11px] font-medium",
-                      isReadyToSave ? "bg-[#0F766E]/10 text-[#0F766E]" : "bg-[#B8894A]/12 text-[#8B6A32]",
-                    )}
+              <div className="flex flex-col gap-2 md:gap-2.5">
+                <div className="flex items-center gap-3 md:hidden">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => router.push("/customers")}
+                    className="h-8 w-8 shrink-0 rounded-full border border-white/70 bg-white/80 text-[#123B5D] hover:bg-white"
                   >
-                    {isReadyToSave ? "当前可保存" : "最小必填：客户姓名"}
-                  </span>
+                    <ChevronLeft className="h-4 w-4" />
+
+                  </Button>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h1 className="text-base font-semibold text-[#123B5D]">添加客户档案</h1>
+                      <span className="rounded-full bg-[#B8894A]/12 px-2 py-1 text-[11px] font-medium text-[#8B6A32]">
+                        最小必填：客户姓名
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[12px] leading-5 text-slate-500">先保存基础信息，后续可继续补充。</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">助手主流程</p>
+
+                  <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    {hasAnyExtractedData ? (
+                      <span className="rounded-full bg-[#0F766E]/10 px-2.5 py-1 text-[11px] font-medium text-[#0F766E]">
+                        已整理 {filledDraftCount} 项
+                      </span>
+                    ) : null}
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-1 text-[11px] font-medium",
+                        !isReadyToSave && "hidden md:inline-flex",
+                        isReadyToSave ? "bg-[#0F766E]/10 text-[#0F766E]" : "bg-[#B8894A]/12 text-[#8B6A32]",
+                      )}
+                    >
+                      {isReadyToSave ? "当前可保存" : "最小必填：客户姓名"}
+                    </span>
+
+                  </div>
                 </div>
               </div>
             </div>
+
 
 
             <div
@@ -1075,26 +1112,25 @@ export default function NewCustomerPage() {
               </div>
             </div>
 
-            <div className="shrink-0 border-t border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,252,0.98)_100%)] px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2.5 sm:px-4 md:px-5 lg:px-6">
-              <div className="mx-auto max-w-3xl rounded-[24px] border border-white/75 bg-white/86 p-3 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:p-3.5">
+            <div className="shrink-0 border-t border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,252,0.98)_100%)] px-2.5 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 md:px-5 lg:px-6">
+              <div className="mx-auto max-w-3xl rounded-[22px] border border-white/75 bg-white/86 p-2.5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:rounded-[24px] sm:p-3.5">
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10 sm:h-7 sm:w-7">
 
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-start gap-3">
-                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10">
                       <UserPlus className="h-3.5 w-3.5 text-[#123B5D]" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium text-[#123B5D] sm:text-sm">输入客户信息</p>
-                      <p className="mt-0.5 text-xs leading-5 text-slate-500 sm:text-[13px]">{mobileInputHint}</p>
+                      <p className="hidden text-[13px] font-medium text-[#123B5D] sm:block sm:text-sm">输入客户信息</p>
+                      <p className="text-[12px] leading-5 text-slate-500 sm:mt-0.5 sm:text-[13px]">{mobileInputHint}</p>
                     </div>
-
                   </div>
 
                   {hasAnyExtractedData || inputText ? (
                     <Button
                       variant="ghost"
                       onClick={handleClear}
-                      className="h-8 rounded-full px-3 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                      className="h-7 rounded-full px-2.5 text-[11px] text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:h-8 sm:px-3 sm:text-xs"
                     >
                       清空
                     </Button>
@@ -1105,20 +1141,19 @@ export default function NewCustomerPage() {
                   value={inputText}
                   onChange={(event) => setInputText(event.target.value)}
                   placeholder="例如：王敏，35岁，私营业主，已婚，有一个孩子，最近关注教育金和家庭保障。"
-                  className="mt-3 min-h-[76px] resize-none rounded-[18px] border-slate-200/80 bg-slate-50/70 p-3 text-sm leading-6 placeholder:text-slate-400 focus-visible:ring-[#123B5D]/20 md:min-h-[84px]"
+                  className="mt-2.5 min-h-[60px] resize-none rounded-[16px] border-slate-200/80 bg-slate-50/70 px-3 py-2.5 text-sm leading-6 placeholder:text-slate-400 focus-visible:ring-[#123B5D]/20 sm:mt-3 sm:min-h-[72px] sm:rounded-[18px] md:min-h-[84px]"
                   onKeyDown={(event) => {
-
                     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
                       handleExtract();
                     }
                   }}
                 />
 
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
                   <Button
                     onClick={handleExtract}
                     disabled={extractMutation.isPending || !inputText.trim()}
-                    className="h-10 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49]"
+                    className="h-9 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49] sm:h-10"
                   >
                     {extractMutation.isPending ? "整理中…" : "交给助手"}
                   </Button>
@@ -1126,7 +1161,7 @@ export default function NewCustomerPage() {
                     onClick={handleSave}
                     disabled={saveMutation.isPending}
                     className={cn(
-                      "h-10 rounded-full text-sm text-white",
+                      "h-9 rounded-full text-sm text-white sm:h-10",
                       isReadyToSave
                         ? "bg-[#0F766E] hover:bg-[#0B5F59]"
                         : "bg-[#123B5D]/82 hover:bg-[#123B5D]",
@@ -1136,11 +1171,12 @@ export default function NewCustomerPage() {
                   </Button>
                 </div>
 
-                <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                <p className="mt-2 hidden text-[11px] leading-5 text-slate-400 md:block">
                   需要确认的内容会先提醒你，不会直接误写客户资料。支持 `Ctrl/Cmd + Enter` 快速整理。
                 </p>
               </div>
             </div>
+
 
           </CardContent>
         </Card>
