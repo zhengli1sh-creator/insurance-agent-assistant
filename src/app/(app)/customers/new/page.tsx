@@ -243,8 +243,9 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
             <Lightbulb className="h-3.5 w-3.5 text-[#0F766E] sm:h-4 sm:w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-medium text-[#123B5D]">直接描述客户信息</h3>
+            <h3 className="text-sm font-medium text-[#123B5D]">直接描述客户</h3>
           </div>
+
         </div>
         <Button
           type="button"
@@ -267,9 +268,9 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
             <Lightbulb className="h-4 w-4 text-[#0F766E]" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">直接描述客户信息</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">先说你现在记得的内容即可。</p>
+            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">直接描述客户</h3>
           </div>
+
         </div>
 
         {compact || isCardExpanded ? (
