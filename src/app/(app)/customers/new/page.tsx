@@ -1,34 +1,32 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  Sparkles, 
-  ChevronLeft, 
-  ChevronUp, 
-  ChevronDown, 
-  Users, 
-  Lightbulb,
+import {
+  AlertCircle,
+  CheckCircle,
   CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronUp,
   Circle,
+  Lightbulb,
+  Sparkles,
   UserPlus,
-  CheckCircle
+  Users,
 } from "lucide-react";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { fetchJson } from "@/lib/crm-api";
+import { cn } from "@/lib/utils";
 import type { CustomerRecord } from "@/types/customer";
 
-// ============ 类型定义 ============
-
-// 客户字段定义
 const customerFields = [
   { key: "name", label: "姓名", required: true },
   { key: "nickname", label: "昵称", required: false },
@@ -36,7 +34,7 @@ const customerFields = [
   { key: "sex", label: "性别", required: false },
   { key: "profession", label: "职业", required: false },
   { key: "familyProfile", label: "家庭情况", required: false },
-  { key: "wealthProfile", label: "财富状况", required: false },
+  { key: "wealthProfile", label: "财富情况", required: false },
   { key: "coreInteresting", label: "核心关注点", required: false },
   { key: "preferCommunicate", label: "沟通偏好", required: false },
   { key: "source", label: "客户来源", required: false },
@@ -44,34 +42,57 @@ const customerFields = [
   { key: "remark", label: "备注", required: false },
 ] as const;
 
-type CustomerFieldKey = typeof customerFields[number]["key"];
+type CustomerFieldKey = (typeof customerFields)[number]["key"];
 
-// 中文标签到英文 key 的映射（与 API 返回的 label 对应）
 const labelToKeyMap: Record<string, CustomerFieldKey> = {
-  "客户姓名": "name",
-  "客户昵称": "nickname",
-  "年龄": "age",
-  "性别": "sex",
+  客户姓名: "name",
+  姓名: "name",
+  客户昵称: "nickname",
+  昵称: "nickname",
+  年龄: "age",
+  性别: "sex",
   "职业 / 身份": "profession",
-  "家庭情况": "familyProfile",
-  "财富情况": "wealthProfile",
-  "核心关注点": "coreInteresting",
-  "沟通偏好": "preferCommunicate",
-  "客户来源": "source",
-  "资金情况": "recentMoney",
-  "备注": "remark",
+  职业: "profession",
+  家庭情况: "familyProfile",
+  财富情况: "wealthProfile",
+  财富状况: "wealthProfile",
+  核心关注点: "coreInteresting",
+  沟通偏好: "preferCommunicate",
+  客户来源: "source",
+  资金情况: "recentMoney",
+  近期资金情况: "recentMoney",
+  备注: "remark",
 };
 
-// 信息分类定义
 const infoCategories = [
-  { title: "基础信息", items: ["姓名*", "昵称", "年龄", "性别", "职业"] },
-  { title: "家庭与财富", items: ["家庭情况", "财富状况", "近期资金情况"] },
-  { title: "经营相关", items: ["核心关注点", "沟通偏好", "客户来源"] },
-  { title: "其他", items: ["其他任意信息"] },
-];
+  {
+    title: "基础信息",
+    items: [
+      { label: "姓名", required: true },
+      { label: "昵称" },
+      { label: "年龄" },
+      { label: "性别" },
+      { label: "职业" },
+    ],
+  },
+  {
+    title: "家庭与财富",
+    items: [{ label: "家庭情况" }, { label: "财富情况" }, { label: "近期资金情况" }],
+  },
+  {
+    title: "经营相关",
+    items: [{ label: "核心关注点" }, { label: "沟通偏好" }, { label: "客户来源" }],
+  },
+  {
+    title: "其他",
+    items: [{ label: "备注及其他任意信息" }],
+  },
+] as const;
 
-// 消息类型定义
+const DESKTOP_CUSTOMERS_PAGE_SIZE = 5;
+
 type ChatMessageType = "welcome" | "user-input" | "extracted-summary" | "save-success" | "error-hint";
+
 
 type ExtractedFieldItem = { label: string; value: string };
 
@@ -81,13 +102,9 @@ type ChatMessage = {
   type: ChatMessageType;
   content: string;
   timestamp: string;
-  // 用户输入的原始文本
   rawInput?: string;
-  // 本次提取的字段
   extractedFields?: ExtractedFieldItem[];
-  // 当前所有字段状态（用于展示已填/未填）
   currentFields?: Record<CustomerFieldKey, string>;
-  // 保存成功的客户数据
   savedCustomer?: CustomerRecord;
 };
 
@@ -97,288 +114,629 @@ type CustomerDraftExtractResponse = {
   message: string;
 };
 
-// ============ 子组件 ============
+function createEmptyDraft(): Record<CustomerFieldKey, string> {
+  return {
+    name: "",
+    nickname: "",
+    age: "",
+    sex: "",
+    profession: "",
+    familyProfile: "",
+    wealthProfile: "",
+    coreInteresting: "",
+    preferCommunicate: "",
+    source: "",
+    recentMoney: "",
+    remark: "",
+  };
+}
 
-// 欢迎引导消息组件
-function WelcomeMessageCard() {
-  return (
-    <div className="rounded-2xl border border-[#0F766E]/10 bg-gradient-to-br from-[#F3FBF8] to-[#E8F5F1] p-4">
-      {/* 标题行 */}
-      <div className="mb-3 flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0F766E]/15">
-          <Lightbulb className="h-3 w-3 text-[#0F766E]" />
-        </div>
-        <span className="text-sm font-medium text-slate-700">可保存的信息项</span>
-      </div>
+function formatTime() {
+  const now = new Date();
+  return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+}
 
-      {/* 分类列表 - 紧凑布局 */}
-      <div className="space-y-2">
-        {infoCategories.map((category) => (
-          <div key={category.title} className="flex items-center gap-2">
-            <span className="shrink-0 text-xs font-medium text-slate-500 w-16">
-              {category.title}
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {category.items.map((item) => (
-                <Badge
-                  key={item}
-                  variant="secondary"
-                  className="rounded bg-[#0F766E]/10 text-[#0F5C56] font-normal text-xs px-1.5 py-0"
-                >
-                  {item}
-                </Badge>
-              ))}
-            </div>
+function formatShortDate(dateString?: string | null) {
+  if (!dateString) {
+    return "";
+  }
+
+  return new Date(dateString).toLocaleDateString("zh-CN", {
+    month: "numeric",
+    day: "numeric",
+  });
+}
+
+function getCustomerSortTime(customer: CustomerRecord) {
+  const timestamp = customer.created_at ? new Date(customer.created_at).getTime() : 0;
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function getHintMeta(message: string) {
+
+  if (message.includes("相近客户") || message.includes("同名客户") || message.includes("已有客户")) {
+    return {
+      title: "已检测到可能重复的客户档案",
+      helper: "如为另一位同名客户，建议补充昵称后再继续保存。",
+    };
+  }
+
+  if (message.includes("不完整")) {
+    return {
+      title: "当前姓名可能还不完整",
+      helper: "为避免后续识别混淆，建议先补充完整姓名。",
+    };
+  }
+
+  if (message.includes("客户姓名") || message.includes("姓名")) {
+    return {
+      title: "还缺少客户姓名",
+      helper: "客户姓名是建档必填信息，补充后我会继续承接当前流程。",
+    };
+  }
+
+  return {
+    title: "还需要你确认一下",
+    helper: "你可以继续补充信息，我会按新的内容重新整理。",
+  };
+}
+
+function getSavedGroups(customer: CustomerRecord) {
+  return [
+    {
+      title: "基础信息",
+      items: [
+        { label: "年龄", value: customer.age },
+        { label: "性别", value: customer.sex },
+        { label: "职业", value: customer.profession },
+      ].filter((item) => item.value),
+    },
+    {
+      title: "家庭与财富",
+      items: [
+        { label: "家庭情况", value: customer.family_profile },
+        { label: "财富情况", value: customer.wealth_profile },
+        { label: "近期资金情况", value: customer.recent_money },
+      ].filter((item) => item.value),
+    },
+    {
+      title: "经营相关",
+      items: [
+        { label: "核心关注点", value: customer.core_interesting },
+        { label: "沟通偏好", value: customer.prefer_communicate },
+        { label: "客户来源", value: customer.source },
+      ].filter((item) => item.value),
+    },
+    {
+      title: "其他信息",
+      items: [{ label: "备注", value: customer.remark }].filter((item) => item.value),
+    },
+  ].filter((group) => group.items.length > 0);
+}
+
+function getCustomerMetaLine(customer: CustomerRecord) {
+  const meta = [customer.profession, customer.source].filter(Boolean);
+  if (meta.length > 0) {
+    return meta.join(" · ");
+  }
+
+  if (customer.nickname) {
+    return `昵称：${customer.nickname}`;
+  }
+
+  return "已建档客户";
+}
+
+function validateNameComplete(name: string) {
+  return name.trim().length >= 2;
+}
+
+function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
+  const [isCardExpanded, setIsCardExpanded] = useState(false);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+  const isCondensed = compact && !isCardExpanded;
+
+  if (isCondensed) {
+    return (
+      <div className="rounded-[22px] border border-[#0F766E]/12 bg-[linear-gradient(180deg,rgba(244,250,248,0.96)_0%,rgba(250,252,251,0.96)_100%)] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10">
+            <Lightbulb className="h-4 w-4 text-[#0F766E]" />
           </div>
-        ))}
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-medium text-[#123B5D]">可继续直接描述客户情况</h3>
+            <p className="mt-1 text-[13px] leading-5 text-slate-600">
+              我会继续整理成结构化档案，保存前仍由你确认。
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setIsCardExpanded(true)}
+            className="h-8 rounded-full px-3 text-xs text-[#123B5D] hover:bg-white/80 hover:text-[#0F766E]"
+          >
+            查看说明
+            <ChevronDown className="ml-1 h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-[24px] border border-[#0F766E]/14 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(248,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/12">
+            <Lightbulb className="h-4 w-4 text-[#0F766E]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">你可以直接描述客户情况</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              我会先帮你整理成结构化档案，再由你确认保存。
+            </p>
+          </div>
+        </div>
+
+        {compact ? (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setIsCardExpanded(false)}
+            className="h-8 rounded-full px-3 text-xs text-slate-500 hover:bg-white/70 hover:text-slate-700"
+          >
+            收起
+            <ChevronUp className="ml-1 h-3.5 w-3.5" />
+          </Button>
+        ) : null}
       </div>
 
-      <p className="mt-3 text-xs text-slate-500">
-        在下方输入框中描述客户信息，助手会帮你整理成结构化档案
+      <div className="mt-4 space-y-2.5">
+        <div className="rounded-2xl border border-white/75 bg-white/72 px-3.5 py-3 text-sm leading-6 text-slate-600">
+          <span className="font-medium text-[#123B5D]">已支持整理：</span>
+          姓名、昵称、年龄、职业、家庭情况、财富情况、核心关注点、沟通偏好、客户来源等。
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="rounded-2xl border border-[#B8894A]/14 bg-[#FFF8EE]/72 px-3.5 py-3 text-sm leading-6 text-slate-600">
+            <span className="font-medium text-[#8B6A32]">最小必填：</span>
+            客户姓名
+          </div>
+          <div className="rounded-2xl border border-white/75 bg-white/72 px-3.5 py-3 text-sm leading-6 text-slate-600">
+            不需要一次说全，先说你现在记得的内容即可。
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-dashed border-[#123B5D]/14 bg-white/55 px-3.5 py-3">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setIsDetailsExpanded((prev) => !prev)}
+          className="h-auto w-full justify-between rounded-2xl px-0 py-0 text-left text-sm font-medium text-[#123B5D] hover:bg-transparent hover:text-[#0F766E]"
+        >
+          <span>查看全部可保存信息项</span>
+          {isDetailsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </Button>
+
+        {isDetailsExpanded ? (
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            {infoCategories.map((category) => (
+              <div
+                key={category.title}
+                className="rounded-2xl border border-white/80 bg-white/82 px-3.5 py-3"
+              >
+                <p className="text-sm font-medium text-slate-700">{category.title}</p>
+                <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
+                  {category.items.map((item) => (
+                    <li key={item.label} className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#B8894A]/80" />
+                      <span>{item.label}</span>
+                      {item.required ? (
+                        <span className="rounded-full bg-[#123B5D]/8 px-2 py-0.5 text-[11px] text-[#123B5D]">
+                          必填
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      <p className="mt-4 text-xs leading-5 text-slate-500">
+        例如：王敏，35岁，私营业主，已婚，有一个孩子，最近比较关注教育金和家庭保障。
       </p>
     </div>
   );
 }
 
-// 整理结果卡片组件
-function ExtractedSummaryCard({ 
-  extractedFields, 
-  currentFields 
-}: { 
+function ExtractedSummaryCard({
+  extractedFields,
+  currentFields,
+}: {
   extractedFields: ExtractedFieldItem[];
   currentFields: Record<CustomerFieldKey, string>;
 }) {
-  // 获取已填写的字段列表
-  const filledFields = customerFields.filter(f => currentFields[f.key]?.trim());
-  const emptyFields = customerFields.filter(f => !currentFields[f.key]?.trim());
+  const filledFields = customerFields.filter((field) => currentFields[field.key]?.trim());
+  const suggestedFields = customerFields.filter((field) => !currentFields[field.key]?.trim());
+  const nameReady = validateNameComplete(currentFields.name);
 
   return (
-    <div className="rounded-2xl border border-[#B8894A]/20 bg-[#FFF8EE]/80 p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-[#B8894A]" />
-        <span className="text-sm font-medium text-slate-700">已整理的客户信息</span>
+    <div className="rounded-[26px] border border-[#B8894A]/20 bg-[linear-gradient(180deg,rgba(255,248,238,0.98)_0%,rgba(255,252,247,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#B8894A]/12">
+            <Sparkles className="h-4 w-4 text-[#B8894A]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">已为你整理出以下客户信息</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              当前以顾问简报方式呈现，保存前仍可继续补充。
+            </p>
+          </div>
+        </div>
+        <Badge className="rounded-full border-0 bg-[#B8894A]/12 px-3 py-1 text-[#8B6A32]">
+          已具备 {filledFields.length} 项
+        </Badge>
       </div>
 
-      {/* 本次更新的字段 */}
-      {extractedFields.length > 0 && (
-        <div className="mb-4">
-          <p className="mb-2 text-xs font-medium text-[#B8894A]">📋 本次更新</p>
-          <div className="flex flex-wrap gap-1.5">
-            {extractedFields.map((field, idx) => (
-              <Badge 
-                key={idx}
-                variant="secondary" 
-                className="bg-[#B8894A]/10 text-[#8B6914] text-xs"
-              >
-                {field.label}：{field.value}
-              </Badge>
+      {extractedFields.length > 0 ? (
+        <div className="mt-4 rounded-2xl border border-white/80 bg-white/78 p-3.5 sm:p-4">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#8B6A32]">本次整理出</p>
+          <div className="mt-3 space-y-2.5">
+            {extractedFields.map((field, index) => (
+              <div key={`${field.label}-${index}`} className="flex gap-3 text-sm leading-6">
+                <span className="w-20 shrink-0 text-slate-500">{field.label}</span>
+                <span className="flex-1 text-slate-700">{field.value}</span>
+              </div>
             ))}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* 已填写 / 未填写 分栏 */}
-      <div className="grid gap-3 md:grid-cols-2">
-        {/* 已填写 */}
-        <div className="rounded-xl bg-white/60 p-3">
-          <div className="mb-2 flex items-center gap-1.5">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-            <span className="text-xs font-medium text-slate-600">已填写 ({filledFields.length})</span>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-[#0F766E]" />
+            <p className="text-sm font-medium text-slate-700">当前已具备的信息</p>
           </div>
-          {filledFields.length > 0 ? (
-            <div className="space-y-1">
-              {filledFields.map(field => (
-                <div key={field.key} className="flex items-center gap-2 text-xs">
-                  <span className="text-slate-500 w-14 shrink-0">{field.label}</span>
-                  <span className="text-slate-700 truncate">{currentFields[field.key]}</span>
+          <div className="mt-3 space-y-2.5">
+            {filledFields.length > 0 ? (
+              filledFields.slice(0, 6).map((field) => (
+                <div key={field.key} className="flex gap-3 text-sm leading-6">
+                  <span className="w-20 shrink-0 text-slate-500">{field.label}</span>
+                  <span className="flex-1 text-slate-700">{currentFields[field.key]}</span>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400 italic">暂无已填写字段</p>
-          )}
-        </div>
-
-        {/* 未填写 */}
-        <div className="rounded-xl bg-white/60 p-3">
-          <div className="mb-2 flex items-center gap-1.5">
-            <Circle className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-xs font-medium text-slate-600">未填写 ({emptyFields.length})</span>
+              ))
+            ) : (
+              <p className="text-sm leading-6 text-slate-500">当前还没有可保存的信息项。</p>
+            )}
+            {filledFields.length > 6 ? (
+              <p className="text-xs leading-5 text-slate-500">另有 {filledFields.length - 6} 项已整理，可继续查看后续卡片内容。</p>
+            ) : null}
           </div>
-          {emptyFields.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {emptyFields.map(field => (
-                <Badge 
-                  key={field.key}
-                  variant="secondary" 
-                  className={`text-xs ${field.required ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-500'}`}
-                >
-                  {field.label}{field.required && '*'}
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-emerald-600">✓ 所有字段已填写</p>
+        </div>
+
+        <div className="rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
+          <div className="flex items-center gap-2">
+            <Circle className="h-4 w-4 text-[#B8894A]" />
+            <p className="text-sm font-medium text-slate-700">建议继续补充</p>
+          </div>
+          <div className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+            {suggestedFields.length > 0 ? (
+              suggestedFields.slice(0, 5).map((field) => (
+                <div key={field.key} className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#B8894A]/80" />
+                  <span>
+                    {field.label}
+                    {field.required ? "（必填）" : ""}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p>当前信息已相当完整，可以直接保存当前客户档案。</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
+        <span
+          className={cn(
+            "rounded-full px-3 py-1",
+            nameReady ? "bg-[#0F766E]/10 text-[#0F766E]" : "bg-[#B8894A]/12 text-[#8B6A32]",
           )}
-        </div>
-      </div>
-
-      <p className="mt-3 text-xs text-slate-500">
-        你可以继续补充信息，或直接保存当前档案
-      </p>
-    </div>
-  );
-}
-
-// 保存成功卡片组件
-function SaveSuccessCard({ customer }: { customer: CustomerRecord }) {
-  // 组装所有已保存的字段（完整展示）
-  const allFields = [
-    { label: "姓名", value: customer.name },
-    { label: "昵称", value: customer.nickname },
-    { label: "年龄", value: customer.age },
-    { label: "性别", value: customer.sex },
-    { label: "职业", value: customer.profession },
-    { label: "家庭情况", value: customer.family_profile },
-    { label: "财富状况", value: customer.wealth_profile },
-    { label: "核心关注点", value: customer.core_interesting },
-    { label: "沟通偏好", value: customer.prefer_communicate },
-    { label: "客户来源", value: customer.source },
-    { label: "近期资金情况", value: customer.recent_money },
-    { label: "备注", value: customer.remark },
-  ].filter(f => f.value);
-
-  return (
-    <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-4">
-      {/* 标题 - 带图标 */}
-      <div className="mb-4 flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">
-          <CheckCircle className="h-4 w-4 text-emerald-600" />
-        </div>
-        <span className="text-base font-medium text-emerald-800">已保存的客户档案</span>
-      </div>
-
-      {/* 客户姓名标题 */}
-      <div className="mb-3 rounded-lg bg-emerald-100/50 px-3 py-2">
-        <span className="text-lg font-semibold text-emerald-900">
-          {customer.name}
+        >
+          {nameReady ? "当前已具备保存条件" : "还需先补充客户姓名"}
         </span>
-        {customer.nickname && (
-          <span className="ml-2 text-sm text-emerald-700">
-            ({customer.nickname})
-          </span>
-        )}
+        <span>你可以继续补充信息，或直接保存当前客户档案。</span>
       </div>
-
-      {/* 完整字段列表 */}
-      {allFields.length > 1 && (
-        <div className="rounded-xl bg-white/70 p-3">
-          <div className="grid gap-2 md:grid-cols-2">
-            {allFields
-              .filter(f => f.label !== "姓名" && f.label !== "昵称")
-              .map((field, idx) => (
-                <div key={idx} className="flex items-start gap-2 text-sm">
-                  <span className="text-slate-500 w-20 shrink-0 text-xs pt-0.5">{field.label}</span>
-                  <span className="text-slate-800 flex-1">{field.value}</span>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
-      <p className="mt-3 text-xs text-slate-500">
-        你可以继续添加下一位客户
-      </p>
     </div>
   );
 }
 
-// 错误提示卡片
-function ErrorHintCard({ message }: { message: string }) {
+function SaveSuccessCard({ customer }: { customer: CustomerRecord }) {
+  const groups = getSavedGroups(customer);
+
   return (
-    <div className="rounded-2xl border border-rose-200 bg-rose-50/80 p-4">
-      <div className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-100">
-          <span className="text-rose-600 text-xs">!</span>
+    <div className="rounded-[26px] border border-[#0F766E]/16 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(249,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-5">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/12">
+          <CheckCircle className="h-4 w-4 text-[#0F766E]" />
         </div>
-        <span className="text-sm text-rose-700">{message}</span>
+        <div>
+          <h3 className="text-base font-semibold text-[#123B5D]">客户档案已保存</h3>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            已完成当前建档，后续仍可继续补充经营相关内容。
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3.5">
+        <p className="text-lg font-semibold text-slate-900">{customer.name}</p>
+        {customer.nickname ? (
+          <p className="mt-1 text-sm text-slate-500">昵称：{customer.nickname}</p>
+        ) : null}
+      </div>
+
+      {groups.length > 0 ? (
+        <div className="mt-4 grid gap-3">
+          {groups.map((group) => (
+            <div key={group.title} className="rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
+              <p className="text-sm font-medium text-slate-700">{group.title}</p>
+              <div className="mt-3 space-y-2.5">
+                {group.items.map((item) => (
+                  <div key={item.label} className="flex gap-3 text-sm leading-6">
+                    <span className="w-20 shrink-0 text-slate-500">{item.label}</span>
+                    <span className="flex-1 text-slate-700">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <p className="mt-4 text-xs leading-5 text-slate-500">已完成当前建档。你可以继续补充下一位客户。</p>
+    </div>
+  );
+}
+
+function ErrorHintCard({ message }: { message: string }) {
+  const hintMeta = getHintMeta(message);
+
+  return (
+    <div className="rounded-[24px] border border-[#D9A35F]/22 bg-[linear-gradient(180deg,rgba(255,249,240,0.98)_0%,rgba(255,253,248,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D9A35F]/14">
+          <AlertCircle className="h-4 w-4 text-[#B06E20]" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-[#7A5328]">{hintMeta.title}</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">{message}</p>
+          <p className="mt-2 text-xs leading-5 text-slate-500">{hintMeta.helper}</p>
+        </div>
       </div>
     </div>
   );
 }
 
-// ============ 主页面组件 ============
+function CustomerPreviewCard({
+  customer,
+  onClick,
+}: {
+  customer: CustomerRecord;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full rounded-[20px] border border-white/75 bg-white/82 p-2.5 text-left shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:bg-white"
+    >
+      <div className="flex items-start gap-2.5">
+        <Avatar className="h-9 w-9 border border-[#E8E4DE]">
+          <AvatarFallback className="bg-[#F0F4F8] text-[13px] font-medium text-[#123B5D]">
+            {customer.name.slice(0, 1)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <p className="text-[13px] font-medium leading-5 text-slate-900">{customer.name}</p>
+            {customer.nickname ? (
+              <span className="rounded-full bg-[#123B5D]/8 px-1.5 py-0.5 text-[10px] text-[#123B5D]">
+                {customer.nickname}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{getCustomerMetaLine(customer)}</p>
+          {customer.created_at ? (
+            <p className="mt-1 text-[10px] text-slate-400">建档于 {formatShortDate(customer.created_at)}</p>
+          ) : null}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+
+function ExistingCustomersInlineCard({
+  customers,
+  relatedCustomers,
+  isOpen,
+  onToggle,
+  onViewAll,
+}: {
+  customers: CustomerRecord[];
+  relatedCustomers: CustomerRecord[];
+  isOpen: boolean;
+  onToggle: () => void;
+  onViewAll: () => void;
+}) {
+  const previewCustomers = (relatedCustomers.length > 0 ? relatedCustomers : customers).slice(0, 4);
+  const title = relatedCustomers.length > 0 ? "已找到相近客户，建议先核对" : "查看现有客户，避免重复建档";
+  const description =
+    relatedCustomers.length > 0
+      ? "如为同一位客户，建议前往客户中心更新；如为另一位同名客户，可补充昵称后继续保存。"
+      : "你可以在保存前快速核对已有档案，降低重复建档风险。";
+
+  return (
+    <div className="lg:hidden">
+      <div className="rounded-[24px] border border-[#123B5D]/10 bg-[linear-gradient(180deg,rgba(244,247,251,0.96)_0%,rgba(249,251,255,0.98)_100%)] p-3.5 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex w-full items-start justify-between gap-3 text-left"
+        >
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10">
+              <Users className="h-4 w-4 text-[#123B5D]" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[#123B5D]">{title}</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
+            </div>
+          </div>
+          {isOpen ? <ChevronUp className="mt-1 h-4 w-4 text-slate-400" /> : <ChevronDown className="mt-1 h-4 w-4 text-slate-400" />}
+        </button>
+
+        {isOpen ? (
+          <div className="mt-3 border-t border-white/80 pt-3">
+            {previewCustomers.length > 0 ? (
+              <ScrollArea className="max-h-64 pr-1">
+                <div className="space-y-2.5">
+                  {previewCustomers.map((customer) => (
+                    <CustomerPreviewCard key={customer.id} customer={customer} onClick={onViewAll} />
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="rounded-2xl border border-white/80 bg-white/70 px-4 py-5 text-center text-sm text-slate-500">
+                暂无客户数据
+              </div>
+            )}
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onViewAll}
+              className="mt-3 h-10 w-full rounded-full border-slate-300 bg-white/80 text-sm text-slate-700"
+            >
+              前往客户中心查看全部
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export default function NewCustomerPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  
-  // ===== 状态管理 =====
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
-  const [currentDraft, setCurrentDraft] = useState<Record<CustomerFieldKey, string>>({
-    name: "", nickname: "", age: "", sex: "", profession: "",
-    familyProfile: "", wealthProfile: "", coreInteresting: "",
-    preferCommunicate: "", source: "", recentMoney: "", remark: "",
-  });
-  const [duplicateConfirm, setDuplicateConfirm] = useState<{ name: string; confirmed: boolean } | null>(null);
+  const [currentDraft, setCurrentDraft] = useState<Record<CustomerFieldKey, string>>(createEmptyDraft());
   const [isExistingCustomersOpen, setIsExistingCustomersOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [desktopCustomerPage, setDesktopCustomerPage] = useState(1);
 
-  // ===== 数据获取 =====
   const customersQuery = useQuery({
+
     queryKey: ["customers-list"],
     queryFn: async () => {
       const data = await fetchJson<CustomerRecord[]>("/api/customers");
-      return data.sort((a, b) => {
-        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return timeB - timeA;
-      });
+      return data.sort((a, b) => getCustomerSortTime(b) - getCustomerSortTime(a));
     },
   });
 
   const customers = customersQuery.data ?? [];
+  const sortedCustomers = useMemo(() => [...customers].sort((a, b) => getCustomerSortTime(b) - getCustomerSortTime(a)), [customers]);
+  const totalCustomerCount = sortedCustomers.length;
+  const totalCustomerPages = totalCustomerCount === 0 ? 0 : Math.ceil(totalCustomerCount / DESKTOP_CUSTOMERS_PAGE_SIZE);
+  const currentDesktopCustomerPage = totalCustomerPages === 0 ? 0 : Math.min(desktopCustomerPage, totalCustomerPages);
+  const desktopPagedCustomers = useMemo(() => {
+    if (totalCustomerPages === 0) {
+      return [];
+    }
 
-  // ===== 初始化欢迎消息 =====
+    const startIndex = (currentDesktopCustomerPage - 1) * DESKTOP_CUSTOMERS_PAGE_SIZE;
+    return sortedCustomers.slice(startIndex, startIndex + DESKTOP_CUSTOMERS_PAGE_SIZE);
+  }, [currentDesktopCustomerPage, sortedCustomers, totalCustomerPages]);
+
+
   useEffect(() => {
     if (!isInitialized && !customersQuery.isLoading) {
-      addMessage({
-        id: crypto.randomUUID(),
-        role: "assistant",
-        type: "welcome",
-        content: "欢迎来到客户档案录入。你可以直接告诉我客户的基本信息，我会帮你整理成结构化档案。",
-        timestamp: formatTime(),
-      });
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          type: "welcome",
+          content: "已为你打开新增客户工作区。",
+          timestamp: formatTime(),
+        },
+      ]);
       setIsInitialized(true);
     }
-  }, [isInitialized, customersQuery.isLoading]);
+  }, [customersQuery.isLoading, isInitialized]);
 
-  // ===== 自动滚动到底部 =====
   useEffect(() => {
     if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [isExistingCustomersOpen, messages]);
 
-  // ===== 辅助函数 =====
-  const formatTime = () => {
-    const now = new Date();
-    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  };
+  useEffect(() => {
+    setDesktopCustomerPage((prev) => {
+      if (totalCustomerPages === 0) {
+        return 1;
+      }
+
+      return Math.min(prev, totalCustomerPages);
+    });
+  }, [totalCustomerPages]);
 
   const addMessage = (message: ChatMessage) => {
-    setMessages(prev => [...prev, message]);
+
+    setMessages((prev) => [...prev, message]);
   };
 
-  // 检查是否有任何字段被填充
-  const hasAnyExtractedData = Object.values(currentDraft).some((v) => v.trim() !== "");
+  const filledDraftCount = useMemo(
+    () => Object.values(currentDraft).filter((value) => value.trim() !== "").length,
+    [currentDraft],
+  );
 
-  // ===== Mutations =====
+  const hasAnyExtractedData = filledDraftCount > 0;
+  const isReadyToSave = validateNameComplete(currentDraft.name);
+
+  const relatedCustomers = useMemo(() => {
+    const name = currentDraft.name.trim();
+    const nickname = currentDraft.nickname.trim();
+
+    if (!name && !nickname) {
+      return [];
+    }
+
+    return customers
+      .filter((customer) => {
+        const customerName = customer.name.trim();
+        const customerNickname = customer.nickname?.trim() ?? "";
+
+        const sameName = name ? customerName === name : false;
+        const fuzzyName = name ? customerName.includes(name) || name.includes(customerName) : false;
+        const sameNickname = nickname ? customerNickname === nickname : false;
+
+        return sameName || fuzzyName || sameNickname;
+      })
+      .slice(0, 5);
+  }, [currentDraft.name, currentDraft.nickname, customers]);
+
   const extractMutation = useMutation({
     mutationFn: (message: string) =>
       fetchJson<CustomerDraftExtractResponse>("/api/customers/extract", {
@@ -390,26 +748,24 @@ export default function NewCustomerPage() {
           currentRemark: currentDraft.remark,
         }),
       }),
-    onSuccess: (result, variables) => {
-      // 增量合并策略
+    onSuccess: (result) => {
       const newData: Record<CustomerFieldKey, string> = { ...currentDraft };
-      
+
       result.extractedFields.forEach((field) => {
         const key = labelToKeyMap[field.label] || (field.label as CustomerFieldKey);
         if (key in newData) {
           newData[key] = field.value;
         }
       });
-      
+
       setCurrentDraft(newData);
       setInputText("");
-      
-      // 添加助手整理结果消息
+
       addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         type: "extracted-summary",
-        content: "已根据你提供的信息，整理出以下档案内容",
+        content: "已为你整理出当前客户信息。",
         timestamp: formatTime(),
         extractedFields: result.extractedFields,
         currentFields: newData,
@@ -420,7 +776,7 @@ export default function NewCustomerPage() {
         id: crypto.randomUUID(),
         role: "assistant",
         type: "error-hint",
-        content: error.message || "提取信息时出错，请重试",
+        content: error.message || "这次还没能稳定整理出可保存内容，请换一种更自然的说法继续补充。",
         timestamp: formatTime(),
       });
     },
@@ -447,67 +803,57 @@ export default function NewCustomerPage() {
         }),
       }),
     onSuccess: async (savedCustomer) => {
-      // 刷新客户列表
       await queryClient.invalidateQueries({ queryKey: ["customers-list"] });
       await queryClient.refetchQueries({ queryKey: ["customers-list"] });
       queryClient.invalidateQueries({ queryKey: ["customers-crm"] });
       queryClient.invalidateQueries({ queryKey: ["customers-options"] });
-      
-      // 添加保存成功消息
+
       addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         type: "save-success",
-        content: "客户档案已保存成功",
+        content: "已为你保存客户档案。",
         timestamp: formatTime(),
         savedCustomer,
       });
+      setDesktopCustomerPage(1);
 
-      // 延迟后重置状态并显示新的欢迎消息
+
       setTimeout(() => {
-        // 清空当前草稿
-        setCurrentDraft({
-          name: "", nickname: "", age: "", sex: "", profession: "",
-          familyProfile: "", wealthProfile: "", coreInteresting: "",
-          preferCommunicate: "", source: "", recentMoney: "", remark: "",
-        });
-        setDuplicateConfirm(null);
-        
-        // 添加新的欢迎消息
+        setCurrentDraft(createEmptyDraft());
+        setIsExistingCustomersOpen(false);
         addMessage({
           id: crypto.randomUUID(),
           role: "assistant",
           type: "welcome",
-          content: "欢迎继续添加客户档案。你可以直接告诉我下一位客户的基本信息。",
+          content: "可以继续录入下一位客户。",
           timestamp: formatTime(),
         });
-      }, 1500);
+      }, 1200);
     },
     onError: (error: Error) => {
       addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         type: "error-hint",
-        content: error.message || "保存失败，请重试",
+        content: error.message || "这次还没有保存成功，请稍后重试。",
         timestamp: formatTime(),
       });
     },
   });
 
-  // ===== 事件处理 =====
   const handleExtract = () => {
     if (!inputText.trim()) {
       addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         type: "error-hint",
-        content: "请先输入客户信息",
+        content: "请先输入客户信息，我再帮你整理。",
         timestamp: formatTime(),
       });
       return;
     }
 
-    // 添加用户消息
     addMessage({
       id: crypto.randomUUID(),
       role: "user",
@@ -517,358 +863,363 @@ export default function NewCustomerPage() {
       rawInput: inputText.trim(),
     });
 
-    // 调用提取API
     extractMutation.mutate(inputText.trim());
   };
 
   const handleClear = () => {
     setInputText("");
-    setCurrentDraft({
-      name: "", nickname: "", age: "", sex: "", profession: "",
-      familyProfile: "", wealthProfile: "", coreInteresting: "",
-      preferCommunicate: "", source: "", recentMoney: "", remark: "",
-    });
-    setDuplicateConfirm(null);
+    setCurrentDraft(createEmptyDraft());
+    setIsExistingCustomersOpen(false);
   };
 
-  const validateNameComplete = (name: string): boolean => {
-    return name.trim().length >= 2;
-  };
-
-  const findDuplicateCustomer = (name: string, nickname: string): CustomerRecord | undefined => {
-    return customers.find((c) => {
-      const nameMatch = c.name === name.trim();
-      const nicknameMatch = c.nickname === (nickname.trim() || undefined);
-      return nameMatch && nicknameMatch;
+  const findDuplicateCustomer = (name: string, nickname: string) => {
+    return customers.find((customer) => {
+      const sameName = customer.name === name.trim();
+      const sameNickname = (customer.nickname ?? "") === nickname.trim();
+      return sameName && sameNickname;
     });
   };
 
   const handleSave = () => {
     const name = currentDraft.name.trim();
     const nickname = currentDraft.nickname.trim();
-    
-    // 1. 校验姓名是否存在
+
     if (!name) {
       addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         type: "error-hint",
-        content: "客户姓名是必填信息，尚未填写。请在下方输入框中补充客户姓名，如：客户叫王伟",
+        content: "客户姓名是建档必填信息。请先补充姓名，例如：客户叫王伟。",
         timestamp: formatTime(),
       });
       return;
     }
-    
-    // 2. 校验姓名是否完整
+
     if (!validateNameComplete(name)) {
       addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         type: "error-hint",
-        content: `当前姓名为"${name}"，似乎不完整。请补充完整姓名以便后续准确识别这位客户，例如输入：客户全名是王建国`,
+        content: `当前姓名“${name}”可能还不完整。建议先补充完整姓名，例如：客户全名是王建国。`,
         timestamp: formatTime(),
       });
       return;
     }
-    
-    // 3. 检查重复客户
-    const existingSameName = customers.find((c) => c.name === name);
-    const isTrulyDuplicate = findDuplicateCustomer(name, nickname);
-    
-    if (existingSameName && isTrulyDuplicate && !(duplicateConfirm?.name === name && duplicateConfirm?.confirmed)) {
-      setDuplicateConfirm({ name, confirmed: false });
+
+    const sameNameCustomer = customers.find((customer) => customer.name === name);
+    const duplicateCustomer = findDuplicateCustomer(name, nickname);
+
+    if (sameNameCustomer && duplicateCustomer) {
+      const createdAt = sameNameCustomer.created_at ? `，建档于 ${formatShortDate(sameNameCustomer.created_at)}` : "";
+      const nicknameText = sameNameCustomer.nickname ? `（昵称：${sameNameCustomer.nickname}）` : "";
+
       addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         type: "error-hint",
-        content: `检测到已有名为"${name}"的客户（${existingSameName.nickname ? existingSameName.nickname + '，' : ''}创建于 ${existingSameName.created_at ? new Date(existingSameName.created_at).toLocaleDateString() : '未知'}）。如为同一人请前往客户中心更新；如确认为另一位同名客户，请补充昵称信息并交给助手整理后，再次点击保存`,
+        content: `已检测到相近客户：${sameNameCustomer.name}${nicknameText}${createdAt}。如为同一位客户，请前往客户中心更新；如为另一位同名客户，请补充昵称后再保存。`,
         timestamp: formatTime(),
       });
+      setIsExistingCustomersOpen(true);
       return;
     }
-    
-    setDuplicateConfirm(null);
+
     saveMutation.mutate(currentDraft);
   };
 
-  // ===== 渲染消息 =====
   const renderMessage = (message: ChatMessage) => {
     const isAssistant = message.role === "assistant";
-    
+    const showTextBubble = !(isAssistant && message.type === "error-hint");
+
     return (
-      <div 
-        key={message.id} 
-        className={`flex gap-3 ${isAssistant ? "justify-start" : "justify-end"}`}
-      >
-        {isAssistant && (
-          <Avatar className="mt-1 h-8 w-8 border border-white shadow-sm shrink-0">
-            <AvatarFallback className="bg-gradient-to-br from-[#0F766E] to-[#B8894A] text-white text-xs">
+      <div key={message.id} className={cn("flex gap-3", isAssistant ? "justify-start" : "justify-end")}>
+        {isAssistant ? (
+          <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
+            <AvatarFallback className="bg-gradient-to-br from-[#123B5D] to-[#0F766E] text-xs text-white">
               AI
             </AvatarFallback>
           </Avatar>
-        )}
-        
-        <div className={`max-w-[85%] space-y-1 ${isAssistant ? "items-start" : "items-end text-right"}`}>
-          {/* 时间戳 */}
-          <span className="text-xs text-slate-400 px-1">{message.timestamp}</span>
-          
-          {/* 消息内容 */}
-          <div className={`rounded-2xl px-4 py-3 text-sm shadow-sm ${
-            isAssistant 
-              ? "bg-white border border-slate-100 text-slate-700" 
-              : "bg-gradient-to-br from-[#0F766E] to-[#0B5F59] text-white"
-          }`}>
-            {message.type === "user-input" ? (
-              <p className="leading-relaxed">{message.rawInput}</p>
-            ) : (
-              <p className="leading-relaxed">{message.content}</p>
-            )}
-          </div>
+        ) : null}
 
-          {/* 结构化卡片内容 */}
-          {isAssistant && message.type === "welcome" && (
-            <div className="pt-1">
-              <WelcomeMessageCard />
-            </div>
-          )}
+        <div className={cn("max-w-[88%] space-y-2", isAssistant ? "items-start" : "items-end text-right")}>
+          <span className="px-1 text-xs text-slate-400">{message.timestamp}</span>
 
-          {isAssistant && message.type === "extracted-summary" && message.currentFields && (
-            <div className="pt-1">
-              <ExtractedSummaryCard 
-                extractedFields={message.extractedFields || []}
-                currentFields={message.currentFields}
-              />
+          {showTextBubble ? (
+            <div
+              className={cn(
+                "rounded-[22px] px-4 py-3 text-sm shadow-[0_12px_30px_rgba(15,23,42,0.04)]",
+                isAssistant
+                  ? "border border-white/80 bg-white/86 text-slate-700"
+                  : "bg-gradient-to-br from-[#123B5D] to-[#0E2E49] text-white",
+              )}
+            >
+              <p className="leading-7">{message.type === "user-input" ? message.rawInput : message.content}</p>
             </div>
-          )}
+          ) : null}
 
-          {isAssistant && message.type === "save-success" && message.savedCustomer && (
-            <div className="pt-1">
-              <SaveSuccessCard customer={message.savedCustomer} />
-            </div>
-          )}
+          {isAssistant && message.type === "welcome" ? <WelcomeMessageCard compact={shouldCompactWelcome} /> : null}
 
-          {isAssistant && message.type === "error-hint" && (
-            <div className="pt-1">
-              <ErrorHintCard message={message.content} />
-            </div>
-          )}
+
+          {isAssistant && message.type === "extracted-summary" && message.currentFields ? (
+            <ExtractedSummaryCard
+              extractedFields={message.extractedFields ?? []}
+              currentFields={message.currentFields}
+            />
+          ) : null}
+
+          {isAssistant && message.type === "save-success" && message.savedCustomer ? (
+            <SaveSuccessCard customer={message.savedCustomer} />
+          ) : null}
+
+          {isAssistant && message.type === "error-hint" ? <ErrorHintCard message={message.content} /> : null}
         </div>
       </div>
     );
   };
 
-  // ===== 页面渲染 =====
-  return (
-    <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden bg-white">
-      {/* 页面标题 */}
-      <div className="flex items-center gap-4 px-4 py-3 border-b border-slate-100 bg-white shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push("/customers")}
-          className="rounded-full"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-lg font-semibold text-slate-900">添加客户档案</h1>
-        </div>
-      </div>
+  const shouldCompactWelcome = messages.some((message) => message.type !== "welcome");
+  const mobileInputHint = hasAnyExtractedData
+    ? "继续补充客户信息，助手会按最新内容整理。"
+    : "直接描述客户情况，助手会先帮你整理。";
 
-      {/* 主内容区域 */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full grid lg:grid-cols-[1fr_280px]">
-          {/* 左侧：对话区域 */}
-          <div className="flex flex-col h-full overflow-hidden">
-            {/* 消息列表 - 可滚动区域 */}
-            <div 
+
+  const desktopPanelTitle = "现有客户";
+  const desktopRelatedHint = relatedCustomers.length > 0 ? `已发现 ${relatedCustomers.length} 位相近客户，建议优先核对。` : "";
+
+
+
+  return (
+    <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-2 md:h-[calc(100dvh-8rem)] md:gap-3">
+      <Card className="glass-panel shrink-0 rounded-[28px] border-white/60 bg-white/82 shadow-[0_24px_80px_rgba(15,23,42,0.1)]">
+        <CardContent className="flex items-start gap-3 p-3.5 sm:p-4 md:px-5 md:py-3.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/customers")}
+            className="mt-0.5 h-9 w-9 shrink-0 rounded-full border border-white/70 bg-white/75 text-[#123B5D] hover:bg-white"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg font-semibold text-[#123B5D] md:text-[1.35rem]">添加客户档案</h1>
+            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-600 sm:text-sm">
+              先保存基础信息，后续可继续补充；最小必填：客户姓名。
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+
+      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <Card className="glass-panel flex min-h-0 flex-col overflow-hidden rounded-[32px] border-white/60 bg-white/88 shadow-[0_24px_80px_rgba(15,23,42,0.1)]">
+          <CardContent className="flex min-h-0 flex-1 flex-col p-0">
+            <div className="shrink-0 border-b border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(247,249,252,0.9)_100%)] px-4 py-2.5 sm:px-5 md:px-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">助手主流程</p>
+
+                <div className="flex flex-wrap items-center justify-end gap-1.5">
+                  {hasAnyExtractedData ? (
+                    <span className="rounded-full bg-[#0F766E]/10 px-2.5 py-1 text-[11px] font-medium text-[#0F766E]">
+                      已整理 {filledDraftCount} 项
+                    </span>
+                  ) : null}
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] font-medium",
+                      isReadyToSave ? "bg-[#0F766E]/10 text-[#0F766E]" : "bg-[#B8894A]/12 text-[#8B6A32]",
+                    )}
+                  >
+                    {isReadyToSave ? "当前可保存" : "最小必填：客户姓名"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+
+            <div
               ref={scrollAreaRef}
-              className="flex-1 overflow-y-auto px-4 py-4"
-              style={{ overscrollBehavior: 'contain' }}
+              className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-5 md:px-6"
+              style={{ overscrollBehavior: "contain" }}
             >
-              <div className="space-y-5 max-w-3xl mx-auto">
+              <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
+
                 {messages.map(renderMessage)}
-                
-                {/* 加载状态 */}
-                {(extractMutation.isPending || saveMutation.isPending) && (
+
+                <ExistingCustomersInlineCard
+                  customers={customers}
+                  relatedCustomers={relatedCustomers}
+                  isOpen={isExistingCustomersOpen}
+                  onToggle={() => setIsExistingCustomersOpen((prev) => !prev)}
+                  onViewAll={() => router.push("/customers")}
+                />
+
+                {extractMutation.isPending || saveMutation.isPending ? (
                   <div className="flex gap-3 justify-start">
-                    <Avatar className="mt-1 h-8 w-8 border border-white shadow-sm shrink-0">
-                      <AvatarFallback className="bg-gradient-to-br from-[#0F766E] to-[#B8894A] text-white text-xs">
+                    <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
+                      <AvatarFallback className="bg-gradient-to-br from-[#123B5D] to-[#0F766E] text-xs text-white">
                         AI
                       </AvatarFallback>
                     </Avatar>
-                    <div className="bg-white border border-slate-100 rounded-2xl px-4 py-3 shadow-sm">
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <div className="rounded-[22px] border border-white/80 bg-white/86 px-4 py-3 text-sm text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+                      <div className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4 animate-pulse text-[#B8894A]" />
-                        {extractMutation.isPending ? "正在整理信息..." : "正在保存档案..."}
+                        {extractMutation.isPending ? "正在为你整理客户信息…" : "正在为你保存客户档案…"}
                       </div>
                     </div>
                   </div>
-                )}
-                
-                {/* 底部留白 */}
-                <div className="h-20 lg:h-4" />
+                ) : null}
+
+                <div className="h-2" />
               </div>
             </div>
 
-            {/* 底部输入区域 */}
-            <div className="border-t border-slate-100 bg-white p-4 shrink-0">
-              <div className="max-w-3xl mx-auto">
-                <Card className="border-slate-200/70 shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <UserPlus className="h-4 w-4 text-[#0F766E]" />
-                      <span className="text-sm font-medium text-slate-700">输入客户信息</span>
-                      <span className="text-xs text-slate-400">助手会帮你整理成档案</span>
+            <div className="shrink-0 border-t border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,252,0.98)_100%)] px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2.5 sm:px-4 md:px-5 lg:px-6">
+              <div className="mx-auto max-w-3xl rounded-[24px] border border-white/75 bg-white/86 p-3 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:p-3.5">
+
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10">
+                      <UserPlus className="h-3.5 w-3.5 text-[#123B5D]" />
                     </div>
-                    
-                    <Textarea
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      placeholder="请描述客户的基本信息，例如：&#10;王敏，35岁，软件工程师，已婚有一个5岁孩子，家庭年收入50万左右..."
-                      className="min-h-[100px] resize-none rounded-xl border-slate-200/80 bg-slate-50/50 p-3 text-sm leading-relaxed placeholder:text-slate-400"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && e.metaKey) {
-                          handleExtract();
-                        }
-                      }}
-                    />
-
-                    {/* 操作按钮 */}
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={handleClear}
-                        disabled={!hasAnyExtractedData && !inputText}
-                        className="rounded-full border-slate-300 bg-transparent px-4 text-sm"
-                      >
-                        清空输入框
-                      </Button>
-
-                      <Button
-                        onClick={handleExtract}
-                        disabled={extractMutation.isPending || !inputText.trim()}
-                        className="rounded-full bg-[#0F766E] px-4 text-white hover:bg-[#0B5F59] text-sm"
-                      >
-                        {extractMutation.isPending ? "整理中..." : "交给助手"}
-                      </Button>
-
-                      <Button
-                        onClick={handleSave}
-                        disabled={saveMutation.isPending}
-                        className="rounded-full bg-[#123B5D] px-4 text-white hover:bg-[#0E2E49] text-sm"
-                      >
-                        {saveMutation.isPending ? "保存中..." : "保存客户"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-
-          {/* 右侧：现有客户列表（桌面端） */}
-          <Card className="hidden lg:flex lg:flex-col h-full border-l border-slate-100 bg-[#F7F5F2]/50 rounded-none">
-            <CardContent className="flex h-full flex-col p-0">
-              <div className="border-b border-[#E8E4DE] bg-[#EFEBE6]/30 p-4">
-                <h3 className="font-medium text-[#123B5D]">现有客户</h3>
-                <p className="text-xs text-slate-500">避免重复建档</p>
-              </div>
-              <ScrollArea className="flex-1 px-3 py-3">
-                <div className="space-y-2">
-                  {customers.map((customer) => (
-                    <div
-                      key={customer.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-xl bg-white/60 p-2.5 shadow-sm transition-all hover:bg-white hover:shadow-md"
-                      onClick={() => router.push(`/customers`)}
-                    >
-                      <Avatar className="h-9 w-9 border border-[#E8E4DE]">
-                        <AvatarFallback className="bg-[#F0F4F8] text-xs font-medium text-[#123B5D]">
-                          {customer.name.slice(0, 1)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-slate-900">
-                          {customer.name}
-                        </p>
-                        {customer.nickname && (
-                          <p className="truncate text-xs text-slate-500">
-                            {customer.nickname}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {customers.length === 0 && (
-                    <div className="py-8 text-center text-sm text-slate-400">
-                      暂无客户数据
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* 底部现有客户区域 - 手机端 */}
-      <Card className="fixed inset-x-4 bottom-4 z-40 border-slate-200/50 bg-[#F7F5F2]/95 backdrop-blur-sm lg:hidden">
-        <div
-          className="flex cursor-pointer items-center justify-between p-3"
-          onClick={() => setIsExistingCustomersOpen(!isExistingCustomersOpen)}
-        >
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-[#123B5D]" />
-            <span className="text-sm font-medium text-slate-700">
-              现有 {customers.length} 位客户
-            </span>
-            <span className="text-xs text-slate-400">（避免重复建档）</span>
-          </div>
-          {isExistingCustomersOpen ? (
-            <ChevronDown className="h-5 w-5 text-slate-400" />
-          ) : (
-            <ChevronUp className="h-5 w-5 text-slate-400" />
-          )}
-        </div>
-
-        {isExistingCustomersOpen && (
-          <div className="border-t border-[#E8E4DE]">
-            <ScrollArea className="h-[200px] px-3 py-2">
-              <div className="space-y-2">
-                {customers.map((customer) => (
-                  <div
-                    key={customer.id}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg bg-white/60 p-2 shadow-sm transition-all hover:bg-white hover:shadow-md"
-                    onClick={() => router.push(`/customers`)}
-                  >
-                    <Avatar className="h-8 w-8 border border-[#E8E4DE]">
-                      <AvatarFallback className="bg-[#F0F4F8] text-xs font-medium text-[#123B5D]">
-                        {customer.name.slice(0, 1)}
-                      </AvatarFallback>
-                    </Avatar>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-900">
-                        {customer.name}
-                      </p>
-                      {customer.nickname && (
-                        <p className="truncate text-xs text-slate-500">
-                          {customer.nickname}
-                        </p>
-                      )}
+                      <p className="text-[13px] font-medium text-[#123B5D] sm:text-sm">输入客户信息</p>
+                      <p className="mt-0.5 text-xs leading-5 text-slate-500 sm:text-[13px]">{mobileInputHint}</p>
                     </div>
+
                   </div>
-                ))}
-                {customers.length === 0 && (
-                  <div className="py-6 text-center text-sm text-slate-400">
+
+                  {hasAnyExtractedData || inputText ? (
+                    <Button
+                      variant="ghost"
+                      onClick={handleClear}
+                      className="h-8 rounded-full px-3 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                    >
+                      清空
+                    </Button>
+                  ) : null}
+                </div>
+
+                <Textarea
+                  value={inputText}
+                  onChange={(event) => setInputText(event.target.value)}
+                  placeholder="例如：王敏，35岁，私营业主，已婚，有一个孩子，最近关注教育金和家庭保障。"
+                  className="mt-3 min-h-[76px] resize-none rounded-[18px] border-slate-200/80 bg-slate-50/70 p-3 text-sm leading-6 placeholder:text-slate-400 focus-visible:ring-[#123B5D]/20 md:min-h-[84px]"
+                  onKeyDown={(event) => {
+
+                    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                      handleExtract();
+                    }
+                  }}
+                />
+
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Button
+                    onClick={handleExtract}
+                    disabled={extractMutation.isPending || !inputText.trim()}
+                    className="h-10 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49]"
+                  >
+                    {extractMutation.isPending ? "整理中…" : "交给助手"}
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    disabled={saveMutation.isPending}
+                    className={cn(
+                      "h-10 rounded-full text-sm text-white",
+                      isReadyToSave
+                        ? "bg-[#0F766E] hover:bg-[#0B5F59]"
+                        : "bg-[#123B5D]/82 hover:bg-[#123B5D]",
+                    )}
+                  >
+                    {saveMutation.isPending ? "保存中…" : "保存客户"}
+                  </Button>
+                </div>
+
+                <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                  需要确认的内容会先提醒你，不会直接误写客户资料。支持 `Ctrl/Cmd + Enter` 快速整理。
+                </p>
+              </div>
+            </div>
+
+          </CardContent>
+        </Card>
+
+        <Card className="glass-panel hidden h-full min-h-0 overflow-hidden rounded-[32px] border-white/60 bg-white/84 shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:flex lg:flex-col">
+          <CardContent className="flex h-full min-h-0 flex-col p-0">
+            <div className="border-b border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(247,249,252,0.92)_100%)] px-4 py-2.5">
+              <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">{desktopPanelTitle}</p>
+            </div>
+
+            <ScrollArea className="min-h-0 flex-1 px-4 py-3">
+
+              <div className="space-y-2.5">
+
+                {desktopRelatedHint ? (
+                  <div className="rounded-[20px] border border-[#B8894A]/16 bg-[#FFF8EE]/76 px-3.5 py-3 text-[13px] leading-5 text-[#7A5328]">
+                    {desktopRelatedHint}
+                  </div>
+                ) : null}
+
+                {desktopPagedCustomers.length > 0 ? (
+                  desktopPagedCustomers.map((customer) => (
+                    <CustomerPreviewCard
+                      key={customer.id}
+                      customer={customer}
+                      onClick={() => router.push("/customers")}
+                    />
+                  ))
+                ) : (
+                  <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
                     暂无客户数据
                   </div>
                 )}
+
               </div>
             </ScrollArea>
-          </div>
-        )}
-      </Card>
 
+            <div className="shrink-0 border-t border-slate-200/70 bg-white/88 px-4 py-2.5">
+
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 text-[12px] leading-5 text-slate-500">
+                  <p>已保存 {totalCustomerCount} 位客户</p>
+                  <p>共 {totalCustomerPages} 页 · 当前第 {currentDesktopCustomerPage} 页</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setDesktopCustomerPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentDesktopCustomerPage <= 1}
+                    className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
+                  >
+                    上一页
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setDesktopCustomerPage((prev) => Math.min(prev + 1, totalCustomerPages || 1))}
+                    disabled={currentDesktopCustomerPage === 0 || currentDesktopCustomerPage >= totalCustomerPages}
+                    className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
+                  >
+                    下一页
+                  </Button>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={() => router.push("/customers")}
+                className="mt-2.5 h-9 w-full rounded-full border-slate-300 bg-white/86 text-sm text-slate-700"
+              >
+                前往客户中心查看全部
+              </Button>
+
+            </div>
+          </CardContent>
+        </Card>
+
+      </div>
     </div>
   );
 }
