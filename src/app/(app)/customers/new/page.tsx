@@ -679,89 +679,150 @@ function DuplicateReviewCard({
   );
 }
 
+function CustomerDirectoryPanelContent({
+  relatedHint,
+  pagedCustomers,
+  totalCustomerCount,
+  totalCustomerPages,
+  currentCustomerPage,
+  onPrevPage,
+  onNextPage,
+  onViewAll,
+  scrollAreaClassName,
+  footerClassName,
+}: {
+  relatedHint: string;
+  pagedCustomers: CustomerRecord[];
+  totalCustomerCount: number;
+  totalCustomerPages: number;
+  currentCustomerPage: number;
+  onPrevPage: () => void;
+  onNextPage: () => void;
+  onViewAll: () => void;
+  scrollAreaClassName?: string;
+  footerClassName?: string;
+}) {
+  return (
+    <>
+      <ScrollArea className={cn("min-h-0 flex-1 px-4 py-3", scrollAreaClassName)}>
+        <div className="space-y-2.5">
+          {relatedHint ? (
+            <div className="rounded-[20px] border border-[#B8894A]/16 bg-[#FFF8EE]/76 px-3.5 py-3 text-[13px] leading-5 text-[#7A5328]">
+              {relatedHint}
+            </div>
+          ) : null}
+
+          {pagedCustomers.length > 0 ? (
+            pagedCustomers.map((customer) => (
+              <CustomerPreviewCard key={customer.id} customer={customer} onClick={onViewAll} />
+            ))
+          ) : (
+            <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
+              暂无客户数据
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      <div className={cn("shrink-0 border-t border-slate-200/70 bg-white/88 px-4 py-2.5", footerClassName)}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 text-[12px] leading-5 text-slate-500">
+            <p>已保存 {totalCustomerCount} 位客户</p>
+            <p>共 {totalCustomerPages} 页 · 当前第 {currentCustomerPage} 页</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPrevPage}
+              disabled={currentCustomerPage <= 1}
+              className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
+            >
+              上一页
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onNextPage}
+              disabled={currentCustomerPage === 0 || currentCustomerPage >= totalCustomerPages}
+              className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
+            >
+              下一页
+            </Button>
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          onClick={onViewAll}
+          className="mt-2.5 h-9 w-full rounded-full border-slate-300 bg-white/86 text-sm text-slate-700"
+        >
+          前往客户中心查看全部
+        </Button>
+      </div>
+    </>
+  );
+}
+
 function MobileCustomersSheet({
   open,
   onOpenChange,
-  customers,
-  relatedCustomers,
-  hasBlockingDuplicate,
+  relatedHint,
+  pagedCustomers,
+  totalCustomerCount,
+  totalCustomerPages,
+  currentCustomerPage,
+  onPrevPage,
+  onNextPage,
   onViewAll,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  customers: CustomerRecord[];
-  relatedCustomers: CustomerRecord[];
-  hasBlockingDuplicate: boolean;
+  relatedHint: string;
+  pagedCustomers: CustomerRecord[];
+  totalCustomerCount: number;
+  totalCustomerPages: number;
+  currentCustomerPage: number;
+  onPrevPage: () => void;
+  onNextPage: () => void;
   onViewAll: () => void;
 }) {
-  const previewCustomers = (relatedCustomers.length > 0 ? relatedCustomers : customers).slice(0, 8);
-  const title = relatedCustomers.length > 0 ? "相近客户核对" : "现有客户";
-  const description = relatedCustomers.length > 0
-    ? hasBlockingDuplicate
-      ? "当前草稿与已有档案高度一致，请先确认是否为同一位客户。"
-      : "已根据当前草稿筛出可能相关的客户。关闭后可继续当前新增流程。"
-    : "这里展示最近已建档的客户，关闭抽屉后可继续当前新增流程。";
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="max-h-[86dvh] rounded-t-[32px] border-x-0 border-b-0 border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,249,252,0.98)_100%)] p-0 lg:hidden"
+        className="flex max-h-[86dvh] flex-col rounded-t-[32px] border-x-0 border-b-0 border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,249,252,0.98)_100%)] p-0 lg:hidden"
       >
         <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-300/80" />
         <SheetHeader className="px-4 pb-3 pt-4">
           <div className="pr-10">
-            <SheetTitle className="text-[17px] font-semibold text-[#123B5D]">{title}</SheetTitle>
-            <SheetDescription className="mt-1 text-[13px] leading-6 text-slate-500">{description}</SheetDescription>
+            <SheetTitle className="text-[17px] font-semibold text-[#123B5D]">现有客户</SheetTitle>
+            <SheetDescription className="mt-1 text-[13px] leading-6 text-slate-500">
+              已按与你当前桌面视图一致的方式展示，关闭抽屉后可继续当前新增流程。
+            </SheetDescription>
           </div>
         </SheetHeader>
 
-        {relatedCustomers.length > 0 ? (
-          <div className="px-4 pb-3">
-            <span className="inline-flex rounded-full bg-[#B8894A]/12 px-3 py-1 text-[11px] font-medium text-[#8B6A32]">
-              已匹配 {relatedCustomers.length} 位相近客户
-            </span>
-          </div>
-        ) : null}
-
-        <ScrollArea className="max-h-[54dvh] px-4 pb-4">
-          <div className="space-y-2.5 pb-1">
-            {previewCustomers.length > 0 ? (
-              previewCustomers.map((customer) => (
-                <CustomerPreviewCard key={customer.id} customer={customer} onClick={onViewAll} />
-              ))
-            ) : (
-              <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
-                暂无客户数据
-              </div>
-            )}
-          </div>
-        </ScrollArea>
-
-        <div className="border-t border-slate-200/70 bg-white/90 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3.5">
-          <p className="text-[12px] leading-5 text-slate-500">
-            {previewCustomers.length > 0
-              ? `已展示 ${previewCustomers.length} 位客户；如需查看完整列表，可前往客户中心。`
-              : "当前还没有客户档案，关闭后可继续新增当前客户。"}
-          </p>
-          {customers.length > 0 ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                onOpenChange(false);
-                onViewAll();
-              }}
-              className="mt-3 h-10 w-full rounded-full border-slate-300 bg-white/84 text-sm text-slate-700"
-            >
-              前往客户中心查看全部
-            </Button>
-          ) : null}
-        </div>
+        <CustomerDirectoryPanelContent
+          relatedHint={relatedHint}
+          pagedCustomers={pagedCustomers}
+          totalCustomerCount={totalCustomerCount}
+          totalCustomerPages={totalCustomerPages}
+          currentCustomerPage={currentCustomerPage}
+          onPrevPage={onPrevPage}
+          onNextPage={onNextPage}
+          onViewAll={() => {
+            onOpenChange(false);
+            onViewAll();
+          }}
+          footerClassName="bg-white/90 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3.5"
+        />
       </SheetContent>
     </Sheet>
   );
 }
+
 
 
 export default function NewCustomerPage() {
@@ -1330,9 +1391,13 @@ export default function NewCustomerPage() {
         <MobileCustomersSheet
           open={isExistingCustomersOpen}
           onOpenChange={setIsExistingCustomersOpen}
-          customers={customers}
-          relatedCustomers={relatedCustomers}
-          hasBlockingDuplicate={hasBlockingDuplicate}
+          relatedHint={desktopRelatedHint}
+          pagedCustomers={desktopPagedCustomers}
+          totalCustomerCount={totalCustomerCount}
+          totalCustomerPages={totalCustomerPages}
+          currentCustomerPage={currentDesktopCustomerPage}
+          onPrevPage={() => setDesktopCustomerPage((prev) => Math.max(prev - 1, 1))}
+          onNextPage={() => setDesktopCustomerPage((prev) => Math.min(prev + 1, totalCustomerPages || 1))}
           onViewAll={() => router.push("/customers")}
         />
 
@@ -1342,72 +1407,16 @@ export default function NewCustomerPage() {
               <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">{desktopPanelTitle}</p>
             </div>
 
-            <ScrollArea className="min-h-0 flex-1 px-4 py-3">
-
-              <div className="space-y-2.5">
-
-                {desktopRelatedHint ? (
-                  <div className="rounded-[20px] border border-[#B8894A]/16 bg-[#FFF8EE]/76 px-3.5 py-3 text-[13px] leading-5 text-[#7A5328]">
-                    {desktopRelatedHint}
-                  </div>
-                ) : null}
-
-                {desktopPagedCustomers.length > 0 ? (
-                  desktopPagedCustomers.map((customer) => (
-                    <CustomerPreviewCard
-                      key={customer.id}
-                      customer={customer}
-                      onClick={() => router.push("/customers")}
-                    />
-                  ))
-                ) : (
-                  <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
-                    暂无客户数据
-                  </div>
-                )}
-
-              </div>
-            </ScrollArea>
-
-            <div className="shrink-0 border-t border-slate-200/70 bg-white/88 px-4 py-2.5">
-
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0 text-[12px] leading-5 text-slate-500">
-                  <p>已保存 {totalCustomerCount} 位客户</p>
-                  <p>共 {totalCustomerPages} 页 · 当前第 {currentDesktopCustomerPage} 页</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setDesktopCustomerPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentDesktopCustomerPage <= 1}
-                    className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
-                  >
-                    上一页
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setDesktopCustomerPage((prev) => Math.min(prev + 1, totalCustomerPages || 1))}
-                    disabled={currentDesktopCustomerPage === 0 || currentDesktopCustomerPage >= totalCustomerPages}
-                    className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
-                  >
-                    下一页
-                  </Button>
-                </div>
-              </div>
-
-              <Button
-                variant="outline"
-                onClick={() => router.push("/customers")}
-                className="mt-2.5 h-9 w-full rounded-full border-slate-300 bg-white/86 text-sm text-slate-700"
-              >
-                前往客户中心查看全部
-              </Button>
-
-            </div>
+            <CustomerDirectoryPanelContent
+              relatedHint={desktopRelatedHint}
+              pagedCustomers={desktopPagedCustomers}
+              totalCustomerCount={totalCustomerCount}
+              totalCustomerPages={totalCustomerPages}
+              currentCustomerPage={currentDesktopCustomerPage}
+              onPrevPage={() => setDesktopCustomerPage((prev) => Math.max(prev - 1, 1))}
+              onNextPage={() => setDesktopCustomerPage((prev) => Math.min(prev + 1, totalCustomerPages || 1))}
+              onViewAll={() => router.push("/customers")}
+            />
           </CardContent>
         </Card>
 
