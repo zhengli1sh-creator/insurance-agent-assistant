@@ -949,7 +949,10 @@ export default function NewCustomerPage() {
   const hasBlockingDuplicate = Boolean(exactDuplicateCustomer);
   const relatedCustomersFingerprint = useMemo(() => relatedCustomers.map((customer) => customer.id).join(","), [relatedCustomers]);
   const shouldShowDuplicateReviewCard = relatedCustomers.length > 0 && !isDuplicateNoticeDismissed;
-  const shouldShowPrimaryActions = !(hasBlockingDuplicate && !inputText.trim());
+  const shouldCoverInputAreaWithDuplicateReview =
+    hasBlockingDuplicate && shouldShowDuplicateReviewCard && !inputText.trim();
+  const shouldShowPrimaryActions = !shouldCoverInputAreaWithDuplicateReview;
+
 
   useEffect(() => {
     setIsDuplicateNoticeDismissed(false);
