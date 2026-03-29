@@ -332,11 +332,12 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
                     <li key={item.label} className="flex items-center gap-2">
                       <span className="h-1.5 w-1.5 rounded-full bg-[#B8894A]/80" />
                       <span>{item.label}</span>
-                      {item.required ? (
+                      {"required" in item && item.required ? (
                         <span className="rounded-full bg-[#123B5D]/8 px-2 py-0.5 text-[11px] text-[#123B5D]">
                           必填
                         </span>
                       ) : null}
+
                     </li>
                   ))}
                 </ul>
