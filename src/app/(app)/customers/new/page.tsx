@@ -587,11 +587,13 @@ function DuplicateReviewCard({
   hasBlockingDuplicate,
   onOpenSheet,
   onDismiss,
+  emphasized = false,
 }: {
   relatedCustomers: CustomerRecord[];
   hasBlockingDuplicate: boolean;
   onOpenSheet: () => void;
   onDismiss: () => void;
+  emphasized?: boolean;
 }) {
   const title = hasBlockingDuplicate ? "检测到高度相似的已有客户，请先核对" : "保存前建议先核对相近客户";
   const description = hasBlockingDuplicate
@@ -599,18 +601,23 @@ function DuplicateReviewCard({
     : "已根据当前草稿筛出可能相关的客户，可先核对，再决定是否继续新建。";
 
   return (
-    <div className="mt-3 rounded-[20px] border border-[#B8894A]/16 bg-[linear-gradient(180deg,rgba(255,248,238,0.96)_0%,rgba(255,252,247,0.98)_100%)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] lg:hidden">
+    <div
+      className={cn(
+        "rounded-[20px] border border-[#B8894A]/16 bg-[linear-gradient(180deg,rgba(255,248,238,0.96)_0%,rgba(255,252,247,0.98)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] lg:hidden",
+        emphasized ? "min-h-[220px] p-4" : "mt-3 p-3",
+      )}
+    >
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#B8894A]/12">
-          <Users className="h-4 w-4 text-[#8B6A32]" />
+        <div className={cn("mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-[#B8894A]/12", emphasized ? "h-9 w-9" : "h-8 w-8")}>
+          <Users className={cn("text-[#8B6A32]", emphasized ? "h-[18px] w-[18px]" : "h-4 w-4")} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[#7A5328]">{title}</p>
-          <p className="mt-1 text-[12px] leading-5 text-slate-600">{description}</p>
+          <p className={cn("font-medium text-[#7A5328]", emphasized ? "text-[16px] leading-7" : "text-sm")}>{title}</p>
+          <p className={cn("mt-1 text-slate-600", emphasized ? "text-[13px] leading-6" : "text-[12px] leading-5")}>{description}</p>
         </div>
       </div>
 
-      <div className="mt-3 rounded-[18px] border border-white/80 bg-white/84 px-3 py-2.5">
+      <div className={cn("rounded-[18px] border border-white/80 bg-white/84", emphasized ? "mt-4 px-3.5 py-3" : "mt-3 px-3 py-2.5")}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-[#123B5D]/8 px-2 py-1 text-[11px] font-medium text-[#123B5D]">
             已发现 {relatedCustomers.length} 位相近客户
@@ -619,7 +626,7 @@ function DuplicateReviewCard({
         </div>
       </div>
 
-      <div className="mt-3 flex gap-2">
+      <div className={cn("flex gap-2", emphasized ? "mt-4" : "mt-3")}>
         <Button
           type="button"
           onClick={onOpenSheet}
@@ -1300,35 +1307,47 @@ export default function NewCustomerPage() {
 
             <div className="shrink-0 border-t border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,252,0.98)_100%)] px-2.5 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 md:px-5 lg:px-6">
               <div className="mx-auto max-w-3xl rounded-[22px] border border-white/75 bg-white/86 p-2.5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:rounded-[24px] sm:p-3.5">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10 sm:h-7 sm:w-7">
-                    <UserPlus className="h-3.5 w-3.5 text-[#123B5D]" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-medium text-[#123B5D] sm:text-sm">输入客户信息</p>
-                  </div>
-                </div>
-
-                <Textarea
-                  value={inputText}
-                  onChange={(event) => setInputText(event.target.value)}
-                  placeholder="例如：王敏，35岁，私营业主，已婚，有一个孩子，最近关注教育金和家庭保障。"
-                  className="mt-2.5 min-h-[60px] resize-none rounded-[16px] border-slate-200/80 bg-slate-50/70 px-3 py-2.5 text-sm leading-6 placeholder:text-slate-400 focus-visible:ring-[#123B5D]/20 sm:mt-3 sm:min-h-[72px] sm:rounded-[18px] md:min-h-[84px]"
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-                      handleExtract();
-                    }
-                  }}
-                />
-
-                {shouldShowDuplicateReviewCard ? (
+                {shouldCoverInputAreaWithDuplicateReview ? (
                   <DuplicateReviewCard
                     relatedCustomers={relatedCustomers}
                     hasBlockingDuplicate={hasBlockingDuplicate}
                     onOpenSheet={openRelatedCustomersSheet}
                     onDismiss={() => setIsDuplicateNoticeDismissed(true)}
+                    emphasized
                   />
-                ) : null}
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10 sm:h-7 sm:w-7">
+                        <UserPlus className="h-3.5 w-3.5 text-[#123B5D]" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-medium text-[#123B5D] sm:text-sm">输入客户信息</p>
+                      </div>
+                    </div>
+
+                    <Textarea
+                      value={inputText}
+                      onChange={(event) => setInputText(event.target.value)}
+                      placeholder="例如：王敏，35岁，私营业主，已婚，有一个孩子，最近关注教育金和家庭保障。"
+                      className="mt-2.5 min-h-[60px] resize-none rounded-[16px] border-slate-200/80 bg-slate-50/70 px-3 py-2.5 text-sm leading-6 placeholder:text-slate-400 focus-visible:ring-[#123B5D]/20 sm:mt-3 sm:min-h-[72px] sm:rounded-[18px] md:min-h-[84px]"
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                          handleExtract();
+                        }
+                      }}
+                    />
+
+                    {shouldShowDuplicateReviewCard ? (
+                      <DuplicateReviewCard
+                        relatedCustomers={relatedCustomers}
+                        hasBlockingDuplicate={hasBlockingDuplicate}
+                        onOpenSheet={openRelatedCustomersSheet}
+                        onDismiss={() => setIsDuplicateNoticeDismissed(true)}
+                      />
+                    ) : null}
+                  </>
+                )}
 
                 {shouldShowPrimaryActions ? (
                   <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
