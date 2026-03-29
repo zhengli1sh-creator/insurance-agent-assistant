@@ -92,7 +92,7 @@ const infoCategories = [
 const DESKTOP_CUSTOMERS_PAGE_SIZE = 5;
 
 type ChatMessageType = "welcome" | "user-input" | "extracted-summary" | "save-success" | "error-hint";
-
+type MobileCustomersSheetMode = "all" | "related";
 
 type ExtractedFieldItem = { label: string; value: string };
 
@@ -586,12 +586,12 @@ function DuplicateReviewCard({
   relatedCustomers,
   hasBlockingDuplicate,
   onOpenSheet,
-  onViewAll,
+  onDismiss,
 }: {
   relatedCustomers: CustomerRecord[];
   hasBlockingDuplicate: boolean;
   onOpenSheet: () => void;
-  onViewAll: () => void;
+  onDismiss: () => void;
 }) {
   const title = hasBlockingDuplicate ? "检测到高度相似的已有客户，请先核对" : "保存前建议先核对相近客户";
   const description = hasBlockingDuplicate
@@ -630,10 +630,10 @@ function DuplicateReviewCard({
         <Button
           type="button"
           variant="outline"
-          onClick={onViewAll}
-          className="h-9 rounded-full border-slate-300 bg-white/84 px-3 text-[12px] text-slate-700"
+          onClick={onDismiss}
+          className="h-9 rounded-full border-slate-300 bg-white/84 px-4 text-[12px] text-slate-700"
         >
-          客户中心
+          知道了
         </Button>
       </div>
     </div>
@@ -728,8 +728,10 @@ function CustomerDirectoryPanelContent({
 
 function MobileCustomersSheet({
   open,
+  mode,
   onOpenChange,
   relatedHint,
+  relatedCustomers,
   pagedCustomers,
   totalCustomerCount,
   totalCustomerPages,
@@ -739,8 +741,10 @@ function MobileCustomersSheet({
   onViewAll,
 }: {
   open: boolean;
+  mode: MobileCustomersSheetMode;
   onOpenChange: (open: boolean) => void;
   relatedHint: string;
+  relatedCustomers: CustomerRecord[];
   pagedCustomers: CustomerRecord[];
   totalCustomerCount: number;
   totalCustomerPages: number;
@@ -749,6 +753,8 @@ function MobileCustomersSheet({
   onNextPage: () => void;
   onViewAll: () => void;
 }) {
+  const isRelatedMode = mode === "related";
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -758,25 +764,55 @@ function MobileCustomersSheet({
         <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-300/80" />
         <SheetHeader className="px-4 pb-2 pt-4">
           <div className="pr-10">
-            <SheetTitle className="text-[17px] font-semibold text-[#123B5D]">现有客户</SheetTitle>
+            <SheetTitle className="text-[17px] font-semibold text-[#123B5D]">
+              {isRelatedMode ? "相近客户核对" : "现有客户"}
+            </SheetTitle>
           </div>
         </SheetHeader>
 
+        {isRelatedMode ? (
+          <ScrollArea className="min-h-0 flex-1 px-4 py-3">
+            <div className="space-y-2.5">
+              {relatedHint ? (
+                <div className="rounded-[20px] border border-[#B8894A]/16 bg-[#FFF8EE]/76 px-3.5 py-3 text-[13px] leading-5 text-[#7A5328]">
+                  {relatedHint}
+                </div>
+              ) : null}
 
-        <CustomerDirectoryPanelContent
-          relatedHint={relatedHint}
-          pagedCustomers={pagedCustomers}
-          totalCustomerCount={totalCustomerCount}
-          totalCustomerPages={totalCustomerPages}
-          currentCustomerPage={currentCustomerPage}
-          onPrevPage={onPrevPage}
-          onNextPage={onNextPage}
-          onViewAll={() => {
-            onOpenChange(false);
-            onViewAll();
-          }}
-          footerClassName="bg-white/92 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom)+12px)] pt-2.5"
-        />
+              {relatedCustomers.length > 0 ? (
+                relatedCustomers.map((customer) => (
+                  <CustomerPreviewCard
+                    key={customer.id}
+                    customer={customer}
+                    onClick={() => {
+                      onOpenChange(false);
+                      onViewAll();
+                    }}
+                  />
+                ))
+              ) : (
+                <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
+                  当前没有需要核对的相近客户
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        ) : (
+          <CustomerDirectoryPanelContent
+            relatedHint={relatedHint}
+            pagedCustomers={pagedCustomers}
+            totalCustomerCount={totalCustomerCount}
+            totalCustomerPages={totalCustomerPages}
+            currentCustomerPage={currentCustomerPage}
+            onPrevPage={onPrevPage}
+            onNextPage={onNextPage}
+            onViewAll={() => {
+              onOpenChange(false);
+              onViewAll();
+            }}
+            footerClassName="bg-white/92 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom)+12px)] pt-2.5"
+          />
+        )}
       </SheetContent>
     </Sheet>
   );
@@ -793,6 +829,8 @@ export default function NewCustomerPage() {
   const [inputText, setInputText] = useState("");
   const [currentDraft, setCurrentDraft] = useState<Record<CustomerFieldKey, string>>(createEmptyDraft());
   const [isExistingCustomersOpen, setIsExistingCustomersOpen] = useState(false);
+  const [mobileCustomersSheetMode, setMobileCustomersSheetMode] = useState<MobileCustomersSheetMode>("all");
+  const [isDuplicateNoticeDismissed, setIsDuplicateNoticeDismissed] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [desktopCustomerPage, setDesktopCustomerPage] = useState(1);
 
@@ -902,6 +940,13 @@ export default function NewCustomerPage() {
     }) ?? null;
   }, [currentDraft.name, currentDraft.nickname, customers]);
   const hasBlockingDuplicate = Boolean(exactDuplicateCustomer);
+  const relatedCustomersFingerprint = useMemo(() => relatedCustomers.map((customer) => customer.id).join(","), [relatedCustomers]);
+  const shouldShowDuplicateReviewCard = relatedCustomers.length > 0 && !isDuplicateNoticeDismissed;
+  const shouldShowPrimaryActions = !(hasBlockingDuplicate && !inputText.trim());
+
+  useEffect(() => {
+    setIsDuplicateNoticeDismissed(false);
+  }, [currentDraft.name, currentDraft.nickname, relatedCustomersFingerprint]);
 
   const extractMutation = useMutation({
     mutationFn: (message: string) =>
@@ -1032,10 +1077,14 @@ export default function NewCustomerPage() {
     extractMutation.mutate(inputText.trim());
   };
 
-  const handleClear = () => {
-    setInputText("");
-    setCurrentDraft(createEmptyDraft());
-    setIsExistingCustomersOpen(false);
+  const openAllCustomersSheet = () => {
+    setMobileCustomersSheetMode("all");
+    setIsExistingCustomersOpen(true);
+  };
+
+  const openRelatedCustomersSheet = () => {
+    setMobileCustomersSheetMode("related");
+    setIsExistingCustomersOpen(true);
   };
 
   const handleSave = () => {
@@ -1078,7 +1127,7 @@ export default function NewCustomerPage() {
         return;
       }
 
-      setIsExistingCustomersOpen(true);
+      openRelatedCustomersSheet();
       return;
     }
 
@@ -1155,15 +1204,9 @@ export default function NewCustomerPage() {
 
 
   const shouldCompactWelcome = messages.some((message) => message.type !== "welcome");
-  const mobileInputHint = hasAnyExtractedData
-    ? "继续补充客户信息，助手会按最新内容整理。"
-    : "直接描述客户情况，助手会先帮你整理。";
-
-
   const desktopPanelTitle = "现有客户";
   const desktopRelatedHint = relatedCustomers.length > 0 ? `已发现 ${relatedCustomers.length} 位相近客户，建议优先核对。` : "";
-
-
+  const mobileRelatedHint = relatedCustomers.length > 0 ? `以下仅展示当前筛出的 ${relatedCustomers.length} 位相近客户，用于核对是否重复建档。` : "";
 
   return (
     <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1.5 md:h-[calc(100dvh-8rem)] md:gap-3">
@@ -1220,14 +1263,12 @@ export default function NewCustomerPage() {
                     <MobileCustomerEntryButton
                       customerCount={totalCustomerCount}
                       relatedCount={relatedCustomers.length}
-                      onOpen={() => setIsExistingCustomersOpen(true)}
+                      onOpen={relatedCustomers.length > 0 ? openRelatedCustomersSheet : openAllCustomersSheet}
                     />
                   </div>
                 </div>
               </div>
             </div>
-
-
 
             <div
               ref={scrollAreaRef}
@@ -1259,27 +1300,13 @@ export default function NewCustomerPage() {
 
             <div className="shrink-0 border-t border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,252,0.98)_100%)] px-2.5 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 md:px-5 lg:px-6">
               <div className="mx-auto max-w-3xl rounded-[22px] border border-white/75 bg-white/86 p-2.5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:rounded-[24px] sm:p-3.5">
-                <div className="flex items-center justify-between gap-2.5">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10 sm:h-7 sm:w-7">
-
-                      <UserPlus className="h-3.5 w-3.5 text-[#123B5D]" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="hidden text-[13px] font-medium text-[#123B5D] sm:block sm:text-sm">输入客户信息</p>
-                      <p className="text-[12px] leading-5 text-slate-500 sm:mt-0.5 sm:text-[13px]">{mobileInputHint}</p>
-                    </div>
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10 sm:h-7 sm:w-7">
+                    <UserPlus className="h-3.5 w-3.5 text-[#123B5D]" />
                   </div>
-
-                  {hasAnyExtractedData || inputText ? (
-                    <Button
-                      variant="ghost"
-                      onClick={handleClear}
-                      className="h-7 rounded-full px-2.5 text-[11px] text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:h-8 sm:px-3 sm:text-xs"
-                    >
-                      清空
-                    </Button>
-                  ) : null}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-medium text-[#123B5D] sm:text-sm">输入客户信息</p>
+                  </div>
                 </div>
 
                 <Textarea
@@ -1294,51 +1321,53 @@ export default function NewCustomerPage() {
                   }}
                 />
 
-                {relatedCustomers.length > 0 ? (
+                {shouldShowDuplicateReviewCard ? (
                   <DuplicateReviewCard
                     relatedCustomers={relatedCustomers}
                     hasBlockingDuplicate={hasBlockingDuplicate}
-                    onOpenSheet={() => setIsExistingCustomersOpen(true)}
-                    onViewAll={() => router.push("/customers")}
+                    onOpenSheet={openRelatedCustomersSheet}
+                    onDismiss={() => setIsDuplicateNoticeDismissed(true)}
                   />
                 ) : null}
 
-                <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
-                  <Button
-                    onClick={handleExtract}
-                    disabled={extractMutation.isPending || !inputText.trim()}
-                    className="h-9 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49] sm:h-10"
-                  >
-                    {extractMutation.isPending ? "整理中…" : "交给助手"}
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    disabled={saveMutation.isPending}
-                    className={cn(
-                      "h-9 rounded-full text-sm text-white sm:h-10",
-                      isReadyToSave
-                        ? "bg-[#0F766E] hover:bg-[#0B5F59]"
-                        : "bg-[#123B5D]/82 hover:bg-[#123B5D]",
-                    )}
-                  >
-                    {saveMutation.isPending ? "保存中…" : hasBlockingDuplicate ? "先核对后保存" : "保存客户"}
-                  </Button>
-                </div>
+                {shouldShowPrimaryActions ? (
+                  <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
+                    <Button
+                      onClick={handleExtract}
+                      disabled={extractMutation.isPending || !inputText.trim()}
+                      className="h-9 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49] sm:h-10"
+                    >
+                      {extractMutation.isPending ? "整理中…" : "整理信息"}
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      disabled={saveMutation.isPending}
+                      className={cn(
+                        "h-9 rounded-full text-sm text-white sm:h-10",
+                        isReadyToSave
+                          ? "bg-[#0F766E] hover:bg-[#0B5F59]"
+                          : "bg-[#123B5D]/82 hover:bg-[#123B5D]",
+                      )}
+                    >
+                      {saveMutation.isPending ? "保存中…" : "保存客户"}
+                    </Button>
+                  </div>
+                ) : null}
 
                 <p className="mt-2 hidden text-[11px] leading-5 text-slate-400 md:block">
                   需要确认的内容会先提醒你，不会直接误写客户资料。支持 `Ctrl/Cmd + Enter` 快速整理。
                 </p>
               </div>
             </div>
-
-
           </CardContent>
         </Card>
 
         <MobileCustomersSheet
           open={isExistingCustomersOpen}
+          mode={mobileCustomersSheetMode}
           onOpenChange={setIsExistingCustomersOpen}
-          relatedHint={desktopRelatedHint}
+          relatedHint={mobileRelatedHint}
+          relatedCustomers={relatedCustomers}
           pagedCustomers={desktopPagedCustomers}
           totalCustomerCount={totalCustomerCount}
           totalCustomerPages={totalCustomerPages}
