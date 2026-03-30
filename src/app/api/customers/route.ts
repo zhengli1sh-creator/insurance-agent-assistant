@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { requireUserContext } from "@/lib/supabase/require-user";
-import { createCustomerService, deleteCustomerService, listCustomersService, updateCustomerService } from "@/modules/customers/customer-service";
+import { createCustomerService, deleteCustomerService, getCustomerByIdService, listCustomersService, updateCustomerService } from "@/modules/customers/customer-service";
 
 export async function GET(request: Request) {
   const context = await requireUserContext();
@@ -10,9 +10,17 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
+  const customerId = searchParams.get("id")?.trim() ?? "";
+
+  if (customerId) {
+    const result = await getCustomerByIdService(context.supabase, context.user.id, customerId);
+    return NextResponse.json(result.error ? { error: result.error } : result.data, { status: result.status });
+  }
+
   const result = await listCustomersService(context.supabase, context.user.id, searchParams.get("search") ?? "");
   return NextResponse.json(result.error ? { error: result.error } : result.data, { status: result.status });
 }
+
 
 export async function POST(request: Request) {
   const context = await requireUserContext();

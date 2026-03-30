@@ -199,18 +199,8 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
     onError: (error) => setFeedback(error.message),
   });
 
-  const deleteMutation = useMutation({
-
-    mutationFn: (id: string) => fetchJson<{ id: string }>(`/api/customers?id=${id}`, { method: "DELETE" }),
-    onSuccess: () => {
-      setFeedback("客户档案已删除");
-      queryClient.invalidateQueries({ queryKey: ["customers-crm"] });
-      queryClient.invalidateQueries({ queryKey: ["customers-options"] });
-    },
-    onError: (error) => setFeedback(error.message),
-  });
-
   const fallbackCustomers = useMemo(
+
     () =>
       demoCustomers.map((item) => ({
         id: item.id,
@@ -607,8 +597,8 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={() => startEdit(customer)} className="cursor-pointer rounded-full border-slate-300 bg-transparent">编辑</Button>
-                    <Button variant="outline" onClick={() => globalThis.confirm("确认删除这位客户档案吗？") && deleteMutation.mutate(customer.id)} className="cursor-pointer rounded-full border-rose-200 bg-transparent text-rose-600 hover:bg-rose-50 hover:text-rose-700">删除</Button>
                   </div>
+
                 </div>
                 <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-2">
                   <div className="rounded-2xl bg-slate-50/90 p-3">核心关注点：{customer.core_interesting || "待补充"}</div>

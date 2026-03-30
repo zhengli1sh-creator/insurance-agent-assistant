@@ -31,7 +31,12 @@ export async function createCustomerRepository(supabase: SupabaseClient, payload
   return supabase.from("customers").insert(payload).select("*").single();
 }
 
+export async function getCustomerByIdRepository(supabase: SupabaseClient, id: string, ownerId: string) {
+  return supabase.from("customers").select("*").eq("id", id).eq("owner_id", ownerId).maybeSingle();
+}
+
 export async function updateCustomerRepository(
+
   supabase: SupabaseClient,
   id: string,
   ownerId: string,

@@ -6,10 +6,12 @@ import {
   deleteCustomerRepository,
   findCustomerSnapshotsByNameRepository,
   findCustomerSnapshotsByNicknameRepository,
+  getCustomerByIdRepository,
   listCustomerSnapshotsByIdsRepository,
   listCustomersRepository,
   updateCustomerRepository,
 } from "@/lib/repositories/customer-repository";
+
 
 import { customerCreateSchema, customerUpdateSchema } from "@/lib/validation/customer";
 import type { CustomerSnapshot } from "@/types/customer";
@@ -58,7 +60,25 @@ export async function listCustomersService(supabase: SupabaseClient, ownerId: st
   return { status: error ? 400 : 200, data: data ?? [], error: error?.message ?? "" };
 }
 
+export async function getCustomerByIdService(supabase: SupabaseClient, ownerId: string, id: string) {
+  if (!id.trim()) {
+    return { status: 400, data: null, error: "缺少客户标识" };
+  }
+
+  const { data, error } = await getCustomerByIdRepository(supabase, id.trim(), ownerId);
+  if (error) {
+    return { status: 400, data: null, error: error.message };
+  }
+
+  if (!data) {
+    return { status: 404, data: null, error: "当前未找到这位客户" };
+  }
+
+  return { status: 200, data, error: "" };
+}
+
 export async function createCustomerService(supabase: SupabaseClient, ownerId: string, payload: unknown) {
+
   const parsed = customerCreateSchema.safeParse(payload);
 
   if (!parsed.success) {
