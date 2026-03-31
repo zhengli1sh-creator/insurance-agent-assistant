@@ -60,13 +60,13 @@ function BriefingColumn({
   tone: "known" | "missing" | "next";
 }) {
   const toneClassName = {
-    known: "border-emerald-100/90 bg-[linear-gradient(180deg,rgba(243,251,248,0.96)_0%,rgba(255,255,255,0.98)_100%)]",
-    missing: "border-[rgba(184,137,74,0.18)] bg-[linear-gradient(180deg,rgba(255,248,238,0.98)_0%,rgba(255,255,255,0.98)_100%)]",
-    next: "border-[rgba(18,59,93,0.12)] bg-[linear-gradient(180deg,rgba(246,250,253,0.98)_0%,rgba(255,255,255,0.98)_100%)]",
+    known: "advisor-briefing-panel advisor-briefing-panel-known",
+    missing: "advisor-briefing-panel advisor-briefing-panel-missing",
+    next: "advisor-briefing-panel advisor-briefing-panel-next",
   }[tone];
 
   return (
-    <div className={`rounded-[26px] border p-4 shadow-[0_14px_30px_rgba(15,23,42,0.04)] ${toneClassName}`}>
+    <div className={`rounded-[26px] p-4 ${toneClassName}`}>
       <p className="text-sm font-medium text-slate-900">{title}</p>
       <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
         {items.map((item) => (
@@ -107,9 +107,9 @@ function ProfileSectionCard({ title, fields }: { title: string; fields: Array<{ 
 
 function FutureModuleCard({ title, description, icon: Icon }: { title: string; description: string; icon: typeof ClipboardList }) {
   return (
-    <Card className="advisor-subtle-card rounded-[28px] border-dashed border-slate-200/90 bg-white/82">
+    <Card className="advisor-subtle-card advisor-module-placeholder-card rounded-[28px]">
       <CardContent className="flex items-start gap-4 p-5 sm:p-6">
-        <div className="rounded-full bg-[var(--advisor-gold-soft)] p-2.5 text-[var(--advisor-gold)]">
+        <div className="advisor-icon-badge advisor-icon-badge-md">
           <Icon className="h-4 w-4" />
         </div>
         <div>
@@ -120,6 +120,7 @@ function FutureModuleCard({ title, description, icon: Icon }: { title: string; d
     </Card>
   );
 }
+
 
 export function CustomerDetailShell({ customerId }: { customerId: string }) {
   const queryClient = useQueryClient();
@@ -287,19 +288,21 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
             </div>
 
             {isDemoMode ? (
-              <div className="rounded-[24px] border border-slate-200/80 bg-slate-50/90 p-4 text-sm leading-6 text-slate-500">
+              <div className="advisor-preview-notice rounded-[24px] p-4 text-sm leading-6 text-slate-500">
                 当前为示例预览。登录后可查看真实客户详情并编辑基础资料。
               </div>
             ) : null}
+
           </CardContent>
         </Card>
 
         <Card className="advisor-soft-card rounded-[30px]">
           <CardContent className="space-y-5 p-5 sm:p-6">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 rounded-full bg-[var(--advisor-gold-soft)] p-2 text-[var(--advisor-gold)]">
+              <div className="advisor-icon-badge advisor-icon-badge-sm mt-0.5">
                 <Sparkles className="h-4 w-4" />
               </div>
+
               <div className="space-y-2">
                 <p className="advisor-kicker">Customer briefing</p>
                 <p className="text-lg font-semibold text-slate-900">经营简报</p>
@@ -360,7 +363,8 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
           }
         }}
       >
-        <DialogContent className="max-w-[min(48rem,calc(100%-1.5rem))] overflow-hidden rounded-[32px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,246,241,0.96)_100%)] p-0 sm:max-w-3xl">
+        <DialogContent className="advisor-dialog-surface max-w-[min(48rem,calc(100%-1.5rem))] overflow-hidden rounded-[32px] p-0 sm:max-w-3xl">
+
           <div className="p-5 sm:p-6">
             <DialogHeader>
               <DialogTitle className="text-xl text-slate-900">编辑客户资料</DialogTitle>
@@ -384,7 +388,8 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
             {feedback ? <p className="mt-4 text-sm leading-6 text-rose-600">{feedback}</p> : null}
           </div>
 
-          <DialogFooter className="gap-3 border-t border-slate-200/70 bg-[linear-gradient(180deg,rgba(246,250,253,0.84)_0%,rgba(255,255,255,0.92)_100%)] sm:justify-between">
+          <DialogFooter className="advisor-dialog-footer-surface gap-3 border-t border-slate-200/70 sm:justify-between">
+
             <Button
               type="button"
               variant="outline"
