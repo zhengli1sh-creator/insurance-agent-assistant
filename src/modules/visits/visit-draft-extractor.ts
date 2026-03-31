@@ -160,9 +160,9 @@ function extractFollowWork(message: string): string {
 
 export function extractVisitDraftByRules(message: string): VisitDraftExtraction {
   const normalized = message.trim();
-  const clauses = splitClauses(normalized);
 
   return {
+
     ...emptyExtraction,
     timeVisit: extractDate(normalized),
     location: extractLocation(normalized),

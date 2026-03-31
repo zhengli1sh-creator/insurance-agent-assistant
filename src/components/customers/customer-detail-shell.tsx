@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BellRing, ClipboardList, PencilLine, Sparkles, Users } from "lucide-react";
 
@@ -146,15 +147,8 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
   const customer = customerQuery.data ?? (customerQuery.isError ? fallbackCustomer : null);
   const isDemoMode = Boolean(!customerQuery.data && fallbackCustomer);
 
-  useEffect(() => {
-    if (!customer) {
-      return;
-    }
-
-    setForm(mapCustomerRecordToFormValue(customer));
-  }, [customer]);
-
   const saveMutation = useMutation({
+
     mutationFn: (payload: CustomerProfileFormValue) =>
       fetchJson<CustomerRecord>("/api/customers", {
         method: "PATCH",

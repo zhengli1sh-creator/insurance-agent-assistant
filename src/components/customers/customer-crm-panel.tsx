@@ -1,7 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+
 
 
 import {
@@ -38,7 +39,9 @@ type PendingExistingCustomerConfirmation = {
   customer: CustomerRecord;
   proposedNickname: string;
   existingNickname: string;
+  keyword: string;
 };
+
 
 function normalizeDuplicateToken(value: string | null | undefined) {
   return (value ?? "").trim().replace(/\s+/g, "").toLowerCase();
@@ -72,17 +75,14 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
   const [assistantDetailInput, setAssistantDetailInput] = useState("");
   const [assistantReviewPrompt, setAssistantReviewPrompt] = useState("");
   const [highlightedFields, setHighlightedFields] = useState<CustomerProfileFieldKey[]>(() => collectFilledFieldKeys(draftSeed?.values));
-  const [duplicatePromptDismissed, setDuplicatePromptDismissed] = useState(false);
+  const [dismissedDuplicatePromptKeyword, setDismissedDuplicatePromptKeyword] = useState("");
   const [pendingExistingCustomerConfirmation, setPendingExistingCustomerConfirmation] = useState<PendingExistingCustomerConfirmation | null>(null);
   const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
   const profileCardRef = useRef<HTMLDivElement | null>(null);
 
-
-
-
-
   const effectiveKeyword = assistantMode ? form.name.trim() || form.nickname.trim() : keyword.trim();
   const shouldSearch = !assistantMode || Boolean(effectiveKeyword);
+
 
 
   const query = useQuery({
@@ -210,6 +210,9 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
         return customerTokens.some((token) => token === effectiveKeywordToken || token.includes(effectiveKeywordToken) || effectiveKeywordToken.includes(token));
       }).slice(0, 2)
     : [];
+  const duplicatePromptDismissed = dismissedDuplicatePromptKeyword === effectiveKeyword;
+  const activePendingExistingCustomerConfirmation =
+    pendingExistingCustomerConfirmation?.keyword === effectiveKeyword ? pendingExistingCustomerConfirmation : null;
   const showAssistantDuplicateNotice = assistantMode && duplicateCandidates.length > 0 && !duplicatePromptDismissed;
   const listItems = assistantMode ? [] : items;
   const resumeVisitName = draftSeed?.resumeVisitSeed?.values.name?.trim() || form.name.trim();
@@ -222,12 +225,6 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
         : "新增客户"
     : "客户资料";
 
-
-  useEffect(() => {
-
-    setDuplicatePromptDismissed(false);
-    setPendingExistingCustomerConfirmation(null);
-  }, [effectiveKeyword]);
 
 
   function patchForm(patch: Partial<CustomerProfileFormValue>) {
@@ -279,11 +276,12 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
     setForm({ ...emptyCustomerProfileForm, ...(draftSeed?.values ?? {}) });
     setAssistantDetailInput("");
     setAssistantReviewPrompt("");
-    setDuplicatePromptDismissed(false);
+    setDismissedDuplicatePromptKeyword("");
     setPendingExistingCustomerConfirmation(null);
     setShowNewCustomerForm(false);
     setFeedback(assistantMode ? draftSeed?.assistantNote ?? "" : "");
   }
+
 
   function completeUseExistingCustomer(customer: CustomerRecord, message = "已识别到已有客户档案") {
     const nextFeedback = draftSeed?.resumeVisitSeed
@@ -305,7 +303,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
       setFeedback(existingNickname
         ? `你刚补充的昵称是“${proposedNickname}”，但当前客户档案里记录的是“${existingNickname}”。为避免误改，我先请你确认是否同步更新。`
         : `你刚补充了昵称“${proposedNickname}”。如确认无误，我可以在继续拜访前一并写入这位客户的客户档案。`);
-      setPendingExistingCustomerConfirmation({ customer, proposedNickname, existingNickname });
+      setPendingExistingCustomerConfirmation({ customer, proposedNickname, existingNickname, keyword: effectiveKeyword });
       return;
     }
 
@@ -313,23 +311,24 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
   }
 
   function confirmExistingCustomerNicknameSync() {
-    if (!pendingExistingCustomerConfirmation) {
+    if (!activePendingExistingCustomerConfirmation) {
       return;
     }
 
     syncExistingCustomerNicknameMutation.mutate({
-      customerId: pendingExistingCustomerConfirmation.customer.id,
-      nickname: pendingExistingCustomerConfirmation.proposedNickname,
+      customerId: activePendingExistingCustomerConfirmation.customer.id,
+      nickname: activePendingExistingCustomerConfirmation.proposedNickname,
     });
   }
 
   function continueWithoutNicknameSync() {
-    if (!pendingExistingCustomerConfirmation) {
+    if (!activePendingExistingCustomerConfirmation) {
       return;
     }
 
-    completeUseExistingCustomer(pendingExistingCustomerConfirmation.customer, "已继续使用已有客户档案（未修改客户昵称）");
+    completeUseExistingCustomer(activePendingExistingCustomerConfirmation.customer, "已继续使用已有客户档案（未修改客户昵称）");
   }
+
 
 
 
@@ -411,25 +410,26 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                   type="button"
                   onClick={() => {
                     setPendingExistingCustomerConfirmation(null);
-                    setDuplicatePromptDismissed(true);
+                    setDismissedDuplicatePromptKeyword(effectiveKeyword);
                     setShowNewCustomerForm(true);
                   }}
                   className={outlineActionClassName}
                 >
+
                   不是同一人，继续新建
                 </Button>
               </div>
             </div>
           )}
 
-          {pendingExistingCustomerConfirmation && (
+          {activePendingExistingCustomerConfirmation && (
             <div className="advisor-subtle-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
               <p className="advisor-kicker">Confirmation needed</p>
               <p className="mt-2 text-base font-semibold text-slate-900">确认是否同步更新客户昵称</p>
               <p className="mt-3">
-                {pendingExistingCustomerConfirmation.existingNickname
-                  ? `当前客户档案中的昵称是“${pendingExistingCustomerConfirmation.existingNickname}”，而你刚补充的是“${pendingExistingCustomerConfirmation.proposedNickname}”。如确认是同一称呼，我可以先把客户昵称更新为“${pendingExistingCustomerConfirmation.proposedNickname}”，再继续刚才的拜访记录。`
-                  : `你刚补充了昵称“${pendingExistingCustomerConfirmation.proposedNickname}”。如确认无误，我可以先把它写入 ${pendingExistingCustomerConfirmation.customer.name} 的客户档案，再继续刚才的拜访记录。`}
+                {activePendingExistingCustomerConfirmation.existingNickname
+                  ? `当前客户档案中的昵称是“${activePendingExistingCustomerConfirmation.existingNickname}”，而你刚补充的是“${activePendingExistingCustomerConfirmation.proposedNickname}”。如确认是同一称呼，我可以先把客户昵称更新为“${activePendingExistingCustomerConfirmation.proposedNickname}”，再继续刚才的拜访记录。`
+                  : `你刚补充了昵称“${activePendingExistingCustomerConfirmation.proposedNickname}”。如确认无误，我可以先把它写入 ${activePendingExistingCustomerConfirmation.customer.name} 的客户档案，再继续刚才的拜访记录。`}
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <Button
@@ -452,6 +452,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
               </div>
             </div>
           )}
+
 
           {(!showAssistantDuplicateNotice || showNewCustomerForm) && (
             <div ref={profileCardRef} className={`advisor-subtle-card rounded-[30px] p-5 sm:p-6 ${assistantReviewPrompt ? "ring-1 ring-[rgba(18,59,93,0.12)]" : ""}`}>

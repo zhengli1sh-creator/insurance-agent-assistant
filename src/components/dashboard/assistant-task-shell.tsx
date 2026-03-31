@@ -159,11 +159,8 @@ export function AssistantTaskShell({ surface }: AssistantTaskShellProps) {
     );
   }
 
-  const dynamicDescription = surface === "customers" && validWorkflow.visitSeed
-    ? "先保存客户基础信息，保存后会自动继续刚才的拜访记录。"
-    : surfaceConfig[surface].description;
-
   return (
+
     <div className="space-y-4">
       {returningMessage && (
         <Card className="glass-panel overflow-hidden border-white/60 bg-white/92 shadow-[0_24px_80px_rgba(15,23,42,0.1)]">

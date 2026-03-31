@@ -90,6 +90,7 @@ const infoCategories = [
 ] as const;
 
 const DESKTOP_CUSTOMERS_PAGE_SIZE = 5;
+const EMPTY_CUSTOMERS: CustomerRecord[] = [];
 
 type ChatMessageType = "welcome" | "user-input" | "extracted-summary" | "save-success" | "error-hint";
 type MobileCustomersSheetMode = "all" | "related";
@@ -107,6 +108,7 @@ type ChatMessage = {
   currentFields?: Record<CustomerFieldKey, string>;
   savedCustomer?: CustomerRecord;
 };
+
 
 type CustomerDraftExtractResponse = {
   fields: Record<string, string>;
@@ -136,7 +138,18 @@ function formatTime() {
   return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 }
 
+function createWelcomeMessage(content = ""): ChatMessage {
+  return {
+    id: crypto.randomUUID(),
+    role: "assistant",
+    type: "welcome",
+    content,
+    timestamp: formatTime(),
+  };
+}
+
 function formatShortDate(dateString?: string | null) {
+
   if (!dateString) {
     return "";
   }
@@ -832,17 +845,15 @@ export default function NewCustomerPage() {
   const queryClient = useQueryClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [createWelcomeMessage()]);
   const [inputText, setInputText] = useState("");
   const [currentDraft, setCurrentDraft] = useState<Record<CustomerFieldKey, string>>(createEmptyDraft());
   const [isExistingCustomersOpen, setIsExistingCustomersOpen] = useState(false);
   const [mobileCustomersSheetMode, setMobileCustomersSheetMode] = useState<MobileCustomersSheetMode>("all");
-  const [isDuplicateNoticeDismissed, setIsDuplicateNoticeDismissed] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [dismissedDuplicateNoticeKey, setDismissedDuplicateNoticeKey] = useState("");
   const [desktopCustomerPage, setDesktopCustomerPage] = useState(1);
 
   const customersQuery = useQuery({
-
     queryKey: ["customers-list"],
     queryFn: async () => {
       const data = await fetchJson<CustomerRecord[]>("/api/customers");
@@ -850,7 +861,8 @@ export default function NewCustomerPage() {
     },
   });
 
-  const customers = customersQuery.data ?? [];
+  const customers = customersQuery.data ?? EMPTY_CUSTOMERS;
+
   const sortedCustomers = useMemo(() => [...customers].sort((a, b) => getCustomerSortTime(b) - getCustomerSortTime(a)), [customers]);
   const totalCustomerCount = sortedCustomers.length;
   const totalCustomerPages = totalCustomerCount === 0 ? 0 : Math.ceil(totalCustomerCount / DESKTOP_CUSTOMERS_PAGE_SIZE);
@@ -865,21 +877,7 @@ export default function NewCustomerPage() {
   }, [currentDesktopCustomerPage, sortedCustomers, totalCustomerPages]);
 
 
-  useEffect(() => {
-    if (!isInitialized && !customersQuery.isLoading) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          type: "welcome",
-          content: "",
-          timestamp: formatTime(),
-        },
-      ]);
-      setIsInitialized(true);
-    }
-  }, [customersQuery.isLoading, isInitialized]);
+
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -887,28 +885,12 @@ export default function NewCustomerPage() {
     }
   }, [messages]);
 
-  useEffect(() => {
-    setDesktopCustomerPage((prev) => {
-      if (totalCustomerPages === 0) {
-        return 1;
-      }
-
-      return Math.min(prev, totalCustomerPages);
-    });
-  }, [totalCustomerPages]);
-
   const addMessage = (message: ChatMessage) => {
-
     setMessages((prev) => [...prev, message]);
   };
 
-  const filledDraftCount = useMemo(
-    () => Object.values(currentDraft).filter((value) => value.trim() !== "").length,
-    [currentDraft],
-  );
-
-  const hasAnyExtractedData = filledDraftCount > 0;
   const isReadyToSave = validateNameComplete(currentDraft.name);
+
 
   const relatedCustomers = useMemo(() => {
     const name = currentDraft.name.trim();
@@ -948,15 +930,13 @@ export default function NewCustomerPage() {
   }, [currentDraft.name, currentDraft.nickname, customers]);
   const hasBlockingDuplicate = Boolean(exactDuplicateCustomer);
   const relatedCustomersFingerprint = useMemo(() => relatedCustomers.map((customer) => customer.id).join(","), [relatedCustomers]);
+  const duplicateNoticeKey = `${currentDraft.name.trim()}|${currentDraft.nickname.trim()}|${relatedCustomersFingerprint}`;
+  const isDuplicateNoticeDismissed = dismissedDuplicateNoticeKey === duplicateNoticeKey;
   const shouldShowDuplicateReviewCard = relatedCustomers.length > 0 && !isDuplicateNoticeDismissed;
   const shouldCoverInputAreaWithDuplicateReview =
     hasBlockingDuplicate && shouldShowDuplicateReviewCard && !inputText.trim();
   const shouldShowPrimaryActions = !shouldCoverInputAreaWithDuplicateReview;
 
-
-  useEffect(() => {
-    setIsDuplicateNoticeDismissed(false);
-  }, [currentDraft.name, currentDraft.nickname, relatedCustomersFingerprint]);
 
   const extractMutation = useMutation({
     mutationFn: (message: string) =>
@@ -1315,7 +1295,7 @@ export default function NewCustomerPage() {
                     relatedCustomers={relatedCustomers}
                     hasBlockingDuplicate={hasBlockingDuplicate}
                     onOpenSheet={openRelatedCustomersSheet}
-                    onDismiss={() => setIsDuplicateNoticeDismissed(true)}
+                    onDismiss={() => setDismissedDuplicateNoticeKey(duplicateNoticeKey)}
                     emphasized
                   />
                 ) : (
@@ -1346,11 +1326,12 @@ export default function NewCustomerPage() {
                         relatedCustomers={relatedCustomers}
                         hasBlockingDuplicate={hasBlockingDuplicate}
                         onOpenSheet={openRelatedCustomersSheet}
-                        onDismiss={() => setIsDuplicateNoticeDismissed(true)}
+                        onDismiss={() => setDismissedDuplicateNoticeKey(duplicateNoticeKey)}
                       />
                     ) : null}
                   </>
                 )}
+
 
                 {shouldShowPrimaryActions ? (
                   <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
