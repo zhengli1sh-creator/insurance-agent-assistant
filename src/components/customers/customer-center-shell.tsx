@@ -22,10 +22,12 @@ import {
 
 function ReminderMetric({ label, value, hint }: { label: string; value: number; hint: string }) {
   return (
-    <div className="rounded-[24px] border border-white/70 bg-white/88 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
-      <p className="text-xs font-semibold tracking-[0.18em] text-slate-400 uppercase">{label}</p>
-      <p className="mt-3 text-2xl font-semibold text-slate-900">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-500">{hint}</p>
+    <div className="advisor-subtle-card rounded-[26px] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <p className="advisor-section-label max-w-[10rem]">{label}</p>
+        <p className="font-accent text-[2rem] leading-none text-[var(--advisor-ink)]">{value}</p>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-slate-600">{hint}</p>
     </div>
   );
 }
@@ -51,55 +53,67 @@ export function CustomerCenterShell() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
-      <Card className="glass-panel border-white/55 bg-white/86 shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
-        <CardContent className="p-5 sm:p-6">
-          <div className="flex flex-col gap-5">
+      <Card className="glass-panel advisor-hero-card rounded-[32px]">
+        <CardContent className="p-5 sm:p-7">
+          <div className="flex flex-col gap-6">
             <div className="space-y-4">
-              <Badge className="w-fit rounded-full border-0 bg-[#B8894A]/12 px-3 py-1 text-[#B8894A]">客户中心</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="advisor-accent-chip w-fit rounded-full px-3 py-1">客户中心</Badge>
+                <span className="advisor-section-label">单列经营入口</span>
+                {isDemoMode ? <Badge className="rounded-full border-0 bg-slate-100 text-slate-600">示例预览</Badge> : null}
+              </div>
+
               <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-[1.85rem] font-semibold leading-tight text-slate-900 sm:text-[2.05rem]">按客户查看基础资料，并逐步沉淀后续经营记录。</h1>
-                  {isDemoMode ? <Badge className="rounded-full border-0 bg-slate-100 text-slate-600">示例预览</Badge> : null}
-                </div>
-                <p className="max-w-3xl text-sm leading-7 text-slate-600">
+                <p className="advisor-kicker">Customer dossier</p>
+                <h1 className="max-w-3xl text-[1.95rem] font-semibold leading-tight text-slate-900 sm:text-[2.3rem]">
+                  按客户查看基础资料，并逐步沉淀后续经营记录。
+                </h1>
+                <p className="max-w-3xl text-sm leading-7 text-slate-600 sm:text-[0.95rem]">
                   列表页只负责找到客户、查看资料提醒并进入详情。后续的拜访、活动和提醒任务，会逐步沉淀到客户详情页中。
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="relative w-full sm:max-w-md">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  value={keyword}
-                  onChange={(event) => setKeyword(event.target.value)}
-                  placeholder="按姓名、昵称、职业、来源或核心关注点检索"
-                  className="h-12 rounded-[22px] border-slate-200/80 bg-white pl-11 shadow-[0_6px_20px_rgba(15,23,42,0.04)]"
-                />
-              </div>
+            <div className="rounded-[28px] border border-white/70 bg-white/72 p-3 shadow-[0_14px_32px_rgba(15,23,42,0.05)]">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="relative w-full sm:max-w-md">
+                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Input
+                    value={keyword}
+                    onChange={(event) => setKeyword(event.target.value)}
+                    placeholder="按姓名、昵称、职业、来源或核心关注点检索"
+                    className="h-12 rounded-full border-white/90 bg-white/92 pl-11 pr-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_20px_rgba(15,23,42,0.04)]"
+                  />
+                </div>
 
-              <Link href="/customers/new" className="w-full sm:w-auto">
-                <Button className="h-12 w-full rounded-full bg-[#123B5D] px-5 text-white hover:bg-[#0E2E49] sm:w-auto">
-                  <Plus className="mr-2 h-4 w-4" />
-                  新增客户
-                </Button>
-              </Link>
+                <Link href="/customers/new" className="w-full sm:w-auto">
+                  <Button className="advisor-primary-button h-12 w-full cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-[1.03] sm:w-auto">
+                    <Plus className="mr-2 h-4 w-4" />
+                    新增客户
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-white/55 bg-[linear-gradient(180deg,rgba(250,248,244,0.95)_0%,rgba(255,255,255,0.96)_100%)] shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
-        <CardContent className="space-y-4 p-5 sm:p-6">
+      <Card className="advisor-soft-card rounded-[30px]">
+        <CardContent className="space-y-5 p-5 sm:p-6">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 rounded-full bg-[#B8894A]/12 p-2 text-[#B8894A]">
+            <div className="mt-0.5 rounded-full bg-[var(--advisor-gold-soft)] p-2 text-[var(--advisor-gold)]">
               <Sparkles className="h-4 w-4" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-slate-900">资料提醒</p>
-              <p className="mt-1 text-sm leading-6 text-slate-600">当前阶段先以客户基础资料完整度作为轻量提醒，帮助你优先补齐后续经营所需的关键字段。</p>
+            <div className="space-y-2">
+              <p className="advisor-kicker">Profile reminder</p>
+              <p className="text-lg font-semibold text-slate-900">资料提醒</p>
+              <p className="text-sm leading-6 text-slate-600">
+                当前阶段先以客户基础资料完整度作为轻量提醒，帮助你优先补齐后续经营所需的关键字段。
+              </p>
             </div>
           </div>
+
+          <div className="advisor-hairline" />
 
           <div className="grid gap-3 sm:grid-cols-3">
             <ReminderMetric label="缺少沟通偏好" value={reminders.missingCommunicationCount} hint="建议优先补齐，便于后续联系更自然。" />
@@ -111,13 +125,13 @@ export function CustomerCenterShell() {
 
       <div className="space-y-4">
         {customersQuery.isLoading ? (
-          <Card className="border-white/60 bg-white/88 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
+          <Card className="advisor-subtle-card rounded-[28px]">
             <CardContent className="p-5 text-sm text-slate-500">正在整理客户资料…</CardContent>
           </Card>
         ) : null}
 
         {!customersQuery.isLoading && filteredCustomers.length === 0 ? (
-          <Card className="border-white/60 bg-white/88 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
+          <Card className="advisor-subtle-card rounded-[28px]">
             <CardContent className="p-5 sm:p-6">
               <p className="text-base font-medium text-slate-900">当前没有匹配到客户</p>
               <p className="mt-2 text-sm leading-6 text-slate-500">可以换一个关键词继续查找，或先新增客户档案。</p>
@@ -129,37 +143,43 @@ export function CustomerCenterShell() {
           const status = getCustomerProfileStatus(customer);
 
           return (
-            <Card key={customer.id} className="border-white/60 bg-white/90 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
-              <CardContent className="space-y-4 p-5 sm:p-6">
+            <Card
+              key={customer.id}
+              className="glass-panel advisor-soft-card rounded-[30px] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_56px_rgba(15,23,42,0.09)]"
+            >
+              <CardContent className="space-y-5 p-5 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-semibold text-slate-900">{customer.name}</h2>
-                      {customer.nickname ? <Badge className="rounded-full border-0 bg-[#FFF8EE] text-[#B8894A]">{customer.nickname}</Badge> : null}
+                      <h2 className="text-[1.35rem] font-semibold text-slate-900">{customer.name}</h2>
+                      {customer.nickname ? <Badge className="advisor-accent-chip rounded-full border-0">{customer.nickname}</Badge> : null}
                       <Badge className={`rounded-full ${status.badgeClassName}`}>{status.label}</Badge>
                     </div>
 
-                    <p className="text-sm leading-6 text-slate-600">
-                      {displayCustomerValue(customer.profession)} · {displayCustomerValue(customer.source)}
-                    </p>
-                    <p className="text-sm leading-6 text-slate-500">{status.hint}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm leading-6 text-slate-600">
+                      <span>{displayCustomerValue(customer.profession)} · {displayCustomerValue(customer.source)}</span>
+                      <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:block" />
+                      <span className="text-slate-500">{status.hint}</span>
+                    </div>
                   </div>
 
                   <Link href={`/customers/${customer.id}`} className="w-full sm:w-auto">
-                    <Button variant="outline" className="h-11 w-full rounded-full border-slate-300 bg-transparent sm:w-auto">
+                    <Button variant="outline" className="advisor-outline-button h-11 w-full cursor-pointer rounded-full sm:w-auto">
                       查看详情
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                 </div>
 
+                <div className="advisor-hairline" />
+
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-[24px] bg-slate-50/90 p-4">
-                    <p className="text-xs font-semibold tracking-[0.18em] text-slate-400 uppercase">核心关注点</p>
+                  <div className="advisor-field-card rounded-[24px] p-4">
+                    <p className="advisor-section-label">核心关注点</p>
                     <p className="mt-3 text-sm leading-6 text-slate-700">{displayCustomerValue(customer.core_interesting)}</p>
                   </div>
-                  <div className="rounded-[24px] bg-slate-50/90 p-4">
-                    <p className="text-xs font-semibold tracking-[0.18em] text-slate-400 uppercase">沟通偏好</p>
+                  <div className="advisor-field-card rounded-[24px] p-4">
+                    <p className="advisor-section-label">沟通偏好</p>
                     <p className="mt-3 text-sm leading-6 text-slate-700">{displayCustomerValue(customer.prefer_communicate)}</p>
                   </div>
                 </div>

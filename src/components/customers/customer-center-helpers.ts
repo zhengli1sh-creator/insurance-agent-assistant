@@ -88,7 +88,8 @@ export function getCustomerProfileStatus(customer: CustomerRecord) {
     return {
       label: "已具备基础画像",
       hint: "当前基础资料已经较完整，可作为后续经营承接的稳定起点。",
-      badgeClassName: "border-0 bg-[#ECFDF3] text-[#166534]",
+      badgeClassName: "advisor-status-healthy border-0",
+
     };
   }
 
@@ -96,14 +97,16 @@ export function getCustomerProfileStatus(customer: CustomerRecord) {
     return {
       label: "资料待继续完善",
       hint: "已形成基础经营画像，建议继续补充沟通偏好与近期资金情况。",
-      badgeClassName: "border-0 bg-[#EFF6FF] text-[#1D4ED8]",
+      badgeClassName: "advisor-status-progress border-0",
+
     };
   }
 
   return {
     label: "基础已建，待继续完善",
     hint: "当前以基础身份信息为主，建议尽快补齐核心关注点与沟通偏好。",
-    badgeClassName: "border-0 bg-[#FFF8EE] text-[#B8894A]",
+    badgeClassName: "advisor-status-pending border-0",
+
   };
 }
 

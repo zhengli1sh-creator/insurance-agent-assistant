@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { customers as demoCustomers } from "@/lib/demo-data";
+import { createFallbackCustomerRecords } from "@/components/customers/customer-center-helpers";
 import { fetchJson } from "@/lib/crm-api";
 import type { CustomerWorkflowDraftSeed } from "@/types/agent";
 import type { CustomerRecord } from "@/types/customer";
@@ -199,33 +199,8 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
     onError: (error) => setFeedback(error.message),
   });
 
-  const fallbackCustomers = useMemo(
+  const fallbackCustomers = useMemo(() => createFallbackCustomerRecords(), []);
 
-    () =>
-      demoCustomers.map((item) => ({
-        id: item.id,
-        owner_id: "demo",
-        sys_platform: "demo",
-        uuid: `demo-${item.id}`,
-        bstudio_create_time: "",
-        name: item.name,
-        age: "",
-        sex: "女",
-        profession: item.tags[0] ?? "",
-        family_profile: item.note,
-        wealth_profile: item.assetFocus,
-        core_interesting: item.assetFocus,
-        prefer_communicate: item.note,
-        source: "示例客户",
-        nickname: "",
-        recent_money: item.nextAction,
-        remark: item.note,
-        created_at: "",
-
-        updated_at: "",
-      })),
-    [],
-  );
 
   const items = query.isError ? fallbackCustomers : query.data ?? [];
   const effectiveKeywordToken = normalizeDuplicateToken(effectiveKeyword);
@@ -359,43 +334,45 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
 
 
   const contentClass = assistantMode ? "space-y-6" : "grid gap-6 xl:grid-cols-[0.98fr_1.02fr]";
-
+  const primaryActionClassName = "advisor-primary-button cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03]";
+  const outlineActionClassName = "advisor-outline-button cursor-pointer rounded-full px-5 transition-all duration-200 hover:bg-white";
 
   return (
-    <Card className="glass-panel border-white/60 bg-white/92 shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
-      <CardHeader className="pb-4">
+    <Card className="glass-panel advisor-hero-card rounded-[32px]">
+      <CardHeader className="pb-4 sm:pb-5">
         <div className={`flex flex-col gap-4 ${assistantMode ? "" : "xl:flex-row xl:items-end xl:justify-between"}`}>
-          <div>
-            <CardTitle className="text-2xl text-slate-900">{assistantTitle}</CardTitle>
-            <p className="mt-2 text-sm text-slate-500">
+          <div className="space-y-2">
+            <p className="advisor-kicker">{assistantMode ? "Workflow support" : "Customer CRM"}</p>
+            <CardTitle className="text-[1.9rem] leading-tight text-slate-900 sm:text-[2.15rem]">{assistantTitle}</CardTitle>
+            <p className="max-w-2xl text-sm leading-6 text-slate-600">
               {assistantMode
                 ? showAssistantDuplicateNotice
                   ? "系统已查到可能同一位客户，请先确认是否继续使用已有客户；若不是，再继续新建。"
                   : draftSeed?.resumeVisitSeed
                     ? "先保存客户基础信息，系统会自动带你回到刚才的拜访记录。"
                     : "先保存基础信息，后续还可以继续补充。"
-                : "按姓名、昵称、职业、来源或关注点查找客户。"}
+                : "按姓名、昵称、职业、来源或关注点查找客户，并在同一工作台中继续维护资料。"}
             </p>
-
           </div>
           {!assistantMode && (
             <Input
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
               placeholder="按姓名、昵称、职业、客户来源、核心关注点或备注检索"
-
-              className="h-11 max-w-md rounded-2xl border-slate-200/80 bg-white"
+              className="h-11 max-w-md rounded-[22px] border-[rgba(18,59,93,0.08)] bg-white/86 shadow-[0_12px_24px_rgba(15,23,42,0.04)]"
             />
           )}
         </div>
       </CardHeader>
 
+
       <CardContent className={contentClass}>
         <div className="space-y-4">
           {assistantMode && draftSeed?.resumeVisitSeed && (
-            <div className="rounded-[24px] border border-[#B8894A]/18 bg-[#FFF8EE] p-4 text-sm leading-6 text-slate-700">
-              <p className="font-medium text-slate-900">当前待完成</p>
-              <p className="mt-2">
+            <div className="advisor-soft-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
+              <p className="advisor-kicker">Resume workflow</p>
+              <p className="mt-2 text-base font-semibold text-slate-900">当前待完成</p>
+              <p className="mt-3">
                 {showAssistantDuplicateNotice
                   ? `我已先查到一位可能同名的已有客户。请先确认是否就是这位客户；若不是，再继续新建。当前这条拜访我会继续为你保留${resumeVisitFollowUp ? `，并继续接上“${resumeVisitFollowUp}”` : ""}。`
                   : `当前还没有查到 ${resumeVisitName || "这位客户"} 的客户档案。我先带你补一份基础信息，保存后会自动回到刚才的拜访记录${resumeVisitFollowUp ? `，并继续接上“${resumeVisitFollowUp}”` : ""}。`}
@@ -403,27 +380,26 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
             </div>
           )}
 
-
-
-
-
           {showAssistantDuplicateNotice && (
-            <div className="rounded-[24px] border border-[#B8894A]/18 bg-[#FFF8EE] p-4 text-sm leading-6 text-slate-700">
-              <p className="font-medium text-slate-900">系统发现可能已有同一位客户</p>
-              <p className="mt-2">我已自动帮你核对到相近档案。若确认是同一位，可直接继续使用已有客户；若不是，再继续新建即可。</p>
+            <div className="advisor-soft-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
+              <p className="advisor-kicker">Customer check</p>
+              <p className="mt-2 text-base font-semibold text-slate-900">系统发现可能已有同一位客户</p>
+              <p className="mt-3">我已自动帮你核对到相近档案。若确认是同一位，可直接继续使用已有客户；若不是，再继续新建即可。</p>
               <div className="mt-4 space-y-3">
                 {duplicateCandidates.map((customer) => (
-                  <div key={customer.id} className="rounded-2xl bg-white/90 p-4 shadow-sm">
+                  <div key={customer.id} className="advisor-subtle-card rounded-[24px] p-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-medium text-slate-900">{customer.name}</p>
-                      {customer.nickname && <Badge className="rounded-full border-0 bg-[#FFF3DC] text-[#B8894A]">{customer.nickname}</Badge>}
+                      {customer.nickname && <Badge className="advisor-accent-chip rounded-full border-0">{customer.nickname}</Badge>}
                     </div>
                     <p className="mt-2 text-sm text-slate-600">{customer.profession || "待补充职业"} · {customer.source || "待补充来源"}</p>
-                    <p className="mt-2 text-sm text-slate-500">核心关注：{customer.core_interesting || "待补充"}</p>
-                    <p className="mt-2 text-sm text-slate-500">财富情况：{customer.wealth_profile || "待补充"}</p>
-                    <p className="mt-2 text-sm text-slate-500">资金情况：{customer.recent_money || "待补充"}</p>
-                    <div className="mt-3 flex flex-wrap gap-3">
-                      <Button type="button" onClick={() => handleUseExistingCustomer(customer)} className="cursor-pointer rounded-full bg-[#123B5D] text-white hover:bg-[#0E2E49]">
+                    <div className="mt-3 grid gap-2 text-sm text-slate-500 sm:grid-cols-3">
+                      <p className="advisor-field-card rounded-[20px] p-3">核心关注：{customer.core_interesting || "待补充"}</p>
+                      <p className="advisor-field-card rounded-[20px] p-3">财富情况：{customer.wealth_profile || "待补充"}</p>
+                      <p className="advisor-field-card rounded-[20px] p-3">资金情况：{customer.recent_money || "待补充"}</p>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Button type="button" onClick={() => handleUseExistingCustomer(customer)} className={primaryActionClassName}>
                         就是这位客户
                       </Button>
                     </div>
@@ -438,7 +414,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                     setDuplicatePromptDismissed(true);
                     setShowNewCustomerForm(true);
                   }}
-                  className="cursor-pointer rounded-full bg-[#123B5D] text-white hover:bg-[#0E2E49]"
+                  className={outlineActionClassName}
                 >
                   不是同一人，继续新建
                 </Button>
@@ -447,9 +423,10 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
           )}
 
           {pendingExistingCustomerConfirmation && (
-            <div className="rounded-[24px] border border-[#123B5D]/14 bg-[#F6FAFD] p-4 text-sm leading-6 text-slate-700">
-              <p className="font-medium text-slate-900">确认是否同步更新客户昵称</p>
-              <p className="mt-2">
+            <div className="advisor-subtle-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
+              <p className="advisor-kicker">Confirmation needed</p>
+              <p className="mt-2 text-base font-semibold text-slate-900">确认是否同步更新客户昵称</p>
+              <p className="mt-3">
                 {pendingExistingCustomerConfirmation.existingNickname
                   ? `当前客户档案中的昵称是“${pendingExistingCustomerConfirmation.existingNickname}”，而你刚补充的是“${pendingExistingCustomerConfirmation.proposedNickname}”。如确认是同一称呼，我可以先把客户昵称更新为“${pendingExistingCustomerConfirmation.proposedNickname}”，再继续刚才的拜访记录。`
                   : `你刚补充了昵称“${pendingExistingCustomerConfirmation.proposedNickname}”。如确认无误，我可以先把它写入 ${pendingExistingCustomerConfirmation.customer.name} 的客户档案，再继续刚才的拜访记录。`}
@@ -459,7 +436,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                   type="button"
                   onClick={confirmExistingCustomerNicknameSync}
                   disabled={syncExistingCustomerNicknameMutation.isPending}
-                  className="cursor-pointer rounded-full bg-[#123B5D] text-white hover:bg-[#0E2E49]"
+                  className={primaryActionClassName}
                 >
                   {syncExistingCustomerNicknameMutation.isPending ? "正在更新昵称" : "继续并同步客户昵称"}
                 </Button>
@@ -468,7 +445,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                   variant="outline"
                   onClick={continueWithoutNicknameSync}
                   disabled={syncExistingCustomerNicknameMutation.isPending}
-                  className="cursor-pointer rounded-full border-slate-300 bg-transparent"
+                  className={outlineActionClassName}
                 >
                   只继续拜访，不修改昵称
                 </Button>
@@ -477,29 +454,69 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
           )}
 
           {(!showAssistantDuplicateNotice || showNewCustomerForm) && (
-          <div ref={profileCardRef} className={`rounded-[28px] border border-slate-200/70 bg-slate-50/90 p-5 ${assistantReviewPrompt ? "ring-1 ring-[#0F766E]/15" : ""}`}>
+            <div ref={profileCardRef} className={`advisor-subtle-card rounded-[30px] p-5 sm:p-6 ${assistantReviewPrompt ? "ring-1 ring-[rgba(18,59,93,0.12)]" : ""}`}>
+              {assistantMode && assistantReviewPrompt && (
+                <div className="advisor-field-card mb-5 rounded-[24px] p-4 text-sm leading-6 text-slate-700">
+                  <p className="advisor-kicker">Review prompted</p>
+                  <p className="mt-2 text-base font-medium text-slate-900">助手已整理到当前客户信息</p>
+                  <p className="mt-2">{assistantReviewPrompt}</p>
+                </div>
+              )}
 
-            {assistantMode && assistantReviewPrompt && (
-              <div className="mb-5 rounded-[24px] border border-[#0F766E]/16 bg-[#F3FBF8] p-4 text-sm leading-6 text-slate-700">
-                <p className="font-medium text-slate-900">助手已整理到当前客户信息</p>
-                <p className="mt-2">{assistantReviewPrompt}</p>
-              </div>
-            )}
-
-
-            {!assistantMode && <p className="text-lg font-semibold text-slate-900">{editingId ? "编辑客户" : "新增客户"}</p>}
-            {assistantMode ? (
-              <div className="space-y-5">
-                <div className="rounded-[26px] border border-white/85 bg-white/96 p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
-                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                    <div>
-                      <p className="text-xs font-semibold tracking-[0.18em] text-slate-500 uppercase">客户信息</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-500">请先核对已填入内容，绿色字段为本轮助手整理或更新。</p>
+              {!assistantMode && <p className="text-lg font-semibold text-slate-900">{editingId ? "编辑客户" : "新增客户"}</p>}
+              {assistantMode ? (
+                <div className="space-y-5">
+                  <div className="advisor-soft-card rounded-[26px] p-5">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-4">
+                      <div>
+                        <p className="advisor-section-label">客户信息</p>
+                        <p className="mt-1 text-sm leading-6 text-slate-500">请先核对已填入内容，本轮由助手整理或更新的字段会被特别标记。</p>
+                      </div>
+                      <span className="advisor-accent-chip rounded-full px-3 py-1 text-xs font-medium">已填信息区</span>
                     </div>
-                    <span className="rounded-full border border-[#0F766E]/14 bg-[#F3FBF8] px-3 py-1 text-xs font-medium text-[#0F766E]">
-                      已填信息区
-                    </span>
+                    <CustomerProfileFields
+                      value={form}
+                      onChange={patchForm}
+                      disabled={saveMutation.isPending}
+                      variant="full"
+                      highlightedFields={highlightedFields}
+                    />
                   </div>
+
+                  <div className="advisor-field-card rounded-[26px] p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="advisor-section-label">继续补充</p>
+                        <p className="mt-1 text-sm leading-6 text-slate-700">核对完上方已填入信息后，如需补充和修改，可以在下面输入框中继续描述。</p>
+                      </div>
+                    </div>
+                    <Textarea
+                      value={assistantDetailInput}
+                      onChange={(event) => {
+                        setAssistantDetailInput(event.target.value);
+                        if (assistantReviewPrompt) {
+                          setAssistantReviewPrompt("");
+                        }
+                      }}
+                      disabled={extractMutation.isPending || saveMutation.isPending}
+                      className="mt-4 min-h-24 rounded-[24px] border-[rgba(18,59,93,0.08)] bg-white/88 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+                    />
+
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => extractMutation.mutate(assistantDetailInput.trim())}
+                        disabled={!assistantDetailInput.trim() || extractMutation.isPending || saveMutation.isPending}
+                        className={outlineActionClassName}
+                      >
+                        {extractMutation.isPending ? "正在整理" : "让助手整理并填写"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4">
                   <CustomerProfileFields
                     value={form}
                     onChange={patchForm}
@@ -508,111 +525,65 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                     highlightedFields={highlightedFields}
                   />
                 </div>
+              )}
 
-                <div className="rounded-[26px] border border-[#0F766E]/16 bg-[linear-gradient(180deg,rgba(238,247,245,0.95)_0%,rgba(248,252,251,0.98)_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold tracking-[0.18em] text-[#0F766E] uppercase">继续补充</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-700">核对完上方已填入信息后，如需补充和修改，可以在下面输入框中输入</p>
-                    </div>
-
-                  </div>
-                  <Textarea
-                    value={assistantDetailInput}
-                    onChange={(event) => {
-                      setAssistantDetailInput(event.target.value);
-                      if (assistantReviewPrompt) {
-                        setAssistantReviewPrompt("");
-                      }
-                    }}
-                    disabled={extractMutation.isPending || saveMutation.isPending}
-                    className="mt-4 min-h-24 rounded-[24px] border-white/80 bg-white shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
-                  />
-
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <Button
-                      type="button"
-                      onClick={() => extractMutation.mutate(assistantDetailInput.trim())}
-                      disabled={!assistantDetailInput.trim() || extractMutation.isPending || saveMutation.isPending}
-                      className="cursor-pointer rounded-full bg-[#0F766E] text-white hover:bg-[#0B5F59]"
-                    >
-                      {extractMutation.isPending ? "正在整理" : "让助手整理并填写"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4">
-                <CustomerProfileFields
-                  value={form}
-                  onChange={patchForm}
-                  disabled={saveMutation.isPending}
-                  variant="full"
-                  highlightedFields={highlightedFields}
-                />
-              </div>
-            )}
-
-            <div className={assistantMode ? "mt-5 flex flex-wrap gap-3 border-t border-slate-200/70 pt-4" : "mt-4 flex flex-wrap gap-3"}>
-              <Button onClick={saveCustomer} disabled={saveMutation.isPending} className="cursor-pointer rounded-full bg-[#123B5D] text-white hover:bg-[#0E2E49]">
-                {saveMutation.isPending ? "正在保存" : editingId ? "保存修改" : assistantMode ? "保存并继续" : "创建客户"}
-              </Button>
-              {!assistantMode && (
-                <Button variant="outline" onClick={resetForm} className="cursor-pointer rounded-full border-slate-300 bg-transparent">
-                  重置表单
+              <div className={assistantMode ? "mt-5 flex flex-wrap gap-3 border-t border-slate-200/70 pt-4" : "mt-4 flex flex-wrap gap-3"}>
+                <Button onClick={saveCustomer} disabled={saveMutation.isPending} className={primaryActionClassName}>
+                  {saveMutation.isPending ? "正在保存" : editingId ? "保存修改" : assistantMode ? "保存并继续" : "创建客户"}
                 </Button>
+                {!assistantMode && (
+                  <Button variant="outline" onClick={resetForm} className={outlineActionClassName}>
+                    重置表单
+                  </Button>
+                )}
+              </div>
+              {feedback && (
+                <div className="advisor-field-card mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-slate-700">
+                  {feedback}
+                </div>
               )}
             </div>
-            {feedback && (
-              <p className={`mt-4 text-sm leading-6 ${assistantMode ? "text-slate-700" : "text-slate-600"}`}>
-                {feedback}
-              </p>
-            )}
-
-
-
-          </div>
           )}
+
         </div>
 
         {!assistantMode && (
           <div className="space-y-4">
             {query.isLoading && shouldSearch && (
-              <div className="rounded-[24px] bg-slate-50/90 px-4 py-6 text-sm text-slate-500">正在查找客户…</div>
+              <div className="advisor-subtle-card rounded-[24px] px-4 py-6 text-sm text-slate-500">正在查找客户…</div>
             )}
 
             {!query.isLoading && !query.isError && listItems.length === 0 && shouldSearch && (
-              <div className="rounded-[24px] bg-slate-50/90 px-4 py-6 text-sm text-slate-500">还没有匹配到客户。</div>
+              <div className="advisor-subtle-card rounded-[24px] px-4 py-6 text-sm text-slate-500">还没有匹配到客户。</div>
             )}
 
             {listItems.map((customer) => (
-              <div key={customer.id} className="rounded-[28px] border border-slate-200/70 bg-white/90 p-5 shadow-sm">
+              <div key={customer.id} className="advisor-soft-card rounded-[28px] p-5">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-lg font-semibold text-slate-900">{customer.name}</p>
-                      {customer.nickname && <Badge className="rounded-full border-0 bg-[#FFF8EE] text-[#B8894A]">{customer.nickname}</Badge>}
+                      {customer.nickname && <Badge className="advisor-accent-chip rounded-full border-0">{customer.nickname}</Badge>}
                     </div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{customer.profession || "待补充职业"} · {customer.source || "待补充来源"}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => startEdit(customer)} className="cursor-pointer rounded-full border-slate-300 bg-transparent">编辑</Button>
+                    <Button variant="outline" onClick={() => startEdit(customer)} className={outlineActionClassName}>编辑</Button>
                   </div>
-
                 </div>
                 <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-2">
-                  <div className="rounded-2xl bg-slate-50/90 p-3">核心关注点：{customer.core_interesting || "待补充"}</div>
-                  <div className="rounded-2xl bg-slate-50/90 p-3">资金情况：{customer.recent_money || "待补充"}</div>
-                  <div className="rounded-2xl bg-slate-50/90 p-3 md:col-span-2">财富情况：{customer.wealth_profile || "待补充"}</div>
-                  <div className="rounded-2xl bg-slate-50/90 p-3 md:col-span-2">家庭情况：{customer.family_profile || "待补充"}</div>
-                  <div className="rounded-2xl bg-slate-50/90 p-3 md:col-span-2">沟通偏好：{customer.prefer_communicate || "待补充"}</div>
-                  <div className="rounded-2xl bg-slate-50/90 p-3 md:col-span-2">备注：{customer.remark || "待补充"}</div>
+                  <div className="advisor-field-card rounded-[20px] p-3">核心关注点：{customer.core_interesting || "待补充"}</div>
+                  <div className="advisor-field-card rounded-[20px] p-3">资金情况：{customer.recent_money || "待补充"}</div>
+                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">财富情况：{customer.wealth_profile || "待补充"}</div>
+                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">家庭情况：{customer.family_profile || "待补充"}</div>
+                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">沟通偏好：{customer.prefer_communicate || "待补充"}</div>
+                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">备注：{customer.remark || "待补充"}</div>
                 </div>
-
               </div>
             ))}
           </div>
         )}
+
 
       </CardContent>
     </Card>

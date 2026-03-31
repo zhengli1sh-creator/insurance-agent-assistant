@@ -659,32 +659,53 @@ export function VisitManager({
       </div>
 
       <Sheet open={customerSheetOpen} onOpenChange={setCustomerSheetOpen}>
-        <SheetContent side="bottom" className="max-h-[92vh] rounded-t-[32px] border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,251,255,0.98))] p-0 sm:max-w-none">
+        <SheetContent side="bottom" className="max-h-[92vh] rounded-t-[32px] border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.99),rgba(248,246,241,0.96)_55%,rgba(246,250,253,0.96)_100%)] p-0 sm:max-w-none">
           <div className="overflow-y-auto">
             <SheetHeader className="border-b border-slate-200/70 px-5 py-5">
-              <SheetTitle className="text-xl text-slate-900">先补客户信息</SheetTitle>
-              <SheetDescription className="mt-2 text-sm leading-6 text-slate-500">保存后会继续当前拜访，不需要重新填写。</SheetDescription>
+              <div className="space-y-2">
+                <p className="advisor-kicker">Resume workflow</p>
+                <SheetTitle className="text-xl text-slate-900">先补客户信息</SheetTitle>
+                <SheetDescription className="text-sm leading-6 text-slate-500">保存客户档案后，会自动返回刚才的拜访记录，不需要重新填写。</SheetDescription>
+              </div>
             </SheetHeader>
             <div className="space-y-4 px-5 py-5">
-              <div className="rounded-[24px] border border-[#B8894A]/18 bg-[#FFF8EE] p-4 text-sm leading-6 text-slate-700">
-                <div className="flex items-center gap-2 font-medium text-slate-900">
-                  <AlertTriangle className="h-4 w-4 text-[#B8894A]" />
-                  当前待完成
+              <div className="advisor-soft-card rounded-[28px] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-slate-900">
+                      <span className="flex size-9 items-center justify-center rounded-full bg-[var(--advisor-gold-soft)] text-[var(--advisor-gold)]">
+                        <AlertTriangle className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="advisor-kicker">Pending task</p>
+                        <p className="text-base font-medium">当前待完成</p>
+                      </div>
+                    </div>
+                    <p className="text-sm leading-6 text-slate-700">保存拜访记录：{resumeContext?.form.name || form.name || "待填写客户"}</p>
+                  </div>
+                  <Badge className="advisor-accent-chip rounded-full border-0">支持自动返回</Badge>
                 </div>
-                <p className="mt-2">保存拜访记录：{resumeContext?.form.name || form.name || "待填写客户"}</p>
               </div>
+
+              <div className="advisor-subtle-card rounded-[28px] p-4 text-sm leading-6 text-slate-600">
+                先补最小客户档案，再继续当前拜访。你现在填写的拜访内容会保留，不会丢失。
+              </div>
+
               <CustomerProfileFields value={customerForm} onChange={patchCustomerForm} disabled={createCustomerMutation.isPending} variant="compact" />
 
               <div className="flex flex-wrap gap-3 pb-5">
-                <Button onClick={() => createCustomerMutation.mutate(customerForm)} disabled={createCustomerMutation.isPending} className="cursor-pointer rounded-full bg-[#123B5D] text-white hover:bg-[#0E2E49]">
+                <Button onClick={() => createCustomerMutation.mutate(customerForm)} disabled={createCustomerMutation.isPending} className="advisor-primary-button cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03] disabled:shadow-none">
                   {createCustomerMutation.isPending ? "正在保存客户档案" : "保存客户档案并继续拜访"}
                 </Button>
-                <Button variant="outline" onClick={() => setCustomerSheetOpen(false)} className="cursor-pointer rounded-full border-slate-300 bg-transparent">稍后再说</Button>
+                <Button variant="outline" onClick={() => setCustomerSheetOpen(false)} className="advisor-outline-button cursor-pointer rounded-full">
+                  稍后再说
+                </Button>
               </div>
             </div>
           </div>
         </SheetContent>
       </Sheet>
+
     </>
   );
 }
