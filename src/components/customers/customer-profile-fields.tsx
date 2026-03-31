@@ -215,20 +215,21 @@ export function CustomerProfileFields({
       </div>
 
       {compact ? (
-        <details className="group rounded-[28px] border border-[rgba(18,59,93,0.08)] bg-[linear-gradient(180deg,rgba(246,250,253,0.9)_0%,rgba(255,255,255,0.95)_100%)] p-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
+        <details className="advisor-disclosure-card group rounded-[28px] p-4">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
             <div className="space-y-1">
               <p className="advisor-kicker">Additional profile</p>
               <p className="text-base font-medium text-slate-900">补充更多信息</p>
               <p className="text-sm leading-6 text-slate-500">按需补齐家庭、财富、沟通与备注，系统会据此形成更完整的经营简报。</p>
             </div>
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/90 text-[var(--advisor-ink)] shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition-transform duration-200 group-open:rotate-180">
+            <span className="advisor-disclosure-toggle flex size-9 shrink-0 items-center justify-center transition-transform duration-200 group-open:rotate-180">
               <ChevronDown className="h-4 w-4" />
             </span>
           </summary>
           <div className="mt-4 grid gap-3 md:grid-cols-2">{extraFields}</div>
         </details>
       ) : (
+
         <div className="advisor-subtle-card rounded-[30px] p-4 sm:p-5">
           <div className="space-y-2">
             <p className="advisor-kicker">Additional profile</p>

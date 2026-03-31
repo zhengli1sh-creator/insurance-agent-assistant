@@ -498,9 +498,8 @@ export function ActivityManager({
     ? resumeContext.form.participants.find((item) => item.rowId === resumeContext.participantRowId) ?? null
     : null;
 
-  const formCardTone = embedded
-    ? "border-[#123B5D]/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,251,255,0.96))]"
-    : "border-white/55 bg-slate-50/90";
+  const formCardTone = embedded ? "advisor-soft-card" : "glass-panel advisor-glass-surface";
+
 
   return (
     <>
@@ -510,15 +509,12 @@ export function ActivityManager({
             <div className="flex flex-col gap-3">
               {!assistantTaskMode && (
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge className={`rounded-full border-0 px-3 py-1 ${embedded ? "bg-[#123B5D]/10 text-[#123B5D]" : "bg-[#1E3A8A]/10 text-[#1E3A8A]"}`}>
-                    客户活动
-                  </Badge>
-                  {originBadgeLabel && (
-                    <Badge className="rounded-full border-0 bg-[#FFF8EE] px-3 py-1 text-[#8A6A3E]">{originBadgeLabel}</Badge>
-                  )}
-                  {resumeContext && <Badge className="rounded-full border-0 bg-[#FFF8EE] px-3 py-1 text-[#8A6A3E]">待继续</Badge>}
+                  <Badge className="advisor-chip-info rounded-full border-0 px-3 py-1">客户活动</Badge>
+                  {originBadgeLabel && <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">{originBadgeLabel}</Badge>}
+                  {resumeContext && <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">待继续</Badge>}
                 </div>
               )}
+
               <div>
                 <CardTitle className={assistantTaskMode ? "text-2xl text-slate-900" : "text-lg text-slate-900"}>
                   {editingId ? (assistantTaskMode ? "修改活动" : "继续修改这场活动") : assistantTaskMode ? "补录活动" : embedded ? "记录这场活动" : "新增活动"}
@@ -531,27 +527,26 @@ export function ActivityManager({
           </CardHeader>
           <CardContent className="space-y-4">
             {embedded && !assistantTaskMode && (
-              <div className="rounded-[24px] border border-slate-200/70 bg-white/88 p-4 text-sm leading-6 text-slate-700">
+              <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] p-4 text-sm leading-6 text-slate-700">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                  <span className="rounded-full bg-[#123B5D]/8 px-3 py-1 text-[#123B5D]">1. 填活动</span>
-                  <span className="rounded-full bg-[#123B5D]/8 px-3 py-1 text-[#123B5D]">2. 核对客户</span>
-                  <span className="rounded-full bg-[#123B5D]/8 px-3 py-1 text-[#123B5D]">3. 写后续</span>
+                  <span className="advisor-chip-info rounded-full px-3 py-1">1. 填活动</span>
+                  <span className="advisor-chip-info rounded-full px-3 py-1">2. 核对客户</span>
+                  <span className="advisor-chip-info rounded-full px-3 py-1">3. 写后续</span>
                 </div>
                 <p className="mt-3">先把这场活动记下来。保存后，如果你想回看历史或统一整理名单，也可以进入活动记录。</p>
               </div>
             )}
 
-
-
             {resumeContext && (
-              <div className="rounded-[24px] border border-[#B8894A]/20 bg-[#FFF8EE] p-4 text-sm leading-6 text-slate-700">
+              <div className="advisor-notice-card advisor-notice-card-warning rounded-[24px] p-4 text-sm leading-6 text-slate-700">
                 <div className="flex items-center gap-2 font-medium text-slate-900">
-                  <RefreshCcw className="h-4 w-4 text-[#B8894A]" />
+                  <RefreshCcw className="h-4 w-4 text-[var(--advisor-gold)]" />
                   刚才的内容已保留
                 </div>
                 <p className="mt-2">补完客户信息后，会继续保存这场活动，不需要重新填写。</p>
               </div>
             )}
+
 
 
             <Input value={form.nameActivity} onChange={(event) => patchForm({ nameActivity: event.target.value })} placeholder="活动名称（必填）" className="h-11 rounded-2xl border-white bg-white" />
@@ -662,42 +657,40 @@ export function ActivityManager({
         </Card>
 
         {embedded && !assistantTaskMode ? (
-
-          <Card className="border-white/60 bg-white/88 shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
+          <Card className="glass-panel advisor-glass-surface">
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-full border-0 bg-[#F7F4EE] px-3 py-1 text-[#8A6A3E]">全部活动</Badge>
-                <Badge className="rounded-full border-0 bg-[#0F766E]/10 px-3 py-1 text-[#0F766E]">最近活动</Badge>
+                <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">全部活动</Badge>
+                <Badge className="advisor-chip-success rounded-full border-0 px-3 py-1">最近活动</Badge>
               </div>
               <CardTitle className="text-lg text-slate-900">需要时再去活动记录</CardTitle>
               <p className="text-sm leading-6 text-slate-500">这里先帮你完成这场活动；如果想回看历史、统一整理名单或继续修改，再去活动记录。</p>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="rounded-[24px] border border-[#B8894A]/18 bg-[#FFF8EE] p-4 text-sm leading-6 text-slate-700">
+              <div className="advisor-notice-card advisor-notice-card-warning rounded-[24px] p-4 text-sm leading-6 text-slate-700">
                 <div className="flex items-center gap-2 font-medium text-slate-900">
-                  <FolderHeart className="h-4 w-4 text-[#B8894A]" />
+                  <FolderHeart className="h-4 w-4 text-[var(--advisor-gold)]" />
                   想回看时再打开
                 </div>
                 <p className="mt-2">历史对比和统一整理都放在活动记录里，手机上看会更清楚。</p>
               </div>
 
               {visibleActivities.length === 0 ? (
-                <div className="rounded-[24px] border border-dashed border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-500">还没有活动记录，保存第一场后就能在这里继续查看。</div>
+                <div className="advisor-module-placeholder-card rounded-[24px] p-5 text-sm text-slate-500">还没有活动记录，保存第一场后就能在这里继续查看。</div>
               ) : (
-
                 visibleActivities.map((record) => {
                   const participantSummary = (record.activity_participants ?? [])
                     .map((item) => (item.nick_name ? `${item.name}（${item.nick_name}）` : item.name))
                     .join("、");
 
                   return (
-                    <div key={record.id} className="rounded-[24px] border border-slate-200/70 bg-slate-50/90 p-4">
+                    <div key={record.id} className="advisor-record-card rounded-[24px] p-4">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <p className="font-medium text-slate-900">{record.name_activity}</p>
                           <p className="mt-1 text-sm text-slate-500">{record.date_activity} · {record.location_activity || "待补充地点"}</p>
                         </div>
-                        <Button variant="outline" onClick={() => startEdit(record)} className="cursor-pointer rounded-full border-slate-300 bg-white">
+                        <Button variant="outline" onClick={() => startEdit(record)} className="advisor-outline-button cursor-pointer rounded-full">
                           继续修改
                         </Button>
                       </div>
@@ -708,11 +701,10 @@ export function ActivityManager({
                 })
               )}
 
-              <Link href={expandHref} className="inline-flex items-center gap-2 rounded-full bg-[#123B5D] px-4 py-2 text-sm text-white transition hover:opacity-95">
+              <Link href={expandHref} className="advisor-primary-button inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-white transition hover:brightness-[1.03]">
                 去活动记录查看全部内容
                 <ArrowRight className="h-4 w-4" />
               </Link>
-
             </CardContent>
           </Card>
         ) : (
@@ -723,7 +715,7 @@ export function ActivityManager({
                 .join("、");
 
               return (
-                <div key={record.id} className="rounded-[28px] border border-slate-200/70 bg-white/90 p-5 shadow-sm">
+                <div key={record.id} className="advisor-list-item-card rounded-[28px] p-5">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                     <div>
                       <p className="text-lg font-semibold text-slate-900">{record.name_activity}</p>
@@ -731,19 +723,19 @@ export function ActivityManager({
                       <p className="mt-1 text-sm text-slate-500">参加客户：{participantSummary || "待补充"}</p>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" onClick={() => startEdit(record)} className="cursor-pointer rounded-full border-slate-300 bg-transparent">编辑</Button>
+                      <Button variant="outline" onClick={() => startEdit(record)} className="advisor-outline-button cursor-pointer rounded-full">编辑</Button>
                       <Button variant="outline" onClick={() => globalThis.confirm("确认删除这条活动记录吗？") && deleteMutation.mutate(record.id)} className="cursor-pointer rounded-full border-rose-200 bg-transparent text-rose-600 hover:bg-rose-50 hover:text-rose-700">删除</Button>
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-2">
-                    <div className="rounded-[24px] bg-slate-50/90 p-4">目标客群画像：{record.customer_profile || "待补充"}</div>
-                    <div className="rounded-[24px] bg-slate-50/90 p-4">活动效果：{record.effect_profile || "待补充"}</div>
-                    <div className="rounded-[24px] bg-slate-50/90 p-4 md:col-span-2">经验教训：{record.lessons_learned || "待补充"}</div>
-                    <div className="rounded-[24px] bg-slate-50/90 p-4 md:col-span-2">
+                    <div className="advisor-meta-tile rounded-[24px] p-4">目标客群画像：{record.customer_profile || "待补充"}</div>
+                    <div className="advisor-meta-tile rounded-[24px] p-4">活动效果：{record.effect_profile || "待补充"}</div>
+                    <div className="advisor-meta-tile rounded-[24px] p-4 md:col-span-2">经验教训：{record.lessons_learned || "待补充"}</div>
+                    <div className="advisor-meta-tile rounded-[24px] p-4 md:col-span-2">
                       <p className="font-medium text-slate-900">客户参加活动表</p>
                       <div className="mt-3 space-y-2">
                         {(record.activity_participants ?? []).map((item) => (
-                          <div key={`${record.id}-${item.customer_id}`} className="rounded-2xl bg-white px-4 py-3">
+                          <div key={`${record.id}-${item.customer_id}`} className="advisor-list-item-card rounded-2xl px-4 py-3">
                             <p className="text-slate-900">{item.nick_name ? `${item.name}（${item.nick_name}）` : item.name}</p>
                             <p className="mt-1 text-sm text-slate-500">待办事项：{item.follow_work || "暂无"}</p>
                           </div>
@@ -756,12 +748,13 @@ export function ActivityManager({
             })}
           </div>
         )}
+
       </div>
 
       <Sheet open={customerSheetOpen} onOpenChange={setCustomerSheetOpen}>
-        <SheetContent side="bottom" className="max-h-[92vh] rounded-t-[32px] border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.99),rgba(248,246,241,0.96)_55%,rgba(246,250,253,0.96)_100%)] p-0 sm:max-w-none">
+        <SheetContent side="bottom" className="advisor-sheet-surface max-h-[92vh] rounded-t-[32px] p-0 sm:max-w-none">
           <div className="overflow-y-auto">
-            <SheetHeader className="border-b border-slate-200/70 px-5 py-5">
+            <SheetHeader className="advisor-sheet-header-surface px-5 py-5">
               <div className="space-y-2">
                 <p className="advisor-kicker">Resume workflow</p>
                 <SheetTitle className="text-xl text-slate-900">先补客户信息</SheetTitle>
@@ -773,7 +766,7 @@ export function ActivityManager({
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-slate-900">
-                      <span className="flex size-9 items-center justify-center rounded-full bg-[var(--advisor-gold-soft)] text-[var(--advisor-gold)]">
+                      <span className="advisor-icon-badge advisor-icon-badge-warning advisor-icon-badge-md">
                         <AlertTriangle className="h-4 w-4" />
                       </span>
                       <div>
@@ -809,6 +802,7 @@ export function ActivityManager({
           </div>
         </SheetContent>
       </Sheet>
+
 
     </>
   );

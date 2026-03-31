@@ -390,11 +390,11 @@ function ExtractedSummaryCard({
   const nameReady = validateNameComplete(currentFields.name);
 
   return (
-    <div className="rounded-[26px] border border-[#B8894A]/20 bg-[linear-gradient(180deg,rgba(255,248,238,0.98)_0%,rgba(255,252,247,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-5">
+    <div className="advisor-notice-card advisor-notice-card-warning rounded-[26px] p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#B8894A]/12">
-            <Sparkles className="h-4 w-4 text-[#B8894A]" />
+          <div className="advisor-icon-badge advisor-icon-badge-warning mt-0.5 h-9 w-9 shrink-0">
+            <Sparkles className="h-4 w-4" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">已为你整理出以下客户信息</h3>
@@ -403,10 +403,9 @@ function ExtractedSummaryCard({
             </p>
           </div>
         </div>
-        <Badge className="rounded-full border-0 bg-[#B8894A]/12 px-3 py-1 text-[#8B6A32]">
-          已具备 {filledFields.length} 项
-        </Badge>
+        <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">已具备 {filledFields.length} 项</Badge>
       </div>
+
 
       {extractedFields.length > 0 ? (
         <div className="mt-4 rounded-2xl border border-white/80 bg-white/78 p-3.5 sm:p-4">
@@ -465,10 +464,10 @@ function SaveSuccessCard({ customer }: { customer: CustomerRecord }) {
   const groups = getSavedGroups(customer);
 
   return (
-    <div className="rounded-[26px] border border-[#0F766E]/16 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(249,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-5">
+    <div className="advisor-notice-card advisor-notice-card-success rounded-[26px] p-4 sm:p-5">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/12">
-          <CheckCircle className="h-4 w-4 text-[#0F766E]" />
+        <div className="advisor-icon-badge advisor-icon-badge-success mt-0.5 h-9 w-9 shrink-0">
+          <CheckCircle className="h-4 w-4" />
         </div>
         <div>
           <h3 className="text-base font-semibold text-[#123B5D]">客户档案已保存</h3>
@@ -477,6 +476,7 @@ function SaveSuccessCard({ customer }: { customer: CustomerRecord }) {
           </p>
         </div>
       </div>
+
 
       <div className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3.5">
         <p className="text-lg font-semibold text-slate-900">{customer.name}</p>
@@ -512,10 +512,10 @@ function ErrorHintCard({ message }: { message: string }) {
   const hintMeta = getHintMeta(message);
 
   return (
-    <div className="rounded-[24px] border border-[#D9A35F]/22 bg-[linear-gradient(180deg,rgba(255,249,240,0.98)_0%,rgba(255,253,248,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+    <div className="advisor-notice-card advisor-notice-card-warning rounded-[24px] p-4">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D9A35F]/14">
-          <AlertCircle className="h-4 w-4 text-[#B06E20]" />
+        <div className="advisor-icon-badge advisor-icon-badge-warning mt-0.5 h-8 w-8 shrink-0">
+          <AlertCircle className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-[#7A5328]">{hintMeta.title}</p>
@@ -526,6 +526,7 @@ function ErrorHintCard({ message }: { message: string }) {
     </div>
   );
 }
+
 
 function CustomerPreviewCard({
   customer,
@@ -1134,13 +1135,14 @@ export default function NewCustomerPage() {
     const textBubble = showTextBubble ? (
       <div
         className={cn(
-          "rounded-[22px] px-4 py-3 text-sm shadow-[0_12px_30px_rgba(15,23,42,0.04)]",
-          isAssistant ? "border border-white/80 bg-white/86 text-slate-700" : "bg-gradient-to-br from-[#123B5D] to-[#0E2E49] text-white",
+          "rounded-[22px] px-4 py-3 text-sm",
+          isAssistant ? "advisor-assistant-bubble text-slate-700" : "advisor-user-bubble",
         )}
       >
         <p className="leading-7">{bubbleContent}</p>
       </div>
     ) : null;
+
 
     if (isWelcomeMessage) {
       return (
@@ -1200,7 +1202,8 @@ export default function NewCustomerPage() {
 
   return (
     <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1.5 md:h-[calc(100dvh-8rem)] md:gap-3">
-      <Card className="glass-panel hidden shrink-0 rounded-[28px] border-white/60 bg-white/82 shadow-[0_24px_80px_rgba(15,23,42,0.1)] md:block">
+      <Card className="glass-panel advisor-glass-surface-strong hidden shrink-0 rounded-[28px] md:block">
+
         <CardContent className="flex items-start gap-3 p-3.5 sm:p-4 md:px-5 md:py-3.5">
           <Button
             variant="ghost"
@@ -1221,9 +1224,11 @@ export default function NewCustomerPage() {
       </Card>
 
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Card className="glass-panel flex min-h-0 flex-col overflow-hidden rounded-[32px] border-white/60 bg-white/88 shadow-[0_24px_80px_rgba(15,23,42,0.1)]">
+        <Card className="glass-panel advisor-glass-surface-strong flex min-h-0 flex-col overflow-hidden rounded-[32px]">
+
           <CardContent className="flex min-h-0 flex-1 flex-col p-0">
-            <div className="shrink-0 border-b border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(247,249,252,0.9)_100%)] px-4 py-2.5 sm:px-5 md:px-6">
+            <div className="advisor-panel-header-surface shrink-0 px-4 py-2.5 sm:px-5 md:px-6">
+
               <div className="flex flex-col gap-2 md:gap-2.5">
                 <div className="flex items-center gap-3 md:hidden">
                   <Button
@@ -1288,8 +1293,9 @@ export default function NewCustomerPage() {
               </div>
             </div>
 
-            <div className="shrink-0 border-t border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,252,0.98)_100%)] px-2.5 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 md:px-5 lg:px-6">
-              <div className="mx-auto max-w-3xl rounded-[22px] border border-white/75 bg-white/86 p-2.5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:rounded-[24px] sm:p-3.5">
+            <div className="advisor-panel-footer-surface shrink-0 px-2.5 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 md:px-5 lg:px-6">
+              <div className="advisor-input-dock mx-auto max-w-3xl rounded-[22px] p-2.5 sm:rounded-[24px] sm:p-3.5">
+
                 {shouldCoverInputAreaWithDuplicateReview ? (
                   <DuplicateReviewCard
                     relatedCustomers={relatedCustomers}
@@ -1380,9 +1386,10 @@ export default function NewCustomerPage() {
           onViewAll={() => router.push("/customers")}
         />
 
-        <Card className="glass-panel hidden h-full min-h-0 overflow-hidden rounded-[32px] border-white/60 bg-white/84 shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:flex lg:flex-col">
+        <Card className="glass-panel advisor-glass-surface hidden h-full min-h-0 overflow-hidden rounded-[32px] lg:flex lg:flex-col">
           <CardContent className="flex h-full min-h-0 flex-col p-0">
-            <div className="border-b border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(247,249,252,0.92)_100%)] px-4 py-2.5">
+            <div className="advisor-panel-header-surface px-4 py-2.5">
+
               <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">{desktopPanelTitle}</p>
             </div>
 

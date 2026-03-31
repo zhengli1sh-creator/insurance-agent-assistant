@@ -388,9 +388,8 @@ export function VisitManager({
     saveMutation.mutate({ form: { ...form }, editingId });
   }
 
-  const formCardTone = embedded
-    ? "border-[#123B5D]/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,251,255,0.96))]"
-    : "border-white/55 bg-slate-50/90";
+  const formCardTone = embedded ? "advisor-soft-card" : "glass-panel advisor-glass-surface";
+
 
   return (
     <>
@@ -400,14 +399,11 @@ export function VisitManager({
             <div className="flex flex-col gap-3">
               {!assistantTaskMode && (
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge className={`rounded-full border-0 px-3 py-1 ${embedded ? "bg-[#123B5D]/10 text-[#123B5D]" : "bg-[#1E3A8A]/10 text-[#1E3A8A]"}`}>
-                    拜访记录
-                  </Badge>
-                  {originBadgeLabel && (
-                    <Badge className="rounded-full border-0 bg-[#FFF8EE] px-3 py-1 text-[#8A6A3E]">{originBadgeLabel}</Badge>
-                  )}
-                  {resumeContext && <Badge className="rounded-full border-0 bg-[#FFF8EE] px-3 py-1 text-[#8A6A3E]">待继续</Badge>}
+                  <Badge className="advisor-chip-info rounded-full border-0 px-3 py-1">拜访记录</Badge>
+                  {originBadgeLabel && <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">{originBadgeLabel}</Badge>}
+                  {resumeContext && <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">待继续</Badge>}
                 </div>
+
               )}
               <div>
                 <CardTitle className={assistantTaskMode ? "text-2xl text-slate-900" : "text-lg text-slate-900"}>
@@ -421,27 +417,26 @@ export function VisitManager({
           </CardHeader>
           <CardContent className="space-y-4">
             {embedded && !assistantTaskMode && (
-              <div className="rounded-[24px] border border-slate-200/70 bg-white/88 p-4 text-sm leading-6 text-slate-700">
+              <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] p-4 text-sm leading-6 text-slate-700">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                  <span className="rounded-full bg-[#123B5D]/8 px-3 py-1 text-[#123B5D]">1. 选客户</span>
-                  <span className="rounded-full bg-[#123B5D]/8 px-3 py-1 text-[#123B5D]">2. 记重点</span>
-                  <span className="rounded-full bg-[#123B5D]/8 px-3 py-1 text-[#123B5D]">3. 写下一步</span>
+                  <span className="advisor-chip-info rounded-full px-3 py-1">1. 选客户</span>
+                  <span className="advisor-chip-info rounded-full px-3 py-1">2. 记重点</span>
+                  <span className="advisor-chip-info rounded-full px-3 py-1">3. 写下一步</span>
                 </div>
                 <p className="mt-3">先把这次拜访记下来。保存后，如果你想查看历史记录或继续修改，也可以进入记录中心。</p>
               </div>
             )}
 
-
-
             {resumeContext && (
-              <div className="rounded-[24px] border border-[#B8894A]/20 bg-[#FFF8EE] p-4 text-sm leading-6 text-slate-700">
+              <div className="advisor-notice-card advisor-notice-card-warning rounded-[24px] p-4 text-sm leading-6 text-slate-700">
                 <div className="flex items-center gap-2 font-medium text-slate-900">
-                  <RefreshCcw className="h-4 w-4 text-[#B8894A]" />
+                  <RefreshCcw className="h-4 w-4 text-[var(--advisor-gold)]" />
                   刚才的内容已保留
                 </div>
                 <p className="mt-2">补完客户信息后，会继续保存这次拜访，不需要重新填写。</p>
               </div>
             )}
+
 
             <div className="rounded-[24px] border border-slate-200/70 bg-white/90 p-4">
               <p className="text-sm font-medium text-slate-900">{assistantTaskMode ? "客户" : "先选客户"}</p>
@@ -587,37 +582,35 @@ export function VisitManager({
         </Card>
 
         {embedded && !assistantTaskMode ? (
-
-          <Card className="border-white/60 bg-white/88 shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
+          <Card className="glass-panel advisor-glass-surface">
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-full border-0 bg-[#F7F4EE] px-3 py-1 text-[#8A6A3E]">全部记录</Badge>
-                <Badge className="rounded-full border-0 bg-[#0F766E]/10 px-3 py-1 text-[#0F766E]">最近拜访</Badge>
+                <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">全部记录</Badge>
+                <Badge className="advisor-chip-success rounded-full border-0 px-3 py-1">最近拜访</Badge>
               </div>
               <CardTitle className="text-lg text-slate-900">需要时再去记录中心</CardTitle>
               <p className="text-sm leading-6 text-slate-500">这里先帮你完成当前这次拜访；如果想回看历史或继续修改旧记录，可以再去记录中心。</p>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="rounded-[24px] border border-[#B8894A]/18 bg-[#FFF8EE] p-4 text-sm leading-6 text-slate-700">
+              <div className="advisor-notice-card advisor-notice-card-warning rounded-[24px] p-4 text-sm leading-6 text-slate-700">
                 <div className="flex items-center gap-2 font-medium text-slate-900">
-                  <FolderHeart className="h-4 w-4 text-[#B8894A]" />
+                  <FolderHeart className="h-4 w-4 text-[var(--advisor-gold)]" />
                   想回看时再打开
                 </div>
                 <p className="mt-2">历史记录和统一修改都放在记录中心，手机上看会更清楚。</p>
               </div>
 
               {visibleVisits.length === 0 ? (
-                <div className="rounded-[24px] border border-dashed border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-500">还没有拜访记录，保存第一条后就能在这里继续查看。</div>
+                <div className="advisor-module-placeholder-card rounded-[24px] p-5 text-sm text-slate-500">还没有拜访记录，保存第一条后就能在这里继续查看。</div>
               ) : (
-
                 visibleVisits.map((record) => (
-                  <div key={record.id} className="rounded-[24px] border border-slate-200/70 bg-slate-50/90 p-4">
+                  <div key={record.id} className="advisor-record-card rounded-[24px] p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="font-medium text-slate-900">{record.name}{record.nick_name ? `（${record.nick_name}）` : ""}</p>
                         <p className="mt-1 text-sm text-slate-500">{record.time_visit} · {record.location || "待补充地点"}</p>
                       </div>
-                      <Button variant="outline" onClick={() => startEdit(record)} className="cursor-pointer rounded-full border-slate-300 bg-white">继续修改</Button>
+                      <Button variant="outline" onClick={() => startEdit(record)} className="advisor-outline-button cursor-pointer rounded-full">继续修改</Button>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-slate-700">{record.brief_content || "待补充拜访摘要"}</p>
                     <p className="mt-3 text-xs leading-5 text-slate-500">下一步：{record.follow_ups[0] || record.follow_work || "待补充后续动作"}</p>
@@ -625,43 +618,43 @@ export function VisitManager({
                 ))
               )}
 
-              <Link href={expandHref} className="inline-flex items-center gap-2 rounded-full bg-[#123B5D] px-4 py-2 text-sm text-white transition hover:opacity-95">
+              <Link href={expandHref} className="advisor-primary-button inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-white transition hover:brightness-[1.03]">
                 去记录中心查看全部拜访
                 <ArrowRight className="h-4 w-4" />
               </Link>
-
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-4">
             {visibleVisits.map((record) => (
-              <div key={record.id} className="rounded-[28px] border border-slate-200/70 bg-white/90 p-5 shadow-sm">
+              <div key={record.id} className="advisor-list-item-card rounded-[28px] p-5">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                   <div>
                     <p className="text-lg font-semibold text-slate-900">{record.name}{record.nick_name ? `（${record.nick_name}）` : ""}</p>
                     <p className="mt-2 text-sm text-slate-500">拜访日期：{record.time_visit} · {record.location || "待补充地点"}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => startEdit(record)} className="cursor-pointer rounded-full border-slate-300 bg-transparent">编辑</Button>
+                    <Button variant="outline" onClick={() => startEdit(record)} className="advisor-outline-button cursor-pointer rounded-full">编辑</Button>
                     <Button variant="outline" onClick={() => globalThis.confirm("确认删除这条拜访记录吗？") && deleteMutation.mutate(record.id)} className="cursor-pointer rounded-full border-rose-200 bg-transparent text-rose-600 hover:bg-rose-50 hover:text-rose-700">删除</Button>
                   </div>
                 </div>
                 <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-2">
-                  <div className="rounded-[24px] bg-slate-50/90 p-4 md:col-span-2">核心痛点：{record.core_pain || "待补充"}</div>
-                  <div className="rounded-[24px] bg-slate-50/90 p-4 md:col-span-2">谈话摘要：{record.brief_content || "待补充"}</div>
-                  <div className="rounded-[24px] bg-slate-50/90 p-4">沟通方式：{record.method_communicate || "待补充"}</div>
-                  <div className="rounded-[24px] bg-slate-50/90 p-4">待办事项：{record.follow_work || "暂无"}</div>
+                  <div className="advisor-meta-tile rounded-[24px] p-4 md:col-span-2">核心痛点：{record.core_pain || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[24px] p-4 md:col-span-2">谈话摘要：{record.brief_content || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[24px] p-4">沟通方式：{record.method_communicate || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[24px] p-4">待办事项：{record.follow_work || "暂无"}</div>
                 </div>
               </div>
             ))}
           </div>
         )}
+
       </div>
 
       <Sheet open={customerSheetOpen} onOpenChange={setCustomerSheetOpen}>
-        <SheetContent side="bottom" className="max-h-[92vh] rounded-t-[32px] border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.99),rgba(248,246,241,0.96)_55%,rgba(246,250,253,0.96)_100%)] p-0 sm:max-w-none">
+        <SheetContent side="bottom" className="advisor-sheet-surface max-h-[92vh] rounded-t-[32px] p-0 sm:max-w-none">
           <div className="overflow-y-auto">
-            <SheetHeader className="border-b border-slate-200/70 px-5 py-5">
+            <SheetHeader className="advisor-sheet-header-surface px-5 py-5">
               <div className="space-y-2">
                 <p className="advisor-kicker">Resume workflow</p>
                 <SheetTitle className="text-xl text-slate-900">先补客户信息</SheetTitle>
@@ -673,7 +666,7 @@ export function VisitManager({
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-slate-900">
-                      <span className="flex size-9 items-center justify-center rounded-full bg-[var(--advisor-gold-soft)] text-[var(--advisor-gold)]">
+                      <span className="advisor-icon-badge advisor-icon-badge-warning advisor-icon-badge-md">
                         <AlertTriangle className="h-4 w-4" />
                       </span>
                       <div>
@@ -705,6 +698,7 @@ export function VisitManager({
           </div>
         </SheetContent>
       </Sheet>
+
 
     </>
   );
