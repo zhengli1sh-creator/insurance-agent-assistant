@@ -43,7 +43,9 @@ function formatTaskHint(task: TaskEntity) {
 export function LiveTaskBoard() {
   const query = useQuery({ queryKey: ["tasks-live"], queryFn: () => fetchJson<TaskEntity[]>("/api/tasks") });
 
-  const mappedTasks = query.isError
+  const isDemoMode = query.isError;
+  const isLoading = query.isLoading && !query.data && !isDemoMode;
+  const mappedTasks = isDemoMode
     ? demoTasks
     : (query.data ?? []).map((item) => ({
         id: item.id,
@@ -55,5 +57,5 @@ export function LiveTaskBoard() {
         ownerHint: formatTaskHint(item),
       }));
 
-  return <TaskBoard tasks={mappedTasks} />;
+  return <TaskBoard tasks={mappedTasks} isLoading={isLoading} isDemoMode={isDemoMode} />;
 }

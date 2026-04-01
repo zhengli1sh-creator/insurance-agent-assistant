@@ -65,7 +65,10 @@ type ResolvedParticipant = {
   followWork: string;
 };
 
+type FeedbackTone = "info" | "success" | "warning";
+
 type ParticipantResolution =
+
   | { status: "resolved"; participant: ResolvedParticipant }
   | { status: "missing_name"; message: string }
   | { status: "ambiguous"; message: string }
@@ -124,7 +127,27 @@ function normalizeOptionalText(value: string | null | undefined) {
   return (value ?? "").trim();
 }
 
+function getFeedbackToneClassName(tone: FeedbackTone) {
+  switch (tone) {
+    case "success":
+      return "advisor-notice-card-success";
+    case "warning":
+      return "advisor-notice-card-warning";
+    default:
+      return "advisor-notice-card-info";
+  }
+}
+
+function getActivityInputClassName() {
+  return "advisor-form-control h-11 rounded-2xl focus-visible:ring-0";
+}
+
+function getActivityTextareaClassName(minHeightClassName = "min-h-24") {
+  return `advisor-form-control advisor-form-textarea ${minHeightClassName} rounded-[24px] focus-visible:ring-0`;
+}
+
 function findExactCustomerMatch(
+
   participant: Pick<ParticipantFormItem, "name" | "nickName">,
   options: CustomerOption[],
 ) {
@@ -221,6 +244,7 @@ export function ActivityManager({
   const [form, setForm] = useState<ActivityFormState>(() => createEmptyForm(initialDraftValues));
   const [editingId, setEditingId] = useState("");
   const [feedback, setFeedback] = useState(() => initialAssistantNote);
+  const [feedbackTone, setFeedbackTone] = useState<FeedbackTone>(initialAssistantNote ? "info" : "success");
   const [customerSheetOpen, setCustomerSheetOpen] = useState(false);
   const [customerForm, setCustomerForm] = useState<CustomerProfileFormValue>({ ...emptyCustomerProfileForm });
   const [resumeContext, setResumeContext] = useState<ResumeContext | null>(null);
@@ -298,6 +322,7 @@ export function ActivityManager({
           ? "活动记录已更新"
           : "活动记录已保存";
       setFeedback(successMessage);
+      setFeedbackTone("success");
       setEditingId("");
       setForm(createEmptyForm());
       setResumeContext(null);
@@ -306,7 +331,10 @@ export function ActivityManager({
       onSaved?.(successMessage);
     },
 
-    onError: (error) => setFeedback(error.message),
+    onError: (error) => {
+      setFeedback(error.message);
+      setFeedbackTone("warning");
+    },
   });
 
   const createCustomerMutation = useMutation({
@@ -325,6 +353,7 @@ export function ActivityManager({
         setCustomerSheetOpen(false);
         setCustomerForm({ ...emptyCustomerProfileForm });
         setFeedback("客户档案已创建");
+        setFeedbackTone("success");
         return;
       }
 
@@ -345,18 +374,26 @@ export function ActivityManager({
       setCustomerSheetOpen(false);
       setCustomerForm({ ...emptyCustomerProfileForm });
       setFeedback("客户档案已保存，正在继续完成刚才的活动记录…");
+      setFeedbackTone("success");
       saveMutation.mutate({ form: nextForm, editingId: resumed.editingId, resumed: true });
     },
-    onError: (error) => setFeedback(error.message),
+    onError: (error) => {
+      setFeedback(error.message);
+      setFeedbackTone("warning");
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => fetchJson<{ id: string }>(`/api/activities?id=${id}`, { method: "DELETE" }),
     onSuccess: () => {
       setFeedback("活动记录已删除");
+      setFeedbackTone("success");
       queryClient.invalidateQueries({ queryKey: ["activities-crm"] });
     },
-    onError: (error) => setFeedback(error.message),
+    onError: (error) => {
+      setFeedback(error.message);
+      setFeedbackTone("warning");
+    },
   });
 
   function patchCustomerForm(patch: Partial<CustomerProfileFormValue>) {
@@ -420,6 +457,7 @@ export function ActivityManager({
     setEditingId("");
     setForm(createEmptyForm());
     setFeedback("");
+    setFeedbackTone("info");
     setResumeContext(null);
     setCustomerSheetOpen(false);
     setCustomerForm({ ...emptyCustomerProfileForm });
@@ -439,9 +477,10 @@ export function ActivityManager({
       recentMoney: draft.nameActivity.trim(),
       coreInteresting: draft.customerProfile.trim(),
     });
-      setCustomerSheetOpen(true);
-      setFeedback("请先补客户信息，保存后会继续当前活动。");
-    }
+    setCustomerSheetOpen(true);
+    setFeedback("请先补客户信息，保存后会继续当前活动。");
+    setFeedbackTone("warning");
+  }
 
 
   function submitActivity() {
@@ -456,10 +495,12 @@ export function ActivityManager({
       if (resolution.status === "not_found") {
         openCustomerSheetForParticipant(participant, draft, editingId);
         setFeedback(resolution.message);
+        setFeedbackTone("warning");
         return;
       }
 
       setFeedback(resolution.message);
+      setFeedbackTone("warning");
       return;
     }
 
@@ -499,6 +540,9 @@ export function ActivityManager({
     : null;
 
   const formCardTone = embedded ? "advisor-soft-card" : "glass-panel advisor-glass-surface";
+  const primaryActionClassName = "advisor-primary-button cursor-pointer rounded-full text-white transition-all duration-200 hover:brightness-[1.03] disabled:shadow-none";
+  const outlineActionClassName = "advisor-outline-button cursor-pointer rounded-full";
+
 
 
   return (
@@ -549,22 +593,22 @@ export function ActivityManager({
 
 
 
-            <Input value={form.nameActivity} onChange={(event) => patchForm({ nameActivity: event.target.value })} placeholder="活动名称（必填）" className="h-11 rounded-2xl border-white bg-white" />
+            <Input value={form.nameActivity} onChange={(event) => patchForm({ nameActivity: event.target.value })} placeholder="活动名称（必填）" className={getActivityInputClassName()} />
             <div className={embedded ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>
-              <Input value={form.dateActivity} onChange={(event) => patchForm({ dateActivity: event.target.value })} type="date" className="h-11 rounded-2xl border-white bg-white" />
-              <Input value={form.locationActivity} onChange={(event) => patchForm({ locationActivity: event.target.value })} placeholder="活动地点" className="h-11 rounded-2xl border-white bg-white" />
+              <Input value={form.dateActivity} onChange={(event) => patchForm({ dateActivity: event.target.value })} type="date" className={getActivityInputClassName()} />
+              <Input value={form.locationActivity} onChange={(event) => patchForm({ locationActivity: event.target.value })} placeholder="活动地点" className={getActivityInputClassName()} />
             </div>
-            <Textarea value={form.customerProfile} onChange={(event) => patchForm({ customerProfile: event.target.value })} placeholder="目标客群画像" className="min-h-24 rounded-[24px] border-white bg-white" />
-            <Textarea value={form.effectProfile} onChange={(event) => patchForm({ effectProfile: event.target.value })} placeholder="活动效果" className="min-h-28 rounded-[24px] border-white bg-white" />
-            <Textarea value={form.lessonsLearned} onChange={(event) => patchForm({ lessonsLearned: event.target.value })} placeholder="经验教训" className="min-h-24 rounded-[24px] border-white bg-white" />
+            <Textarea value={form.customerProfile} onChange={(event) => patchForm({ customerProfile: event.target.value })} placeholder="目标客群画像" className={getActivityTextareaClassName()} />
+            <Textarea value={form.effectProfile} onChange={(event) => patchForm({ effectProfile: event.target.value })} placeholder="活动效果" className={getActivityTextareaClassName("min-h-28")} />
+            <Textarea value={form.lessonsLearned} onChange={(event) => patchForm({ lessonsLearned: event.target.value })} placeholder="经验教训" className={getActivityTextareaClassName()} />
 
-            <div className="rounded-[24px] border border-slate-200 bg-white p-4">
+            <div className="advisor-soft-card rounded-[24px] p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium text-slate-900">{assistantTaskMode ? "参加客户" : "活动和参加客户"}</p>
                   <p className="mt-1 text-sm text-slate-500">{assistantTaskMode ? "可直接选择已有客户，或先填写姓名。" : "可直接选择已有客户；如果还没有客户资料，也可以先填写姓名和昵称，保存时会继续引导你补齐。"}</p>
                 </div>
-                <Button type="button" variant="outline" onClick={addParticipant} className="cursor-pointer rounded-full border-slate-300 bg-transparent">
+                <Button type="button" variant="outline" onClick={addParticipant} className={outlineActionClassName}>
                   新增参加客户
                 </Button>
               </div>
@@ -573,10 +617,10 @@ export function ActivityManager({
                 {form.participants.map((participant, index) => {
                   const selectedCustomer = customerOptions.find((item) => item.id === participant.customerId) ?? null;
                   return (
-                    <div key={participant.rowId} className="rounded-[24px] border border-slate-200/80 bg-slate-50/80 p-4">
+                    <div key={participant.rowId} className="advisor-list-item-card rounded-[24px] p-4">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-medium text-slate-900">参加客户 {index + 1}</p>
-                        <Button type="button" variant="outline" onClick={() => removeParticipant(participant.rowId)} className="cursor-pointer rounded-full border-slate-300 bg-transparent">
+                        <Button type="button" variant="outline" onClick={() => removeParticipant(participant.rowId)} className={outlineActionClassName}>
                           移除
                         </Button>
                       </div>
@@ -584,7 +628,7 @@ export function ActivityManager({
                         <select
                           value={participant.customerId}
                           onChange={(event) => syncParticipantSelection(participant.rowId, event.target.value)}
-                          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 md:col-span-2"
+                          className="advisor-form-control advisor-form-select h-11 w-full rounded-2xl text-sm text-slate-700 focus-visible:ring-0 md:col-span-2"
                         >
                           <option value="">选择一位已建档客户（可选）</option>
                           {customerOptions.map((item) => (
@@ -597,20 +641,20 @@ export function ActivityManager({
                           value={participant.name}
                           onChange={(event) => handleParticipantNameChange(participant.rowId, event.target.value)}
                           placeholder="客户姓名（必填）"
-                          className="h-11 rounded-2xl border-white bg-white"
+                          className={getActivityInputClassName()}
                         />
                         <Input
                           value={participant.nickName}
                           onChange={(event) => handleParticipantNickNameChange(participant.rowId, event.target.value)}
                           placeholder="客户昵称（可选）"
-                          className="h-11 rounded-2xl border-white bg-white"
+                          className={getActivityInputClassName()}
                         />
                         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 md:col-span-2">
                           <Button
                             type="button"
                             variant="outline"
                             onClick={() => openCustomerSheetForParticipant(participant)}
-                            className="cursor-pointer rounded-full border-slate-300 bg-transparent"
+                            className={outlineActionClassName}
                           >
                             <UserRoundPlus className="h-4 w-4" />
                             {assistantTaskMode ? "先补客户信息" : "找不到客户，先保存客户基础信息"}
@@ -626,7 +670,7 @@ export function ActivityManager({
                           value={participant.followWork}
                           onChange={(event) => updateParticipant(participant.rowId, { followWork: event.target.value })}
                           placeholder="待办事项，可用换行或分号分隔"
-                          className="min-h-24 rounded-[24px] border-white bg-white md:col-span-2"
+                          className={`${getActivityTextareaClassName()} md:col-span-2`}
                         />
                       </div>
                     </div>
@@ -636,15 +680,15 @@ export function ActivityManager({
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Button onClick={submitActivity} disabled={saveMutation.isPending || createCustomerMutation.isPending} className={`cursor-pointer rounded-full text-white ${embedded ? "bg-[#123B5D] hover:bg-[#0E2E49]" : "bg-[#1E3A8A] hover:bg-[#17306F]"}`}>
+              <Button onClick={submitActivity} disabled={saveMutation.isPending || createCustomerMutation.isPending} className={primaryActionClassName}>
                 {saveMutation.isPending ? "正在保存" : editingId ? "保存修改" : embedded ? source === "assistant-task" ? "保存并返回" : "保存这场活动" : "保存活动"}
               </Button>
 
-              <Button variant="outline" onClick={resetForm} className="cursor-pointer rounded-full border-slate-300 bg-transparent">
+              <Button variant="outline" onClick={resetForm} className={outlineActionClassName}>
                 清空
               </Button>
               {embedded && (
-                <Link href={expandHref} className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:border-[#123B5D]/30 hover:text-[#123B5D]">
+                <Link href={expandHref} className={`${outlineActionClassName} inline-flex items-center gap-2 px-4 py-2 text-sm`}>
                   {assistantTaskMode ? "查看活动记录" : "进入活动记录"}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -652,7 +696,12 @@ export function ActivityManager({
 
             </div>
 
-            {feedback && <p className="text-sm leading-6 text-slate-600">{feedback}</p>}
+            {feedback && (
+              <div className={`advisor-notice-card mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-slate-700 ${getFeedbackToneClassName(feedbackTone)}`}>
+                {feedback}
+              </div>
+            )}
+
           </CardContent>
         </Card>
 
@@ -784,20 +833,21 @@ export function ActivityManager({
                 </div>
               </div>
 
-              <div className="advisor-subtle-card rounded-[28px] p-4 text-sm leading-6 text-slate-600">
+              <div className="advisor-notice-card advisor-notice-card-info rounded-[28px] p-4 text-sm leading-6 text-slate-700">
                 先补这位参与客户的基础档案，再继续当前活动草稿。已填写的活动内容会保留，不会丢失。
               </div>
 
               <CustomerProfileFields value={customerForm} onChange={patchCustomerForm} disabled={createCustomerMutation.isPending} variant="compact" />
 
               <div className="flex flex-wrap gap-3 pb-5">
-                <Button onClick={() => createCustomerMutation.mutate(customerForm)} disabled={createCustomerMutation.isPending} className="advisor-primary-button cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03] disabled:shadow-none">
+                <Button onClick={() => createCustomerMutation.mutate(customerForm)} disabled={createCustomerMutation.isPending} className={`${primaryActionClassName} px-5`}>
                   {createCustomerMutation.isPending ? "正在保存客户档案" : "保存客户档案并继续活动记录"}
                 </Button>
-                <Button variant="outline" onClick={() => setCustomerSheetOpen(false)} className="advisor-outline-button cursor-pointer rounded-full">
+                <Button variant="outline" onClick={() => setCustomerSheetOpen(false)} className={outlineActionClassName}>
                   稍后再说
                 </Button>
               </div>
+
             </div>
           </div>
         </SheetContent>

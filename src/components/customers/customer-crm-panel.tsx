@@ -18,7 +18,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFallbackCustomerRecords } from "@/components/customers/customer-center-helpers";
+import {
+  customerHeroCardClassName,
+  customerMetaPanelCompactClassName,
+  customerOutlineActionClassName,
+  customerPrimaryActionClassName,
+  customerStateCardClassName,
+  customerSurfaceCardClassName,
+} from "@/components/customers/customer-style";
 import { fetchJson } from "@/lib/crm-api";
+
 import type { CustomerWorkflowDraftSeed } from "@/types/agent";
 import type { CustomerRecord } from "@/types/customer";
 
@@ -42,6 +51,7 @@ type PendingExistingCustomerConfirmation = {
   keyword: string;
 };
 
+type FeedbackTone = "info" | "success" | "warning";
 
 function normalizeDuplicateToken(value: string | null | undefined) {
   return (value ?? "").trim().replace(/\s+/g, "").toLowerCase();
@@ -50,6 +60,30 @@ function normalizeDuplicateToken(value: string | null | undefined) {
 function normalizeOptionalText(value: string | null | undefined) {
   return (value ?? "").trim();
 }
+
+function getFeedbackToneClassName(tone: FeedbackTone) {
+  switch (tone) {
+    case "success":
+      return "advisor-notice-card-success";
+    case "warning":
+      return "advisor-notice-card-warning";
+    default:
+      return "advisor-notice-card-info";
+  }
+}
+
+function CrmStateCard({ title, description }: { title: string; description?: string }) {
+  return (
+    <Card className={customerStateCardClassName}>
+
+      <CardContent className="p-5 sm:p-6">
+        <p className="text-base font-medium text-slate-900">{title}</p>
+        {description ? <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p> : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 
 function collectFilledFieldKeys(fields: Partial<CustomerProfileFormValue> | null | undefined): CustomerProfileFieldKey[] {
@@ -72,7 +106,9 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
   const [editingId, setEditingId] = useState("");
   const [keyword, setKeyword] = useState("");
   const [feedback, setFeedback] = useState(draftSeed?.assistantNote ?? "");
+  const [feedbackTone, setFeedbackTone] = useState<FeedbackTone>(draftSeed?.assistantNote ? "info" : "success");
   const [assistantDetailInput, setAssistantDetailInput] = useState("");
+
   const [assistantReviewPrompt, setAssistantReviewPrompt] = useState("");
   const [highlightedFields, setHighlightedFields] = useState<CustomerProfileFieldKey[]>(() => collectFilledFieldKeys(draftSeed?.values));
   const [dismissedDuplicatePromptKeyword, setDismissedDuplicatePromptKeyword] = useState("");
@@ -112,8 +148,10 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
       }));
       setHighlightedFields((current) => Array.from(new Set([...current, ...extractedFieldKeys])));
       setFeedback(result.message);
+      setFeedbackTone(extractedFieldKeys.length > 0 ? "success" : "info");
 
       if (extractedFieldKeys.length > 0) {
+
         setAssistantDetailInput("");
         setAssistantReviewPrompt("已根据你刚才的补充更新当前客户信息，请先核对绿色标记项；如还需补充，可直接在这张卡片底部继续输入。");
 
@@ -129,7 +167,9 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
     onError: (error) => {
       setAssistantReviewPrompt("");
       setFeedback(error.message);
+      setFeedbackTone("warning");
     },
+
 
   });
 
@@ -167,8 +207,10 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
           : "客户档案已创建";
 
       setFeedback(nextFeedback);
+      setFeedbackTone("success");
       setAssistantReviewPrompt("");
       setForm({ ...emptyCustomerProfileForm });
+
       setEditingId("");
       setAssistantDetailInput("");
       queryClient.invalidateQueries({ queryKey: ["customers-crm"] });
@@ -178,8 +220,12 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
       queryClient.invalidateQueries({ queryKey: ["customers-options"] });
       onSaved?.(message, customer);
     },
-    onError: (error) => setFeedback(error.message),
+    onError: (error) => {
+      setFeedback(error.message);
+      setFeedbackTone("warning");
+    },
   });
+
 
   const syncExistingCustomerNicknameMutation = useMutation({
     mutationFn: ({ customerId, nickname }: { customerId: string; nickname: string }) =>
@@ -194,10 +240,15 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
       setPendingExistingCustomerConfirmation(null);
       setAssistantReviewPrompt("");
       setFeedback(`已将昵称“${customer.nickname ?? ""}”补充到客户档案，正在继续刚才的拜访记录…`);
+      setFeedbackTone("success");
       onSaved?.("已更新客户昵称并继续使用已有客户档案", customer);
     },
-    onError: (error) => setFeedback(error.message),
+    onError: (error) => {
+      setFeedback(error.message);
+      setFeedbackTone("warning");
+    },
   });
+
 
   const fallbackCustomers = useMemo(() => createFallbackCustomerRecords(), []);
 
@@ -236,7 +287,9 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
     if (!form.name.trim()) {
       const message = assistantMode ? "还缺少客户姓名，请先补充姓名后再保存并继续。" : "客户姓名不能为空";
       setFeedback(message);
+      setFeedbackTone("warning");
       setAssistantReviewPrompt(assistantMode ? "请先回到上方客户信息区补充姓名，再继续保存。" : "");
+
 
       globalThis.requestAnimationFrame(() => {
         profileCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -280,7 +333,9 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
     setPendingExistingCustomerConfirmation(null);
     setShowNewCustomerForm(false);
     setFeedback(assistantMode ? draftSeed?.assistantNote ?? "" : "");
+    setFeedbackTone("info");
   }
+
 
 
   function completeUseExistingCustomer(customer: CustomerRecord, message = "已识别到已有客户档案") {
@@ -291,8 +346,10 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
     setPendingExistingCustomerConfirmation(null);
     setAssistantReviewPrompt("");
     setFeedback(nextFeedback);
+    setFeedbackTone("success");
     onSaved?.(message, customer);
   }
+
 
   function handleUseExistingCustomer(customer: CustomerRecord) {
     const proposedNickname = normalizeOptionalText(form.nickname);
@@ -303,7 +360,9 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
       setFeedback(existingNickname
         ? `你刚补充的昵称是“${proposedNickname}”，但当前客户档案里记录的是“${existingNickname}”。为避免误改，我先请你确认是否同步更新。`
         : `你刚补充了昵称“${proposedNickname}”。如确认无误，我可以在继续拜访前一并写入这位客户的客户档案。`);
+      setFeedbackTone("warning");
       setPendingExistingCustomerConfirmation({ customer, proposedNickname, existingNickname, keyword: effectiveKeyword });
+
       return;
     }
 
@@ -333,11 +392,10 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
 
 
   const contentClass = assistantMode ? "space-y-6" : "grid gap-6 xl:grid-cols-[0.98fr_1.02fr]";
-  const primaryActionClassName = "advisor-primary-button cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03]";
-  const outlineActionClassName = "advisor-outline-button cursor-pointer rounded-full px-5 transition-all duration-200 hover:bg-white";
 
   return (
-    <Card className="glass-panel advisor-hero-card rounded-[32px]">
+    <Card className={customerHeroCardClassName}>
+
       <CardHeader className="pb-4 sm:pb-5">
         <div className={`flex flex-col gap-4 ${assistantMode ? "" : "xl:flex-row xl:items-end xl:justify-between"}`}>
           <div className="space-y-2">
@@ -354,13 +412,16 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
             </p>
           </div>
           {!assistantMode && (
-            <Input
-              value={keyword}
-              onChange={(event) => setKeyword(event.target.value)}
-              placeholder="按姓名、昵称、职业、客户来源、核心关注点或备注检索"
-              className="h-11 max-w-md rounded-[22px] border-[rgba(18,59,93,0.08)] bg-white/86 shadow-[0_12px_24px_rgba(15,23,42,0.04)]"
-            />
+            <div className="advisor-input-dock w-full max-w-md rounded-[26px] p-2.5">
+              <Input
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+                placeholder="按姓名、昵称、职业、客户来源、核心关注点或备注检索"
+                className="advisor-form-control h-11 rounded-[20px] focus-visible:ring-0"
+              />
+            </div>
           )}
+
         </div>
       </CardHeader>
 
@@ -368,7 +429,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
       <CardContent className={contentClass}>
         <div className="space-y-4">
           {assistantMode && draftSeed?.resumeVisitSeed && (
-            <div className="advisor-soft-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
+            <div className="advisor-notice-card advisor-notice-card-info rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
               <p className="advisor-kicker">Resume workflow</p>
               <p className="mt-2 text-base font-semibold text-slate-900">当前待完成</p>
               <p className="mt-3">
@@ -379,26 +440,29 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
             </div>
           )}
 
+
           {showAssistantDuplicateNotice && (
-            <div className="advisor-soft-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
+            <div className="advisor-review-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
               <p className="advisor-kicker">Customer check</p>
               <p className="mt-2 text-base font-semibold text-slate-900">系统发现可能已有同一位客户</p>
               <p className="mt-3">我已自动帮你核对到相近档案。若确认是同一位，可直接继续使用已有客户；若不是，再继续新建即可。</p>
               <div className="mt-4 space-y-3">
                 {duplicateCandidates.map((customer) => (
-                  <div key={customer.id} className="advisor-subtle-card rounded-[24px] p-4">
+                  <div key={customer.id} className="advisor-list-item-card rounded-[24px] p-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-medium text-slate-900">{customer.name}</p>
                       {customer.nickname && <Badge className="advisor-accent-chip rounded-full border-0">{customer.nickname}</Badge>}
                     </div>
                     <p className="mt-2 text-sm text-slate-600">{customer.profession || "待补充职业"} · {customer.source || "待补充来源"}</p>
                     <div className="mt-3 grid gap-2 text-sm text-slate-500 sm:grid-cols-3">
-                      <p className="advisor-field-card rounded-[20px] p-3">核心关注：{customer.core_interesting || "待补充"}</p>
-                      <p className="advisor-field-card rounded-[20px] p-3">财富情况：{customer.wealth_profile || "待补充"}</p>
-                      <p className="advisor-field-card rounded-[20px] p-3">资金情况：{customer.recent_money || "待补充"}</p>
+                      <p className={customerMetaPanelCompactClassName}>核心关注：{customer.core_interesting || "待补充"}</p>
+                      <p className={customerMetaPanelCompactClassName}>财富情况：{customer.wealth_profile || "待补充"}</p>
+                      <p className={customerMetaPanelCompactClassName}>资金情况：{customer.recent_money || "待补充"}</p>
+
                     </div>
                     <div className="mt-4 flex flex-wrap gap-3">
-                      <Button type="button" onClick={() => handleUseExistingCustomer(customer)} className={primaryActionClassName}>
+                      <Button type="button" onClick={() => handleUseExistingCustomer(customer)} className={customerPrimaryActionClassName}>
+
                         就是这位客户
                       </Button>
                     </div>
@@ -413,17 +477,18 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                     setDismissedDuplicatePromptKeyword(effectiveKeyword);
                     setShowNewCustomerForm(true);
                   }}
-                  className={outlineActionClassName}
+                  className={customerOutlineActionClassName}
                 >
-
                   不是同一人，继续新建
                 </Button>
+
               </div>
             </div>
           )}
 
+
           {activePendingExistingCustomerConfirmation && (
-            <div className="advisor-subtle-card rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
+            <div className="advisor-notice-card advisor-notice-card-warning rounded-[28px] p-4 sm:p-5 text-sm leading-6 text-slate-700">
               <p className="advisor-kicker">Confirmation needed</p>
               <p className="mt-2 text-base font-semibold text-slate-900">确认是否同步更新客户昵称</p>
               <p className="mt-3">
@@ -436,33 +501,41 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                   type="button"
                   onClick={confirmExistingCustomerNicknameSync}
                   disabled={syncExistingCustomerNicknameMutation.isPending}
-                  className={primaryActionClassName}
+                  className={customerPrimaryActionClassName}
                 >
                   {syncExistingCustomerNicknameMutation.isPending ? "正在更新昵称" : "继续并同步客户昵称"}
+
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={continueWithoutNicknameSync}
                   disabled={syncExistingCustomerNicknameMutation.isPending}
-                  className={outlineActionClassName}
+                  className={customerOutlineActionClassName}
                 >
                   只继续拜访，不修改昵称
+
                 </Button>
               </div>
             </div>
           )}
 
 
+
           {(!showAssistantDuplicateNotice || showNewCustomerForm) && (
-            <div ref={profileCardRef} className={`advisor-subtle-card rounded-[30px] p-5 sm:p-6 ${assistantReviewPrompt ? "ring-1 ring-[rgba(18,59,93,0.12)]" : ""}`}>
+            <div ref={profileCardRef} className={`${customerSurfaceCardClassName} p-5 sm:p-6 ${assistantReviewPrompt ? "advisor-review-highlight" : ""}`}>
+
               {assistantMode && assistantReviewPrompt && (
-                <div className="advisor-field-card mb-5 rounded-[24px] p-4 text-sm leading-6 text-slate-700">
-                  <p className="advisor-kicker">Review prompted</p>
+                <div className="advisor-review-card advisor-review-card-success mb-5 rounded-[24px] p-4 text-sm leading-6 text-slate-700">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="advisor-kicker">Review prompted</p>
+                    <span className="advisor-review-chip rounded-full px-3 py-1 text-xs font-medium">待你核对</span>
+                  </div>
                   <p className="mt-2 text-base font-medium text-slate-900">助手已整理到当前客户信息</p>
                   <p className="mt-2">{assistantReviewPrompt}</p>
                 </div>
               )}
+
 
               {!assistantMode && <p className="text-lg font-semibold text-slate-900">{editingId ? "编辑客户" : "新增客户"}</p>}
               {assistantMode ? (
@@ -473,7 +546,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                         <p className="advisor-section-label">客户信息</p>
                         <p className="mt-1 text-sm leading-6 text-slate-500">请先核对已填入内容，本轮由助手整理或更新的字段会被特别标记。</p>
                       </div>
-                      <span className="advisor-accent-chip rounded-full px-3 py-1 text-xs font-medium">已填信息区</span>
+                      <span className="advisor-review-chip rounded-full px-3 py-1 text-xs font-medium">已填信息区</span>
                     </div>
                     <CustomerProfileFields
                       value={form}
@@ -484,7 +557,7 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                     />
                   </div>
 
-                  <div className="advisor-field-card rounded-[26px] p-5">
+                  <div className="advisor-review-card rounded-[26px] p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="advisor-section-label">继续补充</p>
@@ -500,8 +573,9 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                         }
                       }}
                       disabled={extractMutation.isPending || saveMutation.isPending}
-                      className="mt-4 min-h-24 rounded-[24px] border-[rgba(18,59,93,0.08)] bg-white/88 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+                      className="advisor-form-control advisor-form-textarea mt-4 min-h-24 rounded-[24px] focus-visible:ring-0"
                     />
+
 
                     <div className="mt-4 flex flex-wrap gap-3">
                       <Button
@@ -509,9 +583,10 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                         variant="outline"
                         onClick={() => extractMutation.mutate(assistantDetailInput.trim())}
                         disabled={!assistantDetailInput.trim() || extractMutation.isPending || saveMutation.isPending}
-                        className={outlineActionClassName}
+                        className={customerOutlineActionClassName}
                       >
                         {extractMutation.isPending ? "正在整理" : "让助手整理并填写"}
+
                       </Button>
                     </div>
                   </div>
@@ -529,20 +604,23 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
               )}
 
               <div className={assistantMode ? "mt-5 flex flex-wrap gap-3 border-t border-slate-200/70 pt-4" : "mt-4 flex flex-wrap gap-3"}>
-                <Button onClick={saveCustomer} disabled={saveMutation.isPending} className={primaryActionClassName}>
+                <Button onClick={saveCustomer} disabled={saveMutation.isPending} className={customerPrimaryActionClassName}>
+
                   {saveMutation.isPending ? "正在保存" : editingId ? "保存修改" : assistantMode ? "保存并继续" : "创建客户"}
                 </Button>
                 {!assistantMode && (
-                  <Button variant="outline" onClick={resetForm} className={outlineActionClassName}>
+                  <Button variant="outline" onClick={resetForm} className={customerOutlineActionClassName}>
+
                     重置表单
                   </Button>
                 )}
               </div>
               {feedback && (
-                <div className="advisor-field-card mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-slate-700">
+                <div className={`advisor-notice-card mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-slate-700 ${getFeedbackToneClassName(feedbackTone)}`}>
                   {feedback}
                 </div>
               )}
+
             </div>
           )}
 
@@ -551,15 +629,15 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
         {!assistantMode && (
           <div className="space-y-4">
             {query.isLoading && shouldSearch && (
-              <div className="advisor-subtle-card rounded-[24px] px-4 py-6 text-sm text-slate-500">正在查找客户…</div>
+              <CrmStateCard title="正在查找客户…" description="请稍候，我正在按姓名、来源与关注点整理匹配结果。" />
             )}
 
             {!query.isLoading && !query.isError && listItems.length === 0 && shouldSearch && (
-              <div className="advisor-subtle-card rounded-[24px] px-4 py-6 text-sm text-slate-500">还没有匹配到客户。</div>
+              <CrmStateCard title="还没有匹配到客户。" description="可以换一个关键词继续查找，或直接在左侧新建客户档案。" />
             )}
 
             {listItems.map((customer) => (
-              <div key={customer.id} className="advisor-soft-card rounded-[28px] p-5">
+              <div key={customer.id} className="advisor-list-item-card rounded-[28px] p-5">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -569,24 +647,24 @@ export function CustomerCrmPanel({ variant = "full", draftSeed = null, onSaved }
                     <p className="mt-2 text-sm leading-6 text-slate-600">{customer.profession || "待补充职业"} · {customer.source || "待补充来源"}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => startEdit(customer)} className={outlineActionClassName}>编辑</Button>
+                    <Button variant="outline" onClick={() => startEdit(customer)} className={customerOutlineActionClassName}>编辑</Button>
+
                   </div>
                 </div>
                 <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-2">
-                  <div className="advisor-field-card rounded-[20px] p-3">核心关注点：{customer.core_interesting || "待补充"}</div>
-                  <div className="advisor-field-card rounded-[20px] p-3">资金情况：{customer.recent_money || "待补充"}</div>
-                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">财富情况：{customer.wealth_profile || "待补充"}</div>
-                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">家庭情况：{customer.family_profile || "待补充"}</div>
-                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">沟通偏好：{customer.prefer_communicate || "待补充"}</div>
-                  <div className="advisor-field-card rounded-[20px] p-3 md:col-span-2">备注：{customer.remark || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[20px] border border-white/75 p-3">核心关注点：{customer.core_interesting || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[20px] border border-white/75 p-3">资金情况：{customer.recent_money || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[20px] border border-white/75 p-3 md:col-span-2">财富情况：{customer.wealth_profile || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[20px] border border-white/75 p-3 md:col-span-2">家庭情况：{customer.family_profile || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[20px] border border-white/75 p-3 md:col-span-2">沟通偏好：{customer.prefer_communicate || "待补充"}</div>
+                  <div className="advisor-meta-tile rounded-[20px] border border-white/75 p-3 md:col-span-2">备注：{customer.remark || "待补充"}</div>
                 </div>
               </div>
             ))}
           </div>
         )}
-
-
       </CardContent>
     </Card>
   );
 }
+

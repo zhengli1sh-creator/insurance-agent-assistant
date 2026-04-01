@@ -4,9 +4,21 @@ import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 
+import {
+  customerCompactSectionCardClassName,
+  customerDisclosureCardClassName,
+  customerFieldGroupClassName,
+  customerFieldStateChipClassName,
+  customerInputFieldClassName,
+  customerSectionCardClassName,
+  customerSubtleSectionCardClassName,
+  customerTextareaFieldClassName,
+} from "@/components/customers/customer-style";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+
 
 export interface CustomerProfileFormValue {
   name: string;
@@ -70,34 +82,30 @@ function FieldGroup({
   required?: boolean;
 }) {
   const stateLabel = highlighted ? "已识别" : filled ? "已补充" : required ? "必填" : "待补充";
+  const containerClassName = highlighted
+    ? "advisor-review-card advisor-review-highlight"
+    : filled
+      ? "advisor-meta-tile border border-white/75"
+      : "advisor-field-card";
+  const stateChipClassName = highlighted
+    ? "advisor-review-chip"
+    : filled
+      ? "advisor-chip-success"
+      : required
+        ? "advisor-chip-warning"
+        : "advisor-chip-neutral";
 
   return (
-    <div
-      className={cn(
-        "space-y-3 rounded-[26px] border p-4 transition-all",
-        highlighted
-          ? "border-[#0F766E]/18 bg-[linear-gradient(180deg,rgba(243,251,248,0.98)_0%,rgba(255,255,255,0.98)_100%)] shadow-[0_12px_30px_rgba(15,118,110,0.08)]"
-          : filled
-            ? "border-[rgba(18,59,93,0.08)] bg-white/94 shadow-[0_12px_24px_rgba(15,23,42,0.04)]"
-            : "border-white/80 bg-white/72 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]",
-        className,
-      )}
-    >
+    <div className={cn(customerFieldGroupClassName, containerClassName, className)}>
+
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="space-y-1">
-          <p className={cn("text-sm font-medium transition-colors", highlighted ? "text-[#0F766E]" : "text-slate-800")}>{label}</p>
+          <p className={cn("text-sm font-medium transition-colors", highlighted ? "text-emerald-700" : "text-slate-800")}>{label}</p>
+
           <p className="text-xs leading-5 text-slate-500">{description}</p>
         </div>
-        <span
-          className={cn(
-            "rounded-full px-2.5 py-1 text-[11px] font-medium tracking-[0.16em] uppercase",
-            highlighted
-              ? "bg-[#0F766E]/10 text-[#0F766E]"
-              : filled
-                ? "bg-[var(--advisor-gold-soft)] text-[var(--advisor-gold)]"
-                : "bg-slate-100 text-slate-400",
-          )}
-        >
+        <span className={cn(customerFieldStateChipClassName, stateChipClassName)}>
+
           {stateLabel}
         </span>
       </div>
@@ -105,6 +113,7 @@ function FieldGroup({
     </div>
   );
 }
+
 
 
 
@@ -127,12 +136,14 @@ export function CustomerProfileFields({
       filled,
       highlighted,
       controlClassName: highlighted
-        ? "border-[#0F766E]/20 bg-[#F3FBF8] text-slate-900 shadow-[0_6px_20px_rgba(15,118,110,0.08)]"
+        ? "advisor-form-control advisor-form-control-highlighted"
         : filled
-          ? "border-slate-200 bg-white text-slate-900"
-          : "border-slate-100 bg-slate-50/80 text-slate-500 placeholder:text-slate-400",
+          ? "advisor-form-control"
+          : "advisor-form-control advisor-form-control-muted",
+
     };
   };
+
 
   const renderInputField = (
     field: CustomerProfileFieldKey,
@@ -151,8 +162,10 @@ export function CustomerProfileFields({
           onChange={(event) => onChange({ [field]: event.target.value })}
           placeholder={placeholder}
           disabled={disabled}
-          className={cn("h-12 rounded-[20px] px-4 transition-all", tone.controlClassName)}
+          className={cn(customerInputFieldClassName, tone.controlClassName)}
+
         />
+
       </FieldGroup>
     );
   };
@@ -173,8 +186,10 @@ export function CustomerProfileFields({
           onChange={(event) => onChange({ [field]: event.target.value })}
           placeholder={placeholder}
           disabled={disabled}
-          className={cn("min-h-[112px] rounded-[22px] px-4 py-3 transition-all", tone.controlClassName)}
+          className={cn(customerTextareaFieldClassName, tone.controlClassName)}
+
         />
+
       </FieldGroup>
     );
   };
@@ -203,8 +218,11 @@ export function CustomerProfileFields({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <div className={cn("rounded-[30px] p-4 sm:p-5", compact ? "rounded-[28px] border border-white/75 bg-white/90 shadow-[0_16px_34px_rgba(15,23,42,0.05)]" : "advisor-soft-card")}>
+      <div className={compact ? customerCompactSectionCardClassName : customerSectionCardClassName}>
+
+
         <div className="space-y-2">
+
           <p className="advisor-kicker">Customer profile</p>
           <div className="space-y-1">
             <h3 className="text-lg font-semibold text-slate-900">基础建档信息</h3>
@@ -215,7 +233,8 @@ export function CustomerProfileFields({
       </div>
 
       {compact ? (
-        <details className="advisor-disclosure-card group rounded-[28px] p-4">
+        <details className={cn(customerDisclosureCardClassName, "group")}>
+
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
             <div className="space-y-1">
               <p className="advisor-kicker">Additional profile</p>
@@ -230,7 +249,8 @@ export function CustomerProfileFields({
         </details>
       ) : (
 
-        <div className="advisor-subtle-card rounded-[30px] p-4 sm:p-5">
+        <div className={customerSubtleSectionCardClassName}>
+
           <div className="space-y-2">
             <p className="advisor-kicker">Additional profile</p>
             <div className="space-y-1">

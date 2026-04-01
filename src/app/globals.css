@@ -187,6 +187,92 @@ textarea {
     box-shadow: 0 18px 55px rgba(15, 23, 42, 0.06);
   }
 
+  .advisor-form-control {
+    border: 1px solid rgba(18, 59, 93, 0.1);
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.76),
+      0 10px 24px rgba(15, 23, 42, 0.04);
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .advisor-form-control::placeholder {
+    color: #94a3b8;
+  }
+
+  .advisor-form-control:hover {
+    border-color: rgba(18, 59, 93, 0.14);
+  }
+
+  .advisor-form-control:focus,
+  .advisor-form-control:focus-visible {
+    outline: none;
+    border-color: rgba(18, 59, 93, 0.22);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      0 0 0 4px rgba(18, 59, 93, 0.08),
+      0 14px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .advisor-form-control:disabled {
+    border-color: rgba(226, 232, 240, 0.9);
+    background: rgba(248, 250, 252, 0.9);
+    color: #94a3b8;
+    box-shadow: none;
+  }
+
+  .advisor-form-control-muted {
+    border-color: rgba(226, 232, 240, 0.88);
+    background: rgba(248, 250, 252, 0.92);
+    color: #334155;
+  }
+
+  .advisor-form-control-muted:hover {
+    border-color: rgba(18, 59, 93, 0.12);
+    background: rgba(255, 255, 255, 0.94);
+  }
+
+  .advisor-form-control-highlighted {
+    border-color: rgba(15, 118, 110, 0.2);
+    background: rgba(243, 251, 248, 0.96);
+    color: #0f172a;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      0 6px 20px rgba(15, 118, 110, 0.08);
+  }
+
+  .advisor-form-control-highlighted:hover {
+    border-color: rgba(15, 118, 110, 0.24);
+    background: rgba(245, 252, 249, 0.98);
+  }
+
+  .advisor-form-control-highlighted:focus,
+  .advisor-form-control-highlighted:focus-visible {
+    border-color: rgba(15, 118, 110, 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.84),
+      0 0 0 4px rgba(15, 118, 110, 0.09),
+      0 10px 24px rgba(15, 118, 110, 0.1);
+  }
+
+  .advisor-form-select {
+    padding-right: 2.75rem;
+  }
+
+  .advisor-form-select[data-placeholder] {
+    color: #94a3b8;
+  }
+
+  .advisor-form-textarea {
+    min-height: 7.5rem;
+    line-height: 1.75;
+    resize: vertical;
+  }
+
   .advisor-accent-chip {
     border: 1px solid rgba(184, 137, 74, 0.18);
     background: var(--advisor-gold-soft);
@@ -255,6 +341,34 @@ textarea {
   .advisor-notice-card-warning {
     border-color: rgba(184, 137, 74, 0.2);
     background: linear-gradient(180deg, rgba(255, 248, 238, 0.98) 0%, rgba(255, 252, 247, 0.98) 100%);
+  }
+
+  .advisor-review-card {
+    border: 1px solid rgba(18, 59, 93, 0.08);
+    background: linear-gradient(180deg, rgba(246, 250, 253, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.78),
+      0 14px 30px rgba(15, 23, 42, 0.04);
+  }
+
+  .advisor-review-card-success {
+    border-color: rgba(15, 118, 110, 0.16);
+    background: linear-gradient(180deg, rgba(243, 251, 248, 0.98) 0%, rgba(255, 255, 255, 0.99) 100%);
+  }
+
+  .advisor-review-highlight {
+    border-color: rgba(15, 118, 110, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 0 0 1px rgba(15, 118, 110, 0.04),
+      0 12px 28px rgba(15, 23, 42, 0.05);
+  }
+
+  .advisor-review-chip {
+    border: 1px solid rgba(15, 118, 110, 0.14);
+    background: rgba(15, 118, 110, 0.1);
+    color: #0f766e;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
   }
 
   .advisor-disclosure-card {

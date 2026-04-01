@@ -32,6 +32,16 @@ import {
   getCustomerProfileStatus,
   mapCustomerRecordToFormValue,
 } from "@/components/customers/customer-center-helpers";
+import {
+  customerHeroCardClassName,
+  customerHeroTitleClassName,
+  customerMetaPillClassName,
+  customerOutlineActionClassName,
+  customerPrimaryActionClassName,
+  customerStateCardClassName,
+  customerSurfaceCardClassName,
+} from "@/components/customers/customer-style";
+
 
 const futureModules = [
   {
@@ -50,6 +60,10 @@ const futureModules = [
     icon: BellRing,
   },
 ] as const;
+
+const elevatedPrimaryActionClassName = `${customerPrimaryActionClassName} hover:-translate-y-0.5`;
+
+
 
 function BriefingColumn({
   title,
@@ -72,10 +86,11 @@ function BriefingColumn({
       <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
-            <span className="mt-[0.58rem] h-1.5 w-1.5 rounded-full bg-[var(--advisor-gold)]" />
+            <span className="mt-[0.58rem] h-1.5 w-1.5 rounded-full bg-amber-600/70" />
             <span>{item}</span>
           </li>
         ))}
+
       </ul>
     </div>
   );
@@ -83,7 +98,8 @@ function BriefingColumn({
 
 function ProfileSectionCard({ title, fields }: { title: string; fields: Array<{ label: string; value: string }> }) {
   return (
-    <Card className="advisor-soft-card rounded-[30px]">
+    <Card className={customerSurfaceCardClassName}>
+
       <CardContent className="space-y-5 p-5 sm:p-6">
         <div className="space-y-2">
           <p className="advisor-kicker">Profile section</p>
@@ -122,8 +138,37 @@ function FutureModuleCard({ title, description, icon: Icon }: { title: string; d
   );
 }
 
+function DetailStateCard({
+  title,
+  description,
+  actionLabel,
+  actionHref,
+}: {
+  title: string;
+  description?: string;
+  actionLabel?: string;
+  actionHref?: string;
+}) {
+  return (
+    <Card className={customerStateCardClassName}>
+
+      <CardContent className="space-y-3 p-6">
+        <p className="text-lg font-semibold text-slate-900">{title}</p>
+        {description ? <p className="text-sm leading-6 text-slate-500">{description}</p> : null}
+        {actionLabel && actionHref ? (
+          <Link href={actionHref}>
+            <Button className={customerPrimaryActionClassName}>{actionLabel}</Button>
+
+          </Link>
+
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
 
 export function CustomerDetailShell({ customerId }: { customerId: string }) {
+
   const queryClient = useQueryClient();
   const profileSectionRef = useRef<HTMLDivElement | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -194,9 +239,7 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
   if (customerQuery.isLoading && !customer) {
     return (
       <div className="mx-auto max-w-4xl space-y-5">
-        <Card className="advisor-subtle-card rounded-[28px]">
-          <CardContent className="p-6 text-sm text-slate-500">正在整理客户详情…</CardContent>
-        </Card>
+        <DetailStateCard title="正在整理客户详情…" description="请稍候，我正在为你准备这位客户的基础资料与经营简报。" />
       </div>
     );
   }
@@ -208,20 +251,16 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
           <ArrowLeft className="h-4 w-4" />
           返回客户列表
         </Link>
-        <Card className="advisor-subtle-card rounded-[28px]">
-          <CardContent className="space-y-3 p-6">
-            <p className="text-lg font-semibold text-slate-900">当前未找到这位客户</p>
-            <p className="text-sm leading-6 text-slate-500">可能是客户尚未保存，或当前账号下没有该客户档案。</p>
-            <Link href="/customers">
-              <Button className="advisor-primary-button cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03]">
-                返回客户列表
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <DetailStateCard
+          title="当前未找到这位客户"
+          description="可能是客户尚未保存，或当前账号下没有该客户档案。"
+          actionLabel="返回客户列表"
+          actionHref="/customers"
+        />
       </div>
     );
   }
+
 
   return (
     <>
@@ -231,33 +270,39 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
           返回客户列表
         </Link>
 
-        <Card className="glass-panel advisor-hero-card rounded-[32px]">
+        <Card className={customerHeroCardClassName}>
+
           <CardContent className="space-y-6 p-5 sm:p-7">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="advisor-accent-chip rounded-full px-3 py-1">客户档案</Badge>
                   <span className="advisor-section-label">经营简报入口</span>
-                  {isDemoMode ? <Badge className="rounded-full border-0 bg-slate-100 text-slate-600">示例预览</Badge> : null}
+                  {isDemoMode ? <Badge className="advisor-chip-neutral rounded-full border-0 px-3 py-1">示例预览</Badge> : null}
+
                 </div>
 
                 <div className="space-y-3">
                   <p className="advisor-kicker">Client briefing</p>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-[1.95rem] font-semibold leading-tight text-slate-900 sm:text-[2.3rem]">{customer.name}</h1>
+                    <h1 className={customerHeroTitleClassName}>{customer.name}</h1>
+
                     {customer.nickname ? <Badge className="advisor-accent-chip rounded-full border-0">{customer.nickname}</Badge> : null}
                     <Badge className={`rounded-full ${status.badgeClassName}`}>{status.label}</Badge>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2 text-sm leading-6 text-slate-600">
-                  <span className="advisor-field-card rounded-full px-3 py-1.5">{customer.profession ?? "待补充职业 / 身份"}</span>
-                  <span className="advisor-field-card rounded-full px-3 py-1.5">{customer.source ?? "待补充客户来源"}</span>
+                  <span className={customerMetaPillClassName}>{customer.profession ?? "待补充职业 / 身份"}</span>
+                  <span className={customerMetaPillClassName}>{customer.source ?? "待补充客户来源"}</span>
+
                 </div>
 
-                <div className="advisor-subtle-card rounded-[24px] px-4 py-3 text-sm leading-6 text-slate-600">
+
+                <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] px-4 py-3 text-sm leading-6 text-slate-600">
                   {status.hint}
                 </div>
+
               </div>
 
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[13rem]">
@@ -265,8 +310,10 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
                   type="button"
                   onClick={openEditDialog}
                   disabled={isDemoMode}
-                  className="advisor-primary-button h-11 cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-[1.03] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
+                  className={`${elevatedPrimaryActionClassName} h-11`}
                 >
+
+
                   <PencilLine className="mr-2 h-4 w-4" />
                   编辑客户资料
                 </Button>
@@ -274,28 +321,33 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
                   type="button"
                   variant="outline"
                   onClick={scrollToProfileSection}
-                  className="advisor-outline-button h-11 cursor-pointer rounded-full"
+                  className={`${customerOutlineActionClassName} h-11`}
+
                 >
+
                   查看完整资料
                 </Button>
               </div>
             </div>
 
             {isDemoMode ? (
-              <div className="advisor-preview-notice rounded-[24px] p-4 text-sm leading-6 text-slate-500">
+              <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] p-4 text-sm leading-6 text-slate-500">
                 当前为示例预览。登录后可查看真实客户详情并编辑基础资料。
               </div>
             ) : null}
 
+
           </CardContent>
         </Card>
 
-        <Card className="advisor-soft-card rounded-[30px]">
+        <Card className={customerSurfaceCardClassName}>
+
           <CardContent className="space-y-5 p-5 sm:p-6">
             <div className="flex items-start gap-3">
-              <div className="advisor-icon-badge advisor-icon-badge-sm mt-0.5">
+              <div className="advisor-icon-badge advisor-icon-badge-warning advisor-icon-badge-sm mt-0.5">
                 <Sparkles className="h-4 w-4" />
               </div>
+
 
               <div className="space-y-2">
                 <p className="advisor-kicker">Customer briefing</p>
@@ -319,16 +371,20 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
                 type="button"
                 onClick={openEditDialog}
                 disabled={isDemoMode}
-                className="advisor-primary-button h-11 cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
+                className={`${customerPrimaryActionClassName} h-11`}
+
               >
+
                 去补充关键信息
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={scrollToProfileSection}
-                className="advisor-outline-button h-11 cursor-pointer rounded-full"
+                className={`${customerOutlineActionClassName} h-11`}
+
               >
+
                 查看完整资料
               </Button>
             </div>
@@ -379,7 +435,12 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
               />
             </div>
 
-            {feedback ? <p className="mt-4 text-sm leading-6 text-rose-600">{feedback}</p> : null}
+            {feedback ? (
+              <div className="advisor-notice-card advisor-notice-card-warning mt-4 rounded-[24px] p-4 text-sm leading-6 text-slate-700">
+                {feedback}
+              </div>
+            ) : null}
+
           </div>
 
           <DialogFooter className="advisor-dialog-footer-surface gap-3 border-t border-slate-200/70 sm:justify-between">
@@ -393,16 +454,20 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
                 setFeedback("");
               }}
               disabled={saveMutation.isPending}
-              className="advisor-outline-button cursor-pointer rounded-full"
+              className={customerOutlineActionClassName}
+
             >
+
               取消
             </Button>
             <Button
               type="button"
               onClick={() => saveMutation.mutate(form)}
               disabled={saveMutation.isPending}
-              className="advisor-primary-button cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03] disabled:shadow-none"
+              className={customerPrimaryActionClassName}
+
             >
+
               {saveMutation.isPending ? "正在保存" : "保存修改"}
             </Button>
           </DialogFooter>

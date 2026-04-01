@@ -53,8 +53,10 @@ type VisitManagerProps = {
   onSaved?: (message: string) => void;
 };
 
+type FeedbackTone = "info" | "success" | "warning";
 
 const emptyForm: VisitFormState = {
+
   customerId: "",
   name: "",
   nickName: "",
@@ -70,7 +72,33 @@ function normalizeOptionalText(value: string | null | undefined) {
   return (value ?? "").trim();
 }
 
+function getFeedbackToneClassName(tone: FeedbackTone) {
+  switch (tone) {
+    case "success":
+      return "advisor-notice-card-success";
+    case "warning":
+      return "advisor-notice-card-warning";
+    default:
+      return "advisor-notice-card-info";
+  }
+}
+
+function getVisitFieldCardClassName(highlighted: boolean) {
+  return highlighted
+    ? "advisor-review-card advisor-review-highlight rounded-[24px] p-3"
+    : "advisor-field-card rounded-[24px] p-3";
+}
+
+function getVisitInputClassName(highlighted = false) {
+  return `advisor-form-control h-11 rounded-2xl focus-visible:ring-0 ${highlighted ? "advisor-form-control-highlighted" : ""}`.trim();
+}
+
+function getVisitTextareaClassName(highlighted = false, minHeightClassName = "min-h-24") {
+  return `advisor-form-control advisor-form-textarea ${minHeightClassName} rounded-[24px] focus-visible:ring-0 ${highlighted ? "advisor-form-control-highlighted" : ""}`.trim();
+}
+
 function findExactCustomerMatch(form: VisitFormState, options: Array<{ id: string; name: string; nickname: string | null }>) {
+
   const name = form.name.trim();
   const nickname = normalizeOptionalText(form.nickName);
 
@@ -100,7 +128,9 @@ export function VisitManager({
   const [form, setForm] = useState<VisitFormState>(() => ({ ...emptyForm, ...(initialDraftValues ?? {}) }));
   const [editingId, setEditingId] = useState("");
   const [feedback, setFeedback] = useState(() => initialAssistantNote);
+  const [feedbackTone, setFeedbackTone] = useState<FeedbackTone>(initialAssistantNote ? "info" : "success");
   const [customerSheetOpen, setCustomerSheetOpen] = useState(false);
+
 
   const [customerForm, setCustomerForm] = useState<CustomerProfileFormValue>({ ...emptyCustomerProfileForm });
   const [resumeContext, setResumeContext] = useState<ResumeContext | null>(null);
@@ -187,6 +217,7 @@ export function VisitManager({
     onSuccess: (_, variables) => {
       const successMessage = variables.resumed ? "客户档案已保存，并已继续完成刚才的拜访记录" : variables.editingId ? "拜访记录已更新" : "拜访记录已保存";
       setFeedback(successMessage);
+      setFeedbackTone("success");
       setEditingId("");
       setForm({ ...emptyForm });
       setResumeContext(null);
@@ -208,11 +239,13 @@ export function VisitManager({
         });
         setCustomerSheetOpen(true);
         setFeedback("还没有这位客户的资料。请先补齐，我会继续保存这次拜访。");
+        setFeedbackTone("warning");
         return;
 
       }
 
       setFeedback(error.message);
+      setFeedbackTone("warning");
     },
   });
 
@@ -232,6 +265,7 @@ export function VisitManager({
         setCustomerSheetOpen(false);
         setCustomerForm({ ...emptyCustomerProfileForm });
         setFeedback("客户档案已创建");
+        setFeedbackTone("success");
         return;
       }
 
@@ -247,18 +281,26 @@ export function VisitManager({
       setCustomerSheetOpen(false);
       setCustomerForm({ ...emptyCustomerProfileForm });
       setFeedback("客户档案已保存，正在继续完成刚才的拜访记录…");
+      setFeedbackTone("success");
       saveMutation.mutate({ form: nextForm, editingId: resumed.editingId, resumed: true });
     },
-    onError: (error) => setFeedback(error.message),
+    onError: (error) => {
+      setFeedback(error.message);
+      setFeedbackTone("warning");
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => fetchJson<{ id: string }>(`/api/visits?id=${id}`, { method: "DELETE" }),
     onSuccess: () => {
       setFeedback("拜访记录已删除");
+      setFeedbackTone("success");
       queryClient.invalidateQueries({ queryKey: ["visits-crm"] });
     },
-    onError: (error) => setFeedback(error.message),
+    onError: (error) => {
+      setFeedback(error.message);
+      setFeedbackTone("warning");
+    },
   });
 
   const extractMutation = useMutation({
@@ -297,6 +339,8 @@ export function VisitManager({
       }
 
       setHighlightedFields(extractedFieldKeys);
+      setFeedback(data.message);
+      setFeedbackTone(extractedFieldKeys.length > 0 ? "success" : "info");
 
       if (extractedFieldKeys.length > 0) {
         setAssistantDetailInput("");
@@ -308,8 +352,10 @@ export function VisitManager({
     onError: (error) => {
       setAssistantReviewPrompt("");
       setFeedback(error.message);
+      setFeedbackTone("warning");
     },
   });
+
 
   function patchForm(patch: Partial<VisitFormState>) {
     setForm((current) => ({ ...current, ...patch }));
@@ -364,6 +410,7 @@ export function VisitManager({
     setForm({ ...emptyForm });
     setResumeContext(null);
     setFeedback("");
+    setFeedbackTone("info");
     setAssistantDetailInput("");
     setAssistantReviewPrompt("");
     setHighlightedFields([]);
@@ -381,6 +428,7 @@ export function VisitManager({
     });
     setCustomerSheetOpen(true);
     setFeedback("请先补客户信息，保存后会继续当前拜访。");
+    setFeedbackTone("warning");
   }
 
 
@@ -389,6 +437,9 @@ export function VisitManager({
   }
 
   const formCardTone = embedded ? "advisor-soft-card" : "glass-panel advisor-glass-surface";
+  const primaryActionClassName = "advisor-primary-button cursor-pointer rounded-full text-white transition-all duration-200 hover:brightness-[1.03] disabled:shadow-none";
+  const outlineActionClassName = "advisor-outline-button cursor-pointer rounded-full";
+
 
 
   return (
@@ -438,7 +489,7 @@ export function VisitManager({
             )}
 
 
-            <div className="rounded-[24px] border border-slate-200/70 bg-white/90 p-4">
+            <div className="advisor-soft-card rounded-[24px] p-4">
               <p className="text-sm font-medium text-slate-900">{assistantTaskMode ? "客户" : "先选客户"}</p>
               <p className="mt-1 text-sm text-slate-500">{assistantTaskMode ? "可直接选择已有客户，或先填写姓名。" : "可直接选择已有客户；如果还没有客户资料，也可以先填写姓名，保存时会继续引导你补齐。"}</p>
 
@@ -446,17 +497,17 @@ export function VisitManager({
                 <select
                   value={form.customerId}
                   onChange={(event) => syncCustomerSelection(event.target.value)}
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700"
+                  className="advisor-form-control advisor-form-select h-11 w-full rounded-2xl text-sm text-slate-700 focus-visible:ring-0"
                 >
                   <option value="">选择一位已建档客户（可选）</option>
                   {customerOptions.map((item) => (
                     <option key={item.id} value={item.id}>{item.nickname ? `${item.name}（${item.nickname}）` : item.name}</option>
                   ))}
                 </select>
-                <Input value={form.name} onChange={(event) => handleNameChange(event.target.value)} placeholder="客户姓名（必填）" className="h-11 rounded-2xl border-white bg-white" />
-                <Input value={form.nickName} onChange={(event) => handleNickNameChange(event.target.value)} placeholder="客户昵称（可选）" className="h-11 rounded-2xl border-white bg-white" />
+                <Input value={form.name} onChange={(event) => handleNameChange(event.target.value)} placeholder="客户姓名（必填）" className={getVisitInputClassName()} />
+                <Input value={form.nickName} onChange={(event) => handleNickNameChange(event.target.value)} placeholder="客户昵称（可选）" className={getVisitInputClassName()} />
                 <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                  <Button type="button" variant="outline" onClick={openCustomerSheetFromVisit} className="cursor-pointer rounded-full border-slate-300 bg-transparent">
+                  <Button type="button" variant="outline" onClick={openCustomerSheetFromVisit} className={outlineActionClassName}>
                     <UserRoundPlus className="h-4 w-4" />
                     {assistantTaskMode ? "先补客户信息" : "找不到客户，先保存客户基础信息"}
                   </Button>
@@ -468,62 +519,64 @@ export function VisitManager({
 
             {assistantTaskMode ? (
               <div className="space-y-5">
-                <div className="rounded-[26px] border border-white/85 bg-white/96 p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+                <div className="advisor-soft-card rounded-[26px] p-5">
                   {assistantReviewPrompt && (
-                    <div className="mb-5 rounded-[24px] border border-[#0F766E]/16 bg-[#F3FBF8] p-4 text-sm leading-6 text-slate-700">
-                      <p className="font-medium text-slate-900">助手已整理到拜访信息</p>
+                    <div className="advisor-review-card advisor-review-card-success mb-5 rounded-[24px] p-4 text-sm leading-6 text-slate-700">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="advisor-kicker">Review prompted</p>
+                        <span className="advisor-review-chip rounded-full px-3 py-1 text-xs font-medium">待你核对</span>
+                      </div>
+                      <p className="mt-2 text-base font-medium text-slate-900">助手已整理到拜访信息</p>
                       <p className="mt-2">{assistantReviewPrompt}</p>
                     </div>
                   )}
 
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                     <div>
-                      <p className="text-xs font-semibold tracking-[0.18em] text-slate-500 uppercase">拜访信息</p>
+                      <p className="advisor-section-label">拜访信息</p>
                       <p className="mt-1 text-sm leading-6 text-slate-500">请核对已填入内容，绿色字段为助手整理或更新。</p>
                     </div>
-                    <span className="rounded-full border border-[#0F766E]/14 bg-[#F3FBF8] px-3 py-1 text-xs font-medium text-[#0F766E]">
-                      已填信息区
-                    </span>
+                    <span className="advisor-review-chip rounded-full px-3 py-1 text-xs font-medium">已填信息区</span>
                   </div>
 
                   <div className="space-y-4">
-                    <div className={highlightedFields.includes("timeVisit") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                    <div className={getVisitFieldCardClassName(highlightedFields.includes("timeVisit"))}>
                       <p className="mb-2 text-sm font-medium text-slate-700">拜访日期</p>
-                      <Input value={form.timeVisit} onChange={(event) => patchForm({ timeVisit: event.target.value })} type="date" className="h-11 rounded-2xl border-white bg-white" />
+                      <Input value={form.timeVisit} onChange={(event) => patchForm({ timeVisit: event.target.value })} type="date" className={getVisitInputClassName(highlightedFields.includes("timeVisit"))} />
                     </div>
 
-                    <div className={highlightedFields.includes("location") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                    <div className={getVisitFieldCardClassName(highlightedFields.includes("location"))}>
                       <p className="mb-2 text-sm font-medium text-slate-700">地点</p>
-                      <Input value={form.location} onChange={(event) => patchForm({ location: event.target.value })} placeholder="请输入拜访地点" className="h-11 rounded-2xl border-white bg-white" />
+                      <Input value={form.location} onChange={(event) => patchForm({ location: event.target.value })} placeholder="请输入拜访地点" className={getVisitInputClassName(highlightedFields.includes("location"))} />
                     </div>
 
-                    <div className={highlightedFields.includes("methodCommunicate") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                    <div className={getVisitFieldCardClassName(highlightedFields.includes("methodCommunicate"))}>
                       <p className="mb-2 text-sm font-medium text-slate-700">沟通方式</p>
-                      <Input value={form.methodCommunicate} onChange={(event) => patchForm({ methodCommunicate: event.target.value })} placeholder="例如：面谈、电话、微信" className="h-11 rounded-2xl border-white bg-white" />
+                      <Input value={form.methodCommunicate} onChange={(event) => patchForm({ methodCommunicate: event.target.value })} placeholder="例如：面谈、电话、微信" className={getVisitInputClassName(highlightedFields.includes("methodCommunicate"))} />
                     </div>
 
-                    <div className={highlightedFields.includes("corePain") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                    <div className={getVisitFieldCardClassName(highlightedFields.includes("corePain"))}>
                       <p className="mb-2 text-sm font-medium text-slate-700">客户当下最在意的问题 / 核心痛点</p>
-                      <Textarea value={form.corePain} onChange={(event) => patchForm({ corePain: event.target.value })} placeholder="请描述客户当前最关注的问题" className="min-h-24 rounded-[24px] border-white bg-white" />
+                      <Textarea value={form.corePain} onChange={(event) => patchForm({ corePain: event.target.value })} placeholder="请描述客户当前最关注的问题" className={getVisitTextareaClassName(highlightedFields.includes("corePain"))} />
                     </div>
 
-                    <div className={highlightedFields.includes("briefContent") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                    <div className={getVisitFieldCardClassName(highlightedFields.includes("briefContent"))}>
                       <p className="mb-2 text-sm font-medium text-slate-700">沟通关键信息</p>
-                      <Textarea value={form.briefContent} onChange={(event) => patchForm({ briefContent: event.target.value })} placeholder="把这次沟通的关键信息沉淀下来" className="min-h-28 rounded-[24px] border-white bg-white" />
+                      <Textarea value={form.briefContent} onChange={(event) => patchForm({ briefContent: event.target.value })} placeholder="把这次沟通的关键信息沉淀下来" className={getVisitTextareaClassName(highlightedFields.includes("briefContent"), "min-h-28")} />
                     </div>
 
-                    <div className={highlightedFields.includes("followWork") ? "rounded-2xl bg-[#F3FBF8] p-3" : ""}>
+                    <div className={getVisitFieldCardClassName(highlightedFields.includes("followWork"))}>
                       <p className="mb-2 text-sm font-medium text-slate-700">后续动作</p>
-                      <Textarea value={form.followWork} onChange={(event) => patchForm({ followWork: event.target.value })} placeholder="后续需要跟进的事项，可用换行或分号分隔" className="min-h-24 rounded-[24px] border-white bg-white" />
+                      <Textarea value={form.followWork} onChange={(event) => patchForm({ followWork: event.target.value })} placeholder="后续需要跟进的事项，可用换行或分号分隔" className={getVisitTextareaClassName(highlightedFields.includes("followWork"))} />
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[26px] border border-[#0F766E]/16 bg-[linear-gradient(180deg,rgba(238,247,245,0.95)_0%,rgba(248,252,251,0.98)_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+                <div className="advisor-review-card rounded-[26px] p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold tracking-[0.18em] text-[#0F766E] uppercase">继续补充</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-700">核对完上方已填入信息后，如需补充和修改，可以在下面输入框中输入</p>
+                      <p className="advisor-section-label">继续补充</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-700">核对完上方已填入信息后，如需补充和修改，可以在下面输入框中继续描述。</p>
                     </div>
                   </div>
                   <Textarea
@@ -535,7 +588,7 @@ export function VisitManager({
                       }
                     }}
                     disabled={extractMutation.isPending || saveMutation.isPending}
-                    className="mt-4 min-h-24 rounded-[24px] border-white/80 bg-white shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+                    className="advisor-form-control advisor-form-textarea mt-4 min-h-24 rounded-[24px] focus-visible:ring-0"
                     placeholder="例如：今天3月15日在客户公司面谈，客户主要想了解教育金规划，后续需要跟进方案..."
                   />
 
@@ -544,7 +597,7 @@ export function VisitManager({
                       type="button"
                       onClick={() => extractMutation.mutate(assistantDetailInput.trim())}
                       disabled={!assistantDetailInput.trim() || extractMutation.isPending || saveMutation.isPending}
-                      className="cursor-pointer rounded-full bg-[#0F766E] text-white hover:bg-[#0B5F59]"
+                      className={primaryActionClassName}
                     >
                       {extractMutation.isPending ? "正在整理" : "交给助手"}
                     </Button>
@@ -552,7 +605,7 @@ export function VisitManager({
                 </div>
 
                 <div className="mt-5 flex flex-wrap gap-3 border-t border-slate-200/70 pt-4">
-                  <Button onClick={submitVisit} disabled={saveMutation.isPending || createCustomerMutation.isPending} className="cursor-pointer rounded-full bg-[#123B5D] text-white hover:bg-[#0E2E49]">
+                  <Button onClick={submitVisit} disabled={saveMutation.isPending || createCustomerMutation.isPending} className={primaryActionClassName}>
                     {saveMutation.isPending ? "正在保存" : "保存并返回"}
                   </Button>
                 </div>
@@ -560,24 +613,29 @@ export function VisitManager({
             ) : (
               <>
                 <div className={embedded ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>
-                  <Input value={form.timeVisit} onChange={(event) => patchForm({ timeVisit: event.target.value })} type="date" className="h-11 rounded-2xl border-white bg-white" />
-                  <Input value={form.location} onChange={(event) => patchForm({ location: event.target.value })} placeholder="地点" className="h-11 rounded-2xl border-white bg-white" />
+                  <Input value={form.timeVisit} onChange={(event) => patchForm({ timeVisit: event.target.value })} type="date" className={getVisitInputClassName()} />
+                  <Input value={form.location} onChange={(event) => patchForm({ location: event.target.value })} placeholder="地点" className={getVisitInputClassName()} />
                 </div>
-                <Input value={form.methodCommunicate} onChange={(event) => patchForm({ methodCommunicate: event.target.value })} placeholder="沟通方式，例如：面谈、电话、微信" className="h-11 rounded-2xl border-white bg-white" />
-                <Textarea value={form.corePain} onChange={(event) => patchForm({ corePain: event.target.value })} placeholder="客户当下最在意的问题 / 核心痛点" className="min-h-24 rounded-[24px] border-white bg-white" />
-                <Textarea value={form.briefContent} onChange={(event) => patchForm({ briefContent: event.target.value })} placeholder="把这次沟通的关键信息沉淀下来" className="min-h-28 rounded-[24px] border-white bg-white" />
-                <Textarea value={form.followWork} onChange={(event) => patchForm({ followWork: event.target.value })} placeholder="后续动作，可用换行或分号分隔" className="min-h-24 rounded-[24px] border-white bg-white" />
+                <Input value={form.methodCommunicate} onChange={(event) => patchForm({ methodCommunicate: event.target.value })} placeholder="沟通方式，例如：面谈、电话、微信" className={getVisitInputClassName()} />
+                <Textarea value={form.corePain} onChange={(event) => patchForm({ corePain: event.target.value })} placeholder="客户当下最在意的问题 / 核心痛点" className={getVisitTextareaClassName()} />
+                <Textarea value={form.briefContent} onChange={(event) => patchForm({ briefContent: event.target.value })} placeholder="把这次沟通的关键信息沉淀下来" className={getVisitTextareaClassName(false, "min-h-28")} />
+                <Textarea value={form.followWork} onChange={(event) => patchForm({ followWork: event.target.value })} placeholder="后续动作，可用换行或分号分隔" className={getVisitTextareaClassName()} />
                 <div className="flex flex-wrap gap-3">
-                  <Button onClick={submitVisit} disabled={saveMutation.isPending || createCustomerMutation.isPending} className={`cursor-pointer rounded-full text-white ${embedded ? "bg-[#123B5D] hover:bg-[#0E2E49]" : "bg-[#1E3A8A] hover:bg-[#17306F]"}`}>
+                  <Button onClick={submitVisit} disabled={saveMutation.isPending || createCustomerMutation.isPending} className={primaryActionClassName}>
                     {saveMutation.isPending ? "正在保存" : editingId ? "保存修改" : embedded ? "保存这次拜访" : "保存记录"}
                   </Button>
 
-                  <Button variant="outline" onClick={resetForm} className="cursor-pointer rounded-full border-slate-300 bg-transparent">清空</Button>
+                  <Button variant="outline" onClick={resetForm} className={outlineActionClassName}>清空</Button>
                 </div>
               </>
             )}
 
-            {feedback && <p className="text-sm leading-6 text-slate-600">{feedback}</p>}
+            {feedback && (
+              <div className={`advisor-notice-card mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-slate-700 ${getFeedbackToneClassName(feedbackTone)}`}>
+                {feedback}
+              </div>
+            )}
+
           </CardContent>
         </Card>
 
@@ -687,13 +745,14 @@ export function VisitManager({
               <CustomerProfileFields value={customerForm} onChange={patchCustomerForm} disabled={createCustomerMutation.isPending} variant="compact" />
 
               <div className="flex flex-wrap gap-3 pb-5">
-                <Button onClick={() => createCustomerMutation.mutate(customerForm)} disabled={createCustomerMutation.isPending} className="advisor-primary-button cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:brightness-[1.03] disabled:shadow-none">
+                <Button onClick={() => createCustomerMutation.mutate(customerForm)} disabled={createCustomerMutation.isPending} className={`${primaryActionClassName} px-5`}>
                   {createCustomerMutation.isPending ? "正在保存客户档案" : "保存客户档案并继续拜访"}
                 </Button>
-                <Button variant="outline" onClick={() => setCustomerSheetOpen(false)} className="advisor-outline-button cursor-pointer rounded-full">
+                <Button variant="outline" onClick={() => setCustomerSheetOpen(false)} className={outlineActionClassName}>
                   稍后再说
                 </Button>
               </div>
+
             </div>
           </div>
         </SheetContent>

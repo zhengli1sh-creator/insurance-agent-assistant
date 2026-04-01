@@ -19,18 +19,42 @@ import {
   getCustomerProfileStatus,
   getCustomerReminderStats,
 } from "@/components/customers/customer-center-helpers";
+import {
+  customerHeroCardClassName,
+  customerHeroTitleClassName,
+  customerListCardClassName,
+  customerMetaPanelClassName,
+  customerOutlineActionClassName,
+  customerPrimaryActionClassName,
+  customerStateCardClassName,
+} from "@/components/customers/customer-style";
+
 
 function ReminderMetric({ label, value, hint }: { label: string; value: number; hint: string }) {
   return (
-    <div className="advisor-subtle-card rounded-[26px] p-4">
+    <div className="advisor-meta-tile rounded-[26px] border border-white/75 p-4">
       <div className="flex items-start justify-between gap-3">
         <p className="advisor-section-label max-w-[10rem]">{label}</p>
-        <p className="font-accent text-[2rem] leading-none text-[var(--advisor-ink)]">{value}</p>
+        <p className="font-accent text-[2rem] leading-none text-slate-900">{value}</p>
+
       </div>
       <p className="mt-3 text-sm leading-6 text-slate-600">{hint}</p>
     </div>
   );
 }
+
+function CenterStateCard({ title, description }: { title: string; description?: string }) {
+  return (
+    <Card className={customerStateCardClassName}>
+      <CardContent className="p-5 sm:p-6">
+
+        <p className="text-base font-medium text-slate-900">{title}</p>
+        {description ? <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p> : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export function CustomerCenterShell() {
   const [keyword, setKeyword] = useState("");
@@ -53,28 +77,31 @@ export function CustomerCenterShell() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
-      <Card className="glass-panel advisor-hero-card rounded-[32px]">
+      <Card className={customerHeroCardClassName}>
+
         <CardContent className="p-5 sm:p-7">
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="advisor-accent-chip w-fit rounded-full px-3 py-1">客户中心</Badge>
                 <span className="advisor-section-label">单列经营入口</span>
-                {isDemoMode ? <Badge className="rounded-full border-0 bg-slate-100 text-slate-600">示例预览</Badge> : null}
+                {isDemoMode ? <Badge className="advisor-chip-neutral rounded-full border-0 px-3 py-1">示例预览</Badge> : null}
+
               </div>
 
               <div className="space-y-3">
                 <p className="advisor-kicker">Customer dossier</p>
-                <h1 className="max-w-3xl text-[1.95rem] font-semibold leading-tight text-slate-900 sm:text-[2.3rem]">
+                <h1 className={`${customerHeroTitleClassName} max-w-3xl`}>
                   按客户查看基础资料，并逐步沉淀后续经营记录。
                 </h1>
+
                 <p className="max-w-3xl text-sm leading-7 text-slate-600 sm:text-[0.95rem]">
                   列表页只负责找到客户、查看资料提醒并进入详情。后续的拜访、活动和提醒任务，会逐步沉淀到客户详情页中。
                 </p>
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-white/70 bg-white/72 p-3 shadow-[0_14px_32px_rgba(15,23,42,0.05)]">
+            <div className="advisor-input-dock rounded-[28px] p-3">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative w-full sm:max-w-md">
                   <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -82,12 +109,14 @@ export function CustomerCenterShell() {
                     value={keyword}
                     onChange={(event) => setKeyword(event.target.value)}
                     placeholder="按姓名、昵称、职业、来源或核心关注点检索"
-                    className="h-12 rounded-full border-white/90 bg-white/92 pl-11 pr-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_20px_rgba(15,23,42,0.04)]"
+                    className="advisor-form-control h-12 rounded-full pl-11 pr-4 focus-visible:ring-0"
                   />
                 </div>
 
                 <Link href="/customers/new" className="w-full sm:w-auto">
-                  <Button className="advisor-primary-button h-12 w-full cursor-pointer rounded-full px-5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-[1.03] sm:w-auto">
+
+                  <Button className={`${customerPrimaryActionClassName} h-12 w-full hover:-translate-y-0.5 sm:w-auto`}>
+
                     <Plus className="mr-2 h-4 w-4" />
                     新增客户
                   </Button>
@@ -101,10 +130,11 @@ export function CustomerCenterShell() {
       <Card className="advisor-soft-card rounded-[30px]">
         <CardContent className="space-y-5 p-5 sm:p-6">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 rounded-full bg-[var(--advisor-gold-soft)] p-2 text-[var(--advisor-gold)]">
+            <div className="advisor-icon-badge advisor-icon-badge-warning advisor-icon-badge-sm mt-0.5">
               <Sparkles className="h-4 w-4" />
             </div>
             <div className="space-y-2">
+
               <p className="advisor-kicker">Profile reminder</p>
               <p className="text-lg font-semibold text-slate-900">资料提醒</p>
               <p className="text-sm leading-6 text-slate-600">
@@ -124,29 +154,20 @@ export function CustomerCenterShell() {
       </Card>
 
       <div className="space-y-4">
-        {customersQuery.isLoading ? (
-          <Card className="advisor-subtle-card rounded-[28px]">
-            <CardContent className="p-5 text-sm text-slate-500">正在整理客户资料…</CardContent>
-          </Card>
-        ) : null}
+        {customersQuery.isLoading ? <CenterStateCard title="正在整理客户资料…" /> : null}
 
         {!customersQuery.isLoading && filteredCustomers.length === 0 ? (
-          <Card className="advisor-subtle-card rounded-[28px]">
-            <CardContent className="p-5 sm:p-6">
-              <p className="text-base font-medium text-slate-900">当前没有匹配到客户</p>
-              <p className="mt-2 text-sm leading-6 text-slate-500">可以换一个关键词继续查找，或先新增客户档案。</p>
-            </CardContent>
-          </Card>
+          <CenterStateCard title="当前没有匹配到客户" description="可以换一个关键词继续查找，或先新增客户档案。" />
         ) : null}
+
 
         {filteredCustomers.map((customer) => {
           const status = getCustomerProfileStatus(customer);
 
           return (
-            <Card
-              key={customer.id}
-              className="glass-panel advisor-soft-card rounded-[30px] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_56px_rgba(15,23,42,0.09)]"
-            >
+            <Card key={customer.id} className={customerListCardClassName}>
+
+
               <CardContent className="space-y-5 p-5 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-3">
@@ -164,7 +185,8 @@ export function CustomerCenterShell() {
                   </div>
 
                   <Link href={`/customers/${customer.id}`} className="w-full sm:w-auto">
-                    <Button variant="outline" className="advisor-outline-button h-11 w-full cursor-pointer rounded-full sm:w-auto">
+                    <Button variant="outline" className={`${customerOutlineActionClassName} h-11 w-full sm:w-auto`}>
+
                       查看详情
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -174,15 +196,17 @@ export function CustomerCenterShell() {
                 <div className="advisor-hairline" />
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="advisor-field-card rounded-[24px] p-4">
+                  <div className={customerMetaPanelClassName}>
                     <p className="advisor-section-label">核心关注点</p>
                     <p className="mt-3 text-sm leading-6 text-slate-700">{displayCustomerValue(customer.core_interesting)}</p>
                   </div>
-                  <div className="advisor-field-card rounded-[24px] p-4">
+                  <div className={customerMetaPanelClassName}>
                     <p className="advisor-section-label">沟通偏好</p>
                     <p className="mt-3 text-sm leading-6 text-slate-700">{displayCustomerValue(customer.prefer_communicate)}</p>
                   </div>
                 </div>
+
+
               </CardContent>
             </Card>
           );

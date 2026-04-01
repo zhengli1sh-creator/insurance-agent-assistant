@@ -17,8 +17,24 @@ import {
 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  customerCardHeadingClassName,
+  customerEmptyPanelClassName,
+  customerEntryButtonClassName,
+  customerHintBannerClassName,
+  customerNoticeCardClassName,
+  customerNoticeCardCompactClassName,
+  customerOutlineActionClassName,
+  customerPreviewCardClassName,
+  customerPrimaryActionClassName,
+  customerReviewCardClassName,
+  customerReviewCardCompactClassName,
+  customerSheetTitleClassName,
+} from "@/components/customers/customer-style";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -91,8 +107,12 @@ const infoCategories = [
 
 const DESKTOP_CUSTOMERS_PAGE_SIZE = 5;
 const EMPTY_CUSTOMERS: CustomerRecord[] = [];
+const primaryActionClassName = customerPrimaryActionClassName;
+const outlineActionClassName = customerOutlineActionClassName;
+
 
 type ChatMessageType = "welcome" | "user-input" | "extracted-summary" | "save-success" | "error-hint";
+
 type MobileCustomersSheetMode = "all" | "related";
 
 type ExtractedFieldItem = { label: string; value: string };
@@ -249,23 +269,24 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
 
   const condensedCard = (
-    <div className="w-full rounded-[22px] border border-[#0F766E]/12 bg-[linear-gradient(180deg,rgba(244,250,248,0.96)_0%,rgba(250,252,251,0.96)_100%)] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:px-4 sm:py-3.5">
+    <div className={cn(customerReviewCardCompactClassName, "advisor-review-card-success")}>
+
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex flex-1 items-center gap-3">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/10 sm:h-8 sm:w-8">
-            <Lightbulb className="h-3.5 w-3.5 text-[#0F766E] sm:h-4 sm:w-4" />
+          <div className="advisor-icon-badge advisor-icon-badge-success flex h-7 w-7 shrink-0 items-center justify-center sm:h-8 sm:w-8">
+            <Lightbulb className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-medium text-[#123B5D]">直接描述客户</h3>
+            <h3 className="text-sm font-medium text-slate-900">直接描述客户</h3>
           </div>
-
         </div>
         <Button
           type="button"
           variant="ghost"
           onClick={() => setIsCardExpanded(true)}
-          className="h-8 shrink-0 rounded-full px-3 text-xs text-[#123B5D] hover:bg-white/80 hover:text-[#0F766E]"
+          className={cn(outlineActionClassName, "h-8 shrink-0 px-3 text-xs")}
         >
+
           说明
           <ChevronDown className="ml-1 h-3.5 w-3.5" />
         </Button>
@@ -274,16 +295,17 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
   );
 
   const expandedCard = (
-    <div className="w-full rounded-[24px] border border-[#0F766E]/14 bg-[linear-gradient(180deg,rgba(238,247,245,0.98)_0%,rgba(248,252,251,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-5">
+    <div className={cn(customerReviewCardClassName, "advisor-review-card-success")}>
+
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex flex-1 items-start gap-3">
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/12">
-            <Lightbulb className="h-4 w-4 text-[#0F766E]" />
+          <div className="advisor-icon-badge advisor-icon-badge-success mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center">
+            <Lightbulb className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">直接描述客户</h3>
-          </div>
+            <h3 className={customerCardHeadingClassName}>直接描述客户</h3>
 
+          </div>
         </div>
 
         {compact || isCardExpanded ? (
@@ -291,38 +313,38 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
             type="button"
             variant="ghost"
             onClick={() => setIsCardExpanded(false)}
-            className="h-8 shrink-0 rounded-full px-3 text-xs text-slate-500 hover:bg-white/70 hover:text-slate-700"
+            className={cn(outlineActionClassName, "h-8 shrink-0 px-3 text-xs")}
           >
+
             收起
             <ChevronUp className="ml-1 h-3.5 w-3.5" />
           </Button>
         ) : null}
       </div>
 
-
       <div className="mt-4 space-y-2.5">
-        <div className="rounded-2xl border border-white/75 bg-white/72 px-3.5 py-3 text-sm leading-6 text-slate-600">
-          <span className="font-medium text-[#123B5D]">已支持整理：</span>
+        <div className="advisor-meta-tile rounded-2xl border border-white/75 px-3.5 py-3 text-sm leading-6 text-slate-600">
+          <span className="font-medium text-slate-900">已支持整理：</span>
           姓名、昵称、年龄、职业、家庭情况、财富情况、核心关注点、沟通偏好、客户来源等。
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2">
-          <div className="rounded-2xl border border-[#B8894A]/14 bg-[#FFF8EE]/72 px-3.5 py-3 text-sm leading-6 text-slate-600">
-            <span className="font-medium text-[#8B6A32]">最小必填：</span>
+          <div className="advisor-notice-card advisor-notice-card-warning rounded-2xl px-3.5 py-3 text-sm leading-6 text-slate-600">
+            <span className="font-medium text-slate-900">最小必填：</span>
             客户姓名
           </div>
-          <div className="rounded-2xl border border-white/75 bg-white/72 px-3.5 py-3 text-sm leading-6 text-slate-600">
+          <div className="advisor-meta-tile rounded-2xl border border-white/75 px-3.5 py-3 text-sm leading-6 text-slate-600">
             不需要一次说全，先说你现在记得的内容即可。
           </div>
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-dashed border-[#123B5D]/14 bg-white/55 px-3.5 py-3">
+      <div className="advisor-disclosure-card mt-4 rounded-2xl px-3.5 py-3">
         <Button
           type="button"
           variant="ghost"
           onClick={() => setIsDetailsExpanded((prev) => !prev)}
-          className="h-auto w-full justify-between rounded-2xl px-0 py-0 text-left text-sm font-medium text-[#123B5D] hover:bg-transparent hover:text-[#0F766E]"
+          className="h-auto w-full justify-between rounded-2xl px-0 py-0 text-left text-sm font-medium text-slate-800 hover:bg-transparent hover:text-slate-900"
         >
           <span>查看全部可保存信息项</span>
           {isDetailsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -331,20 +353,15 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
         {isDetailsExpanded ? (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {infoCategories.map((category) => (
-              <div
-                key={category.title}
-                className="rounded-2xl border border-white/80 bg-white/82 px-3.5 py-3"
-              >
+              <div key={category.title} className="advisor-subtle-card rounded-2xl px-3.5 py-3">
                 <p className="text-sm font-medium text-slate-700">{category.title}</p>
                 <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
                   {category.items.map((item) => (
                     <li key={item.label} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#B8894A]/80" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-600/70" />
                       <span>{item.label}</span>
                       {"required" in item && item.required ? (
-                        <span className="rounded-full bg-[#123B5D]/8 px-2 py-0.5 text-[11px] text-[#123B5D]">
-                          必填
-                        </span>
+                        <span className="advisor-chip-info rounded-full px-2 py-0.5 text-[11px]">必填</span>
                       ) : null}
                     </li>
                   ))}
@@ -360,6 +377,7 @@ function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
       </p>
     </div>
   );
+
 
   if (!isCardExpanded) {
     if (compact) {
@@ -390,15 +408,17 @@ function ExtractedSummaryCard({
   const nameReady = validateNameComplete(currentFields.name);
 
   return (
-    <div className="advisor-notice-card advisor-notice-card-warning rounded-[26px] p-4 sm:p-5">
+    <div className={cn(customerNoticeCardClassName, "advisor-notice-card-warning")}>
+
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <div className="advisor-icon-badge advisor-icon-badge-warning mt-0.5 h-9 w-9 shrink-0">
             <Sparkles className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-[#123B5D] sm:text-[15px]">已为你整理出以下客户信息</h3>
+            <h3 className={customerCardHeadingClassName}>已为你整理出以下客户信息</h3>
             <p className="mt-1 text-sm leading-6 text-slate-600">
+
               当前以顾问简报方式呈现，保存前仍可继续补充。
             </p>
           </div>
@@ -406,10 +426,9 @@ function ExtractedSummaryCard({
         <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">已具备 {filledFields.length} 项</Badge>
       </div>
 
-
       {extractedFields.length > 0 ? (
-        <div className="mt-4 rounded-2xl border border-white/80 bg-white/78 p-3.5 sm:p-4">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#8B6A32]">本次整理出</p>
+        <div className="advisor-subtle-card mt-4 rounded-2xl p-3.5 sm:p-4">
+          <p className="advisor-kicker">本次整理出</p>
           <div className="mt-3 space-y-2.5">
             {extractedFields.map((field, index) => (
               <div key={`${field.label}-${index}`} className="flex gap-3 text-sm leading-6">
@@ -421,22 +440,17 @@ function ExtractedSummaryCard({
         </div>
       ) : null}
 
-      <div className="mt-4 rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
+      <div className="advisor-subtle-card mt-4 rounded-2xl p-3.5 sm:p-4">
         <div className="flex items-center gap-2">
-          <Circle className="h-4 w-4 text-[#B8894A]" />
+          <Circle className="h-4 w-4 text-amber-600" />
           <p className="text-sm font-medium text-slate-700">可继续补充</p>
         </div>
         <div className="mt-3 flex flex-wrap gap-2.5 text-sm leading-6 text-slate-600">
           {suggestedFields.length > 0 ? (
             suggestedFields.map((field) => (
-              <span
-                key={field.key}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#B8894A]/18 bg-[#FFF8EE]/82 px-3 py-1.5 text-[#7A5328]"
-              >
+              <span key={field.key} className="advisor-chip-warning inline-flex items-center gap-1.5 rounded-full px-3 py-1.5">
                 <span>{field.label}</span>
-                {field.required ? (
-                  <span className="rounded-full bg-[#123B5D]/8 px-1.5 py-0.5 text-[11px] leading-4 text-[#123B5D]">必填</span>
-                ) : null}
+                {field.required ? <span className="advisor-chip-info rounded-full px-1.5 py-0.5 text-[11px] leading-4">必填</span> : null}
               </span>
             ))
           ) : (
@@ -446,12 +460,7 @@ function ExtractedSummaryCard({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
-        <span
-          className={cn(
-            "rounded-full px-3 py-1",
-            nameReady ? "bg-[#0F766E]/10 text-[#0F766E]" : "bg-[#B8894A]/12 text-[#8B6A32]",
-          )}
-        >
+        <span className={cn("rounded-full px-3 py-1", nameReady ? "advisor-status-healthy" : "advisor-status-pending")}>
           {nameReady ? "当前已具备保存条件" : "还需先补充客户姓名"}
         </span>
         <span>你可以继续补充信息，或直接保存当前客户档案。</span>
@@ -460,22 +469,25 @@ function ExtractedSummaryCard({
   );
 }
 
+
 function SaveSuccessCard({ customer }: { customer: CustomerRecord }) {
   const groups = getSavedGroups(customer);
 
   return (
-    <div className="advisor-notice-card advisor-notice-card-success rounded-[26px] p-4 sm:p-5">
+    <div className={cn(customerNoticeCardClassName, "advisor-notice-card-success")}>
+
       <div className="flex items-start gap-3">
         <div className="advisor-icon-badge advisor-icon-badge-success mt-0.5 h-9 w-9 shrink-0">
           <CheckCircle className="h-4 w-4" />
         </div>
         <div>
-          <h3 className="text-base font-semibold text-[#123B5D]">客户档案已保存</h3>
+          <h3 className="text-base font-semibold text-slate-900">客户档案已保存</h3>
           <p className="mt-1 text-sm leading-6 text-slate-600">
             已完成当前建档，后续仍可继续补充经营相关内容。
           </p>
         </div>
       </div>
+
 
 
       <div className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3.5">
@@ -512,13 +524,14 @@ function ErrorHintCard({ message }: { message: string }) {
   const hintMeta = getHintMeta(message);
 
   return (
-    <div className="advisor-notice-card advisor-notice-card-warning rounded-[24px] p-4">
+    <div className={cn(customerNoticeCardCompactClassName, "advisor-notice-card-warning")}>
+
       <div className="flex items-start gap-3">
         <div className="advisor-icon-badge advisor-icon-badge-warning mt-0.5 h-8 w-8 shrink-0">
           <AlertCircle className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[#7A5328]">{hintMeta.title}</p>
+          <p className="text-sm font-medium text-slate-900">{hintMeta.title}</p>
           <p className="mt-1 text-sm leading-6 text-slate-600">{message}</p>
           <p className="mt-2 text-xs leading-5 text-slate-500">{hintMeta.helper}</p>
         </div>
@@ -526,6 +539,7 @@ function ErrorHintCard({ message }: { message: string }) {
     </div>
   );
 }
+
 
 
 function CustomerPreviewCard({
@@ -539,33 +553,25 @@ function CustomerPreviewCard({
     <button
       type="button"
       onClick={onClick}
-      className="w-full rounded-[20px] border border-white/75 bg-white/82 p-2.5 text-left shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:bg-white"
+      className={customerPreviewCardClassName}
+
     >
       <div className="flex items-start gap-2.5">
-        <Avatar className="h-9 w-9 border border-[#E8E4DE]">
-          <AvatarFallback className="bg-[#F0F4F8] text-[13px] font-medium text-[#123B5D]">
-            {customer.name.slice(0, 1)}
-          </AvatarFallback>
+        <Avatar className="h-9 w-9 border border-slate-200/80">
+          <AvatarFallback className="bg-slate-100 text-[13px] font-medium text-slate-800">{customer.name.slice(0, 1)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             <p className="text-[13px] font-medium leading-5 text-slate-900">{customer.name}</p>
-            {customer.nickname ? (
-              <span className="rounded-full bg-[#123B5D]/8 px-1.5 py-0.5 text-[10px] text-[#123B5D]">
-                {customer.nickname}
-              </span>
-            ) : null}
+            {customer.nickname ? <Badge className="advisor-chip-info rounded-full border-0 px-1.5 py-0.5 text-[10px]">{customer.nickname}</Badge> : null}
           </div>
           <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{getCustomerMetaLine(customer)}</p>
-          {customer.created_at ? (
-            <p className="mt-1 text-[10px] text-slate-400">建档于 {formatShortDate(customer.created_at)}</p>
-          ) : null}
+          {customer.created_at ? <p className="mt-1 text-[10px] text-slate-400">建档于 {formatShortDate(customer.created_at)}</p> : null}
         </div>
       </div>
     </button>
   );
 }
-
 
 function MobileCustomerEntryButton({
   customerCount,
@@ -583,13 +589,14 @@ function MobileCustomerEntryButton({
     <button
       type="button"
       onClick={onOpen}
-      className="flex items-center gap-2.5 rounded-full border border-white/75 bg-white/82 px-3 py-1.5 text-left shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition hover:bg-white lg:hidden"
+      className={customerEntryButtonClassName}
+
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10">
-        <Users className="h-4 w-4 text-[#123B5D]" />
+      <div className="advisor-icon-badge advisor-icon-badge-info flex h-8 w-8 shrink-0 items-center justify-center">
+        <Users className="h-4 w-4" />
       </div>
       <div className="min-w-0">
-        <p className="text-[12px] font-medium text-[#123B5D]">{label}</p>
+        <p className="text-[12px] font-medium text-slate-900">{label}</p>
         <p className="text-[10px] leading-4 text-slate-400">{helper}</p>
       </div>
     </button>
@@ -615,51 +622,36 @@ function DuplicateReviewCard({
     : "已根据当前草稿筛出可能相关的客户，可先核对，再决定是否继续新建。";
 
   return (
-    <div
-      className={cn(
-        "rounded-[20px] border border-[#B8894A]/16 bg-[linear-gradient(180deg,rgba(255,248,238,0.96)_0%,rgba(255,252,247,0.98)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] lg:hidden",
-        emphasized ? "min-h-[220px] p-4" : "mt-3 p-3",
-      )}
-    >
+    <div className={cn("advisor-notice-card advisor-notice-card-warning rounded-[20px] lg:hidden", emphasized ? "min-h-[220px] p-4" : "mt-3 p-3")}>
       <div className="flex items-start gap-3">
-        <div className={cn("mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-[#B8894A]/12", emphasized ? "h-9 w-9" : "h-8 w-8")}>
-          <Users className={cn("text-[#8B6A32]", emphasized ? "h-[18px] w-[18px]" : "h-4 w-4")} />
+        <div className={cn("advisor-icon-badge advisor-icon-badge-warning mt-0.5 flex shrink-0 items-center justify-center", emphasized ? "h-9 w-9" : "h-8 w-8")}>
+          <Users className={cn(emphasized ? "h-[18px] w-[18px]" : "h-4 w-4")} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className={cn("font-medium text-[#7A5328]", emphasized ? "text-[16px] leading-7" : "text-sm")}>{title}</p>
+          <p className={cn("font-medium text-slate-900", emphasized ? "text-[16px] leading-7" : "text-sm")}>{title}</p>
           <p className={cn("mt-1 text-slate-600", emphasized ? "text-[13px] leading-6" : "text-[12px] leading-5")}>{description}</p>
         </div>
       </div>
 
-      <div className={cn("rounded-[18px] border border-white/80 bg-white/84", emphasized ? "mt-4 px-3.5 py-3" : "mt-3 px-3 py-2.5")}>
+      <div className={cn("advisor-subtle-card rounded-[18px]", emphasized ? "mt-4 px-3.5 py-3" : "mt-3 px-3 py-2.5")}>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-[#123B5D]/8 px-2 py-1 text-[11px] font-medium text-[#123B5D]">
-            已发现 {relatedCustomers.length} 位相近客户
-          </span>
+          <span className="advisor-chip-info rounded-full px-2 py-1 text-[11px] font-medium">已发现 {relatedCustomers.length} 位相近客户</span>
           <span className="text-[11px] leading-5 text-slate-500">建议先打开抽屉核对；如仍是不同客户，再补充区分信息。</span>
         </div>
       </div>
 
       <div className={cn("flex gap-2", emphasized ? "mt-4" : "mt-3")}>
-        <Button
-          type="button"
-          onClick={onOpenSheet}
-          className="h-9 flex-1 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49]"
-        >
+        <Button type="button" onClick={onOpenSheet} className={cn(primaryActionClassName, "h-9 flex-1 px-4 text-sm")}>
           打开客户抽屉核对
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onDismiss}
-          className="h-9 rounded-full border-slate-300 bg-white/84 px-4 text-[12px] text-slate-700"
-        >
+        <Button type="button" variant="outline" onClick={onDismiss} className={cn(outlineActionClassName, "h-9 px-4 text-[12px]")}>
           知道了
         </Button>
       </div>
     </div>
   );
 }
+
 
 function CustomerDirectoryPanelContent({
   relatedHint,
@@ -688,25 +680,19 @@ function CustomerDirectoryPanelContent({
     <>
       <ScrollArea className={cn("min-h-0 flex-1 px-4 py-3", scrollAreaClassName)}>
         <div className="space-y-2.5">
-          {relatedHint ? (
-            <div className="rounded-[20px] border border-[#B8894A]/16 bg-[#FFF8EE]/76 px-3.5 py-3 text-[13px] leading-5 text-[#7A5328]">
-              {relatedHint}
-            </div>
-          ) : null}
+          {relatedHint ? <div className={customerHintBannerClassName}>{relatedHint}</div> : null}
+
 
           {pagedCustomers.length > 0 ? (
-            pagedCustomers.map((customer) => (
-              <CustomerPreviewCard key={customer.id} customer={customer} onClick={onViewAll} />
-            ))
+            pagedCustomers.map((customer) => <CustomerPreviewCard key={customer.id} customer={customer} onClick={onViewAll} />)
           ) : (
-            <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
-              暂无客户数据
-            </div>
+            <div className={customerEmptyPanelClassName}>暂无客户数据</div>
           )}
+
         </div>
       </ScrollArea>
 
-      <div className={cn("shrink-0 border-t border-slate-200/70 bg-white/88 px-4 py-2.5", footerClassName)}>
+      <div className={cn("advisor-panel-footer-surface shrink-0 px-4 py-2.5", footerClassName)}>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 text-[12px] leading-5 text-slate-500">
             <p>已保存 {totalCustomerCount} 位客户</p>
@@ -719,29 +705,28 @@ function CustomerDirectoryPanelContent({
               variant="outline"
               onClick={onPrevPage}
               disabled={currentCustomerPage <= 1}
-              className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
+              className={cn(outlineActionClassName, "h-8 px-3 text-[11px]")}
             >
               上一页
             </Button>
+
             <Button
               type="button"
               variant="outline"
               onClick={onNextPage}
               disabled={currentCustomerPage === 0 || currentCustomerPage >= totalCustomerPages}
-              className="h-8 rounded-full border-slate-300 bg-white/86 px-3 text-[11px] text-slate-700 disabled:opacity-45"
+              className={cn(outlineActionClassName, "h-8 px-3 text-[11px]")}
             >
+
               下一页
             </Button>
           </div>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={onViewAll}
-          className="mt-2.5 h-9 w-full rounded-full border-slate-300 bg-white/86 text-sm text-slate-700"
-        >
+        <Button variant="outline" onClick={onViewAll} className={cn(outlineActionClassName, "mt-2.5 h-9 w-full text-sm")}>
           前往客户中心查看全部
         </Button>
+
       </div>
     </>
   );
@@ -778,27 +763,20 @@ function MobileCustomersSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="bottom"
-        className="flex max-h-[82dvh] flex-col rounded-t-[32px] border-x-0 border-b-0 border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,249,252,0.98)_100%)] p-0 lg:hidden"
-      >
+      <SheetContent side="bottom" className="advisor-sheet-surface flex max-h-[82dvh] flex-col rounded-t-[32px] border-x-0 border-b-0 p-0 lg:hidden">
         <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-300/80" />
-        <SheetHeader className="px-4 pb-2 pt-4">
+        <SheetHeader className="advisor-sheet-header-surface px-4 pb-2 pt-4">
           <div className="pr-10">
-            <SheetTitle className="text-[17px] font-semibold text-[#123B5D]">
-              {isRelatedMode ? "相近客户核对" : "现有客户"}
-            </SheetTitle>
+            <SheetTitle className={customerSheetTitleClassName}>{isRelatedMode ? "相近客户核对" : "现有客户"}</SheetTitle>
+
           </div>
         </SheetHeader>
 
         {isRelatedMode ? (
           <ScrollArea className="min-h-0 flex-1 px-4 py-3">
             <div className="space-y-2.5">
-              {relatedHint ? (
-                <div className="rounded-[20px] border border-[#B8894A]/16 bg-[#FFF8EE]/76 px-3.5 py-3 text-[13px] leading-5 text-[#7A5328]">
-                  {relatedHint}
-                </div>
-              ) : null}
+              {relatedHint ? <div className={customerHintBannerClassName}>{relatedHint}</div> : null}
+
 
               {relatedCustomers.length > 0 ? (
                 relatedCustomers.map((customer) => (
@@ -812,10 +790,9 @@ function MobileCustomersSheet({
                   />
                 ))
               ) : (
-                <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-6 text-center text-sm text-slate-500">
-                  当前没有需要核对的相近客户
-                </div>
+                <div className={customerEmptyPanelClassName}>当前没有需要核对的相近客户</div>
               )}
+
             </div>
           </ScrollArea>
         ) : (
@@ -831,13 +808,14 @@ function MobileCustomersSheet({
               onOpenChange(false);
               onViewAll();
             }}
-            footerClassName="bg-white/92 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom)+12px)] pt-2.5"
+            footerClassName="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom)+12px)] pt-2.5"
           />
         )}
       </SheetContent>
     </Sheet>
   );
 }
+
 
 
 
@@ -1143,15 +1121,12 @@ export default function NewCustomerPage() {
       </div>
     ) : null;
 
-
     if (isWelcomeMessage) {
       return (
         <div key={message.id} className="space-y-2">
-          <div className="flex gap-3 justify-start">
+          <div className="flex justify-start gap-3">
             <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
-              <AvatarFallback className="bg-gradient-to-br from-[#123B5D] to-[#0F766E] text-xs text-white">
-                AI
-              </AvatarFallback>
+              <AvatarFallback className="advisor-user-bubble text-xs text-white">AI</AvatarFallback>
             </Avatar>
             <div className="max-w-[88%] space-y-2">
               {showTextBubble ? <span className="px-1 text-xs text-slate-400">{message.timestamp}</span> : null}
@@ -1167,11 +1142,10 @@ export default function NewCustomerPage() {
       <div key={message.id} className={cn("flex gap-3", isAssistant ? "justify-start" : "justify-end")}>
         {isAssistant ? (
           <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
-            <AvatarFallback className="bg-gradient-to-br from-[#123B5D] to-[#0F766E] text-xs text-white">
-              AI
-            </AvatarFallback>
+            <AvatarFallback className="advisor-user-bubble text-xs text-white">AI</AvatarFallback>
           </Avatar>
         ) : null}
+
 
         <div className={cn("max-w-[88%] space-y-2", isAssistant ? "items-start" : "items-end text-right")}>
           <span className="px-1 text-xs text-slate-400">{message.timestamp}</span>
@@ -1203,19 +1177,18 @@ export default function NewCustomerPage() {
   return (
     <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1.5 md:h-[calc(100dvh-8rem)] md:gap-3">
       <Card className="glass-panel advisor-glass-surface-strong hidden shrink-0 rounded-[28px] md:block">
-
         <CardContent className="flex items-start gap-3 p-3.5 sm:p-4 md:px-5 md:py-3.5">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => router.push("/customers")}
-            className="mt-0.5 h-9 w-9 shrink-0 rounded-full border border-white/70 bg-white/75 text-[#123B5D] hover:bg-white"
+            className="advisor-outline-button mt-0.5 h-9 w-9 shrink-0 rounded-full hover:bg-white"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
 
           <div className="min-w-0 flex-1">
-            <h1 className="text-lg font-semibold text-[#123B5D] md:text-[1.35rem]">添加客户档案</h1>
+            <h1 className="text-lg font-semibold text-slate-900 md:text-[1.35rem]">添加客户档案</h1>
             <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-600 sm:text-sm">
               先保存基础信息，后续可继续补充；最小必填：客户姓名。
             </p>
@@ -1225,34 +1198,29 @@ export default function NewCustomerPage() {
 
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Card className="glass-panel advisor-glass-surface-strong flex min-h-0 flex-col overflow-hidden rounded-[32px]">
-
           <CardContent className="flex min-h-0 flex-1 flex-col p-0">
             <div className="advisor-panel-header-surface shrink-0 px-4 py-2.5 sm:px-5 md:px-6">
-
               <div className="flex flex-col gap-2 md:gap-2.5">
                 <div className="flex items-center gap-3 md:hidden">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => router.push("/customers")}
-                    className="h-8 w-8 shrink-0 rounded-full border border-white/70 bg-white/80 text-[#123B5D] hover:bg-white"
+                    className="advisor-outline-button h-8 w-8 shrink-0 rounded-full hover:bg-white"
                   >
                     <ChevronLeft className="h-4 w-4" />
-
                   </Button>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-base font-semibold text-[#123B5D]">添加客户档案</h1>
-                      <span className="rounded-full bg-[#B8894A]/12 px-2 py-1 text-[11px] font-medium text-[#8B6A32]">
-                        最小必填：客户姓名
-                      </span>
+                      <h1 className="text-base font-semibold text-slate-900">添加客户档案</h1>
+                      <span className="advisor-chip-warning rounded-full px-2 py-1 text-[11px] font-medium">最小必填：客户姓名</span>
                     </div>
                     <p className="mt-1 text-[12px] leading-5 text-slate-500">先保存基础信息，后续可继续补充。</p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">助手主流程</p>
+                  <p className="text-[11px] font-medium tracking-[0.14em] text-slate-500">助手主流程</p>
 
                   <div className="flex flex-wrap items-center justify-end gap-1.5">
                     <MobileCustomerEntryButton
@@ -1265,24 +1233,18 @@ export default function NewCustomerPage() {
               </div>
             </div>
 
-            <div
-              ref={scrollAreaRef}
-              className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-5 md:px-6"
-              style={{ overscrollBehavior: "contain" }}
-            >
+            <div ref={scrollAreaRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6">
               <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
                 {messages.map(renderMessage)}
 
                 {extractMutation.isPending || saveMutation.isPending ? (
-                  <div className="flex gap-3 justify-start">
+                  <div className="flex justify-start gap-3">
                     <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
-                      <AvatarFallback className="bg-gradient-to-br from-[#123B5D] to-[#0F766E] text-xs text-white">
-                        AI
-                      </AvatarFallback>
+                      <AvatarFallback className="advisor-user-bubble text-xs text-white">AI</AvatarFallback>
                     </Avatar>
-                    <div className="rounded-[22px] border border-white/80 bg-white/86 px-4 py-3 text-sm text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+                    <div className="advisor-assistant-bubble rounded-[22px] px-4 py-3 text-sm text-slate-600">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 animate-pulse text-[#B8894A]" />
+                        <Sparkles className="h-4 w-4 animate-pulse text-amber-600" />
                         {extractMutation.isPending ? "正在为你整理客户信息…" : "正在为你保存客户档案…"}
                       </div>
                     </div>
@@ -1295,7 +1257,6 @@ export default function NewCustomerPage() {
 
             <div className="advisor-panel-footer-surface shrink-0 px-2.5 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 md:px-5 lg:px-6">
               <div className="advisor-input-dock mx-auto max-w-3xl rounded-[22px] p-2.5 sm:rounded-[24px] sm:p-3.5">
-
                 {shouldCoverInputAreaWithDuplicateReview ? (
                   <DuplicateReviewCard
                     relatedCustomers={relatedCustomers}
@@ -1307,11 +1268,11 @@ export default function NewCustomerPage() {
                 ) : (
                   <>
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#123B5D]/10 sm:h-7 sm:w-7">
-                        <UserPlus className="h-3.5 w-3.5 text-[#123B5D]" />
+                      <div className="advisor-icon-badge advisor-icon-badge-info flex h-6 w-6 shrink-0 items-center justify-center sm:h-7 sm:w-7">
+                        <UserPlus className="h-3.5 w-3.5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-medium text-[#123B5D] sm:text-sm">输入客户信息</p>
+                        <p className="text-[13px] font-medium text-slate-900 sm:text-sm">输入客户信息</p>
                       </div>
                     </div>
 
@@ -1319,7 +1280,7 @@ export default function NewCustomerPage() {
                       value={inputText}
                       onChange={(event) => setInputText(event.target.value)}
                       placeholder="例如：王敏，35岁，私营业主，已婚，有一个孩子，最近关注教育金和家庭保障。"
-                      className="mt-2.5 min-h-[60px] resize-none rounded-[16px] border-slate-200/80 bg-slate-50/70 px-3 py-2.5 text-sm leading-6 placeholder:text-slate-400 focus-visible:ring-[#123B5D]/20 sm:mt-3 sm:min-h-[72px] sm:rounded-[18px] md:min-h-[84px]"
+                      className="advisor-form-control advisor-form-textarea mt-2.5 min-h-[60px] resize-none rounded-[16px] px-3 py-2.5 text-sm leading-6 focus-visible:ring-0 sm:mt-3 sm:min-h-[72px] sm:rounded-[18px] md:min-h-[84px]"
                       onKeyDown={(event) => {
                         if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
                           handleExtract();
@@ -1338,26 +1299,17 @@ export default function NewCustomerPage() {
                   </>
                 )}
 
-
                 {shouldShowPrimaryActions ? (
                   <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
-                    <Button
-                      onClick={handleExtract}
-                      disabled={extractMutation.isPending || !inputText.trim()}
-                      className="h-9 rounded-full bg-[#123B5D] text-sm text-white hover:bg-[#0E2E49] sm:h-10"
-                    >
+                    <Button onClick={handleExtract} disabled={extractMutation.isPending || !inputText.trim()} className={cn(primaryActionClassName, "h-9 text-sm sm:h-10")}>
                       {extractMutation.isPending ? "整理中…" : "整理信息"}
                     </Button>
                     <Button
                       onClick={handleSave}
                       disabled={saveMutation.isPending}
-                      className={cn(
-                        "h-9 rounded-full text-sm text-white sm:h-10",
-                        isReadyToSave
-                          ? "bg-[#0F766E] hover:bg-[#0B5F59]"
-                          : "bg-[#123B5D]/82 hover:bg-[#123B5D]",
-                      )}
+                      className={cn(isReadyToSave ? primaryActionClassName : outlineActionClassName, "h-9 text-sm sm:h-10")}
                     >
+
                       {saveMutation.isPending ? "保存中…" : "保存客户"}
                     </Button>
                   </div>
@@ -1389,9 +1341,9 @@ export default function NewCustomerPage() {
         <Card className="glass-panel advisor-glass-surface hidden h-full min-h-0 overflow-hidden rounded-[32px] lg:flex lg:flex-col">
           <CardContent className="flex h-full min-h-0 flex-col p-0">
             <div className="advisor-panel-header-surface px-4 py-2.5">
-
-              <p className="text-[11px] font-medium tracking-[0.14em] text-[#123B5D]/72">{desktopPanelTitle}</p>
+              <p className="text-[11px] font-medium tracking-[0.14em] text-slate-500">{desktopPanelTitle}</p>
             </div>
+
 
             <CustomerDirectoryPanelContent
               relatedHint={desktopRelatedHint}
