@@ -13,7 +13,8 @@ export interface VisitDraftExtraction {
   followWork: string;
 }
 
-const visitDraftExtractionSchema = z.object({
+export const visitDraftExtractionSchema = z.object({
+
   name: z.string().trim().optional().default(""),
   nickName: z.string().trim().optional().default(""),
   timeVisit: z.string().trim().optional().default(""),
@@ -35,7 +36,34 @@ const emptyExtraction: VisitDraftExtraction = {
   followWork: "",
 };
 
+function buildCurrentDraftContext(currentDraft?: Partial<VisitDraftExtraction>) {
+  if (!currentDraft) {
+    return "";
+  }
+
+  const fieldRows = [
+    ["客户姓名", currentDraft.name],
+    ["客户昵称", currentDraft.nickName],
+    ["拜访日期", currentDraft.timeVisit],
+    ["地点", currentDraft.location],
+    ["沟通方式", currentDraft.methodCommunicate],
+    ["核心痛点", currentDraft.corePain],
+    ["拜访内容", currentDraft.briefContent],
+    ["后续动作", currentDraft.followWork],
+  ].flatMap(([label, value]) => {
+    const text = value?.trim();
+    return text ? [`- ${label}：${text}`] : [];
+  });
+
+  if (fieldRows.length === 0) {
+    return "";
+  }
+
+  return ["当前已识别草稿（仅供参考，未提及内容不要重复输出）：", ...fieldRows].join("\n");
+}
+
 function splitClauses(message: string) {
+
   return message
     .split(/[，。,；；\n]/)
     .map((item) => item.trim())
@@ -197,6 +225,8 @@ function buildDeepSeekPrompt() {
     "你是保险代理人助手里的拜访记录信息提取器，只负责从自然语言里抽取拜访记录字段，不负责解释。",
     "你必须只输出一个 JSON 对象，不要输出任何 markdown、说明或代码块。",
     "禁止编造。没有提到的字段输出空字符串。",
+    "用户本次输入可能只是增量补充。如果某字段在本次输入里没有新增或更正，请输出空字符串，不要重复已知字段，也不要要求用户重填已识别字段。",
+
     "请尽量提取这些字段：name（客户姓名）、nickName（客户昵称）、timeVisit（拜访日期，格式YYYY-MM-DD）、location（地点）、methodCommunicate（沟通方式，如面谈/电话/微信等）、corePain（客户当下最在意的问题/核心痛点）、briefContent（拜访内容摘要）、followWork（后续待办事项）。",
     "如果原文只出现像“王姐”“李总”这类称呼，优先填入 nickName，无法确认正式姓名时 name 保持空字符串。",
     "日期处理：\"今天\"输出当天日期，\"昨天\"输出昨天日期，\"3月15日\"转换为YYYY-03-15。",
@@ -206,7 +236,8 @@ function buildDeepSeekPrompt() {
   ].join("\n");
 }
 
-async function extractWithDeepSeek(message: string) {
+async function extractWithDeepSeek(message: string, currentDraft?: Partial<VisitDraftExtraction>) {
+
   if (!hasDeepSeekEnv()) {
     return null;
   }
@@ -231,8 +262,9 @@ async function extractWithDeepSeek(message: string) {
         },
         {
           role: "user",
-          content: message,
+          content: [buildCurrentDraftContext(currentDraft), `用户本次新增描述：${message}`].filter(Boolean).join("\n\n"),
         },
+
       ],
     }),
   });
@@ -263,14 +295,16 @@ async function extractWithDeepSeek(message: string) {
   return parsed.data;
 }
 
-export async function extractVisitDraft(message: string): Promise<VisitDraftExtraction> {
+export async function extractVisitDraft(message: string, currentDraft?: Partial<VisitDraftExtraction>): Promise<VisitDraftExtraction> {
+
   const normalized = message.trim();
   if (!normalized) {
     return { ...emptyExtraction };
   }
 
   try {
-    const deepSeekResult = await extractWithDeepSeek(normalized);
+    const deepSeekResult = await extractWithDeepSeek(normalized, currentDraft);
+
     if (deepSeekResult) {
       return deepSeekResult;
     }

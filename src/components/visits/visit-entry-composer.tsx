@@ -172,7 +172,8 @@ export function VisitEntryComposer({
           </div>
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[13px] font-medium text-slate-900 sm:text-sm">可继续录入的信息</p>
+              <p className="text-[13px] font-medium text-slate-900 sm:text-sm">输入拜访信息</p>
+
               {suggestedFields.length > 0 ? (
                 suggestedFields.map((field) => (
                   <Badge key={field.key} className="advisor-chip-warning rounded-full border-0 px-2.5 py-1 text-[11px] font-medium leading-4">

@@ -18,9 +18,8 @@ import {
   customerOutlineActionClassName,
   customerPreviewCardClassName,
   customerPrimaryActionClassName,
-  customerReviewCardClassName,
-  customerReviewCardCompactClassName,
   customerSheetTitleClassName,
+
 } from "@/components/customers/customer-style";
 
 import { Badge } from "@/components/ui/badge";
@@ -693,13 +692,10 @@ export default function NewCustomerPage() {
     setMessages((prev) => [...prev, message]);
   };
 
-  useEffect(() => {
-    if (currentDraft.name.trim() || currentDraft.nickname.trim()) {
-      setLastSavedCustomerId(null);
-    }
-  }, [currentDraft.name, currentDraft.nickname]);
+  const activeLastSavedCustomerId = currentDraft.name.trim() || currentDraft.nickname.trim() ? null : lastSavedCustomerId;
 
   const isReadyToSave = validateNameComplete(currentDraft.name);
+
 
   const suggestedComposerFields = useMemo(
     () => customerFields.filter((field) => !currentDraft[field.key]?.trim()),
@@ -717,7 +713,8 @@ export default function NewCustomerPage() {
 
     return customers
       .filter((customer) => {
-        if (customer.id === lastSavedCustomerId) {
+        if (customer.id === activeLastSavedCustomerId) {
+
           return false;
         }
 
@@ -731,9 +728,10 @@ export default function NewCustomerPage() {
         return sameName || fuzzyName || sameNickname;
       })
       .slice(0, 5);
-  }, [currentDraft.name, currentDraft.nickname, customers, lastSavedCustomerId]);
+  }, [activeLastSavedCustomerId, currentDraft.name, currentDraft.nickname, customers]);
 
   const exactDuplicateCustomer = useMemo(() => {
+
     const name = currentDraft.name.trim();
     const nickname = currentDraft.nickname.trim();
 
@@ -742,7 +740,8 @@ export default function NewCustomerPage() {
     }
 
     return customers.find((customer) => {
-      if (customer.id === lastSavedCustomerId) {
+      if (customer.id === activeLastSavedCustomerId) {
+
         return false;
       }
 
@@ -750,9 +749,10 @@ export default function NewCustomerPage() {
       const sameNickname = (customer.nickname ?? "").trim() === nickname;
       return sameName && sameNickname;
     }) ?? null;
-  }, [currentDraft.name, currentDraft.nickname, customers, lastSavedCustomerId]);
+  }, [activeLastSavedCustomerId, currentDraft.name, currentDraft.nickname, customers]);
 
   const hasBlockingDuplicate = Boolean(exactDuplicateCustomer);
+
   const relatedCustomersFingerprint = useMemo(() => relatedCustomers.map((customer) => customer.id).join(","), [relatedCustomers]);
   const duplicateNoticeKey = `${currentDraft.name.trim()}|${currentDraft.nickname.trim()}|${relatedCustomersFingerprint}`;
   const isDuplicateNoticeDismissed = dismissedDuplicateNoticeKey === duplicateNoticeKey;
@@ -1039,7 +1039,8 @@ export default function NewCustomerPage() {
 
   return (
 
-    <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1.5 md:h-[calc(100dvh-8rem)] md:gap-3">
+    <div className="flex min-h-[calc(100dvh-7rem)] flex-1 flex-col gap-1.5 md:min-h-[calc(100dvh-8rem)] md:gap-3">
+
       <Card className="glass-panel advisor-glass-surface-strong hidden shrink-0 rounded-[28px] md:block">
         <CardContent className="flex items-start gap-3 p-3.5 sm:p-4 md:px-5 md:py-3.5">
           <Button
@@ -1171,7 +1172,6 @@ export default function NewCustomerPage() {
               <p className="text-[11px] font-medium tracking-[0.14em] text-slate-500">{desktopPanelTitle}</p>
             </div>
 
-
             <CustomerDirectoryPanelContent
               relatedHint={desktopRelatedHint}
               pagedCustomers={desktopPagedCustomers}
@@ -1184,8 +1184,9 @@ export default function NewCustomerPage() {
             />
           </CardContent>
         </Card>
-
       </div>
     </div>
   );
 }
+
+ 

@@ -30,7 +30,7 @@ export function formatMessageTime() {
   return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 }
 
-export function createVisitWelcomeMessage(content = "把这次拜访的情况告诉我，我先帮你整理客户、沟通重点和后续动作。") {
+export function createVisitWelcomeMessage(content = "") {
   return {
     id: crypto.randomUUID(),
     role: "assistant",
@@ -39,6 +39,33 @@ export function createVisitWelcomeMessage(content = "把这次拜访的情况告
     timestamp: formatMessageTime(),
   } satisfies VisitChatMessage;
 }
+
+function resolvedDraftValue(currentValue: string, nextValue?: string) {
+  const normalizedNextValue = normalizeText(nextValue);
+  return normalizedNextValue || currentValue;
+}
+
+export function mergeVisitDraft(currentDraft: VisitDraftState, nextFields: Partial<VisitDraftState>) {
+  const nextName = normalizeText(nextFields.name);
+  const nextNickName = normalizeText(nextFields.nickName);
+  const shouldResetCustomerId =
+    (nextName && nextName !== normalizeText(currentDraft.name)) ||
+    (nextNickName && nextNickName !== normalizeText(currentDraft.nickName));
+
+  return {
+    ...currentDraft,
+    customerId: shouldResetCustomerId ? "" : currentDraft.customerId,
+    name: resolvedDraftValue(currentDraft.name, nextFields.name),
+    nickName: resolvedDraftValue(currentDraft.nickName, nextFields.nickName),
+    timeVisit: resolvedDraftValue(currentDraft.timeVisit, nextFields.timeVisit),
+    location: resolvedDraftValue(currentDraft.location, nextFields.location),
+    methodCommunicate: resolvedDraftValue(currentDraft.methodCommunicate, nextFields.methodCommunicate),
+    corePain: resolvedDraftValue(currentDraft.corePain, nextFields.corePain),
+    briefContent: resolvedDraftValue(currentDraft.briefContent, nextFields.briefContent),
+    followWork: resolvedDraftValue(currentDraft.followWork, nextFields.followWork),
+  } satisfies VisitDraftState;
+}
+
 
 function normalizeText(value?: string | null) {
   return value?.trim() ?? "";

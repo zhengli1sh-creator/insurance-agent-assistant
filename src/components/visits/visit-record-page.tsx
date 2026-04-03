@@ -3,10 +3,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Sparkles } from "lucide-react";
+import { ChevronLeft, Sparkles, Users } from "lucide-react";
+
 
 import { emptyCustomerProfileForm, type CustomerProfileFormValue } from "@/components/customers/customer-profile-fields";
+import { customerEntryButtonClassName } from "@/components/customers/customer-style";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { VisitCustomerSheet, type VisitCustomerSheetMode } from "@/components/visits/visit-customer-sheet";
@@ -19,9 +24,11 @@ import {
   findExactCustomerMatch,
   findRelatedCustomers,
   formatMessageTime,
+  mergeVisitDraft,
   resolveCustomerStatus,
   visitComposerFields,
 } from "@/components/visits/visit-page-utils";
+
 import { ApiRequestError, fetchJson } from "@/lib/crm-api";
 import { cn } from "@/lib/utils";
 import { buildTaskDraftSeedFromVisit } from "@/modules/tasks/task-draft";
@@ -64,6 +71,27 @@ function buildHelperAction(
   );
 }
 
+function ExistingCustomersButton({ count, compact = false, onOpen }: { count: number; compact?: boolean; onOpen: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={cn(customerEntryButtonClassName, compact ? "gap-2 rounded-[18px] px-3 py-2" : "")}
+
+
+    >
+      <div className={cn("advisor-icon-badge advisor-icon-badge-info flex shrink-0 items-center justify-center", compact ? "h-7 w-7" : "h-8 w-8")}>
+        <Users className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
+      </div>
+      <div className="min-w-0">
+        <p className={cn("font-medium text-slate-900", compact ? "text-[11px] leading-4" : "text-[12px]")}>查看现有客户</p>
+        {compact ? null : <p className="text-[10px] leading-4 text-slate-400">{count > 0 ? `已保存 ${count} 位客户` : "暂无已建档客户"}</p>}
+      </div>
+    </button>
+  );
+}
+
+
 export function VisitRecordPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -80,6 +108,8 @@ export function VisitRecordPage() {
 
   const customersQuery = useQuery({ queryKey: ["customers-list"], queryFn: () => fetchJson<CustomerRecord[]>("/api/customers") });
   const customers = useMemo(() => customersQuery.data ?? [], [customersQuery.data]);
+  const totalCustomerCount = customers.length;
+
 
   const exactCustomer = useMemo(() => findExactCustomerMatch(currentDraft, customers), [currentDraft, customers]);
   const relatedCustomers = useMemo(() => findRelatedCustomers(currentDraft, customers), [currentDraft, customers]);
@@ -103,10 +133,11 @@ export function VisitRecordPage() {
 
   const addMessage = (message: VisitChatMessage) => setMessages((prev) => [...prev, message]);
   const openCustomerSheet = (mode: VisitCustomerSheetMode) => {
-
     setCustomerSheetMode(mode);
     setCustomerSheetOpen(true);
   };
+  const openAllCustomersSheet = () => openCustomerSheet("all");
+
 
   const saveMutation = useMutation({
     mutationFn: ({ draft }: SaveVisitVariables) => {
@@ -199,13 +230,15 @@ export function VisitRecordPage() {
       fetchJson<VisitExtractResponse>("/api/visits/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, currentDraft }),
       }),
+
     onSuccess: (result) => {
-      const nextDraft = { ...currentDraft, ...result.fields };
+      const nextDraft = mergeVisitDraft(currentDraft, result.fields);
       setCurrentDraft(nextDraft);
       setInputText("");
       addMessage({
+
         id: crypto.randomUUID(),
         role: "assistant",
         type: "extracted-summary",
@@ -256,39 +289,63 @@ export function VisitRecordPage() {
         : null;
 
   return (
-    <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1.5 md:h-[calc(100dvh-8rem)] md:gap-3">
+    <div className="flex min-h-[calc(100dvh-7rem)] flex-1 flex-col gap-1.5 md:min-h-[calc(100dvh-8rem)] md:gap-3">
+
       <Card className="glass-panel advisor-glass-surface-strong flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px]">
         <CardContent className="flex min-h-0 flex-1 flex-col p-0">
           <div className="advisor-panel-header-surface shrink-0 px-4 py-2.5 sm:px-5 md:px-6">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => router.push("/records?tab=visits")} className="advisor-outline-button h-8 w-8 rounded-full hover:bg-white">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-base font-semibold text-slate-900 md:text-[1.35rem]">添加拜访记录</h1>
+            <div className="flex flex-col gap-2 md:gap-2.5">
+              <div className="flex items-center gap-3 md:hidden">
+                <Button variant="ghost" size="icon" onClick={() => router.push("/records?tab=visits")} className="advisor-outline-button h-8 w-8 rounded-full hover:bg-white">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <h1 className="min-w-0 text-base font-semibold text-slate-900">添加拜访记录</h1>
+                  <ExistingCustomersButton compact count={totalCustomerCount} onOpen={openAllCustomersSheet} />
+                </div>
+              </div>
+
+              <div className="hidden md:flex items-center gap-3">
+                <Button variant="ghost" size="icon" onClick={() => router.push("/records?tab=visits")} className="advisor-outline-button h-9 w-9 rounded-full hover:bg-white">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg font-semibold text-slate-900 md:text-[1.35rem]">添加拜访记录</h1>
+                </div>
+                <ExistingCustomersButton count={totalCustomerCount} onOpen={openAllCustomersSheet} />
               </div>
             </div>
           </div>
+
 
           <div ref={scrollAreaRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6" style={mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : undefined}>
             <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
               {messages.map((message) => {
                 const isAssistant = message.role === "assistant";
                 const bubble = message.type === "user-input" ? message.rawInput : message.content;
+                const hasBubbleContent = Boolean(bubble?.trim());
+
                 if (!isAssistant) {
                   return <div key={message.id} className="ml-auto max-w-[88%] rounded-[22px] px-4 py-3 text-sm advisor-user-bubble">{bubble}</div>;
+                }
+
+                const shouldShowTextBubble = message.type !== "error-hint" && hasBubbleContent;
+                const hasCardContent = message.type === "extracted-summary" || message.type === "save-success" || message.type === "error-hint";
+                if (!shouldShowTextBubble && !hasCardContent) {
+                  return null;
                 }
 
                 return (
                   <div key={message.id} className="space-y-2 text-left">
                     <div className="flex items-center gap-2 pl-1"><Avatar className="h-7 w-7 border border-white/80 shadow-sm"><AvatarFallback className="advisor-user-bubble text-[11px] text-white">AI</AvatarFallback></Avatar><span className="text-xs text-slate-400">{message.timestamp}</span></div>
-                    {message.type !== "error-hint" ? <div className="w-fit max-w-[min(100%,34rem)] rounded-[22px] px-4 py-3 text-sm advisor-assistant-bubble text-slate-700">{bubble}</div> : null}
+                    {shouldShowTextBubble ? <div className="w-fit max-w-[min(100%,34rem)] rounded-[22px] px-4 py-3 text-sm advisor-assistant-bubble text-slate-700">{bubble}</div> : null}
                     {message.type === "extracted-summary" && message.currentDraft && message.customerStatus ? <VisitExtractedSummaryCard extractedFields={message.extractedFields ?? []} currentDraft={message.currentDraft} customerStatus={message.customerStatus} /> : null}
                     {message.type === "save-success" && message.savedVisit ? <VisitSaveSuccessCard visit={message.savedVisit} pendingTaskCount={message.pendingTaskCount} /> : null}
                     {message.type === "error-hint" ? <VisitErrorHintCard message={message.content} /> : null}
                   </div>
                 );
               })}
+
 
               {(extractMutation.isPending || saveMutation.isPending || createCustomerMutation.isPending) ? <div className="flex w-fit items-center gap-2 rounded-[22px] px-4 py-3 text-sm advisor-assistant-bubble text-slate-600"><Sparkles className="h-4 w-4 animate-pulse text-amber-600" />{createCustomerMutation.isPending ? "正在保存客户档案并继续当前拜访…" : saveMutation.isPending ? "正在为你保存拜访记录…" : "正在为你整理拜访信息…"}</div> : null}
               <div className="h-2" />
@@ -320,12 +377,14 @@ export function VisitRecordPage() {
       <VisitCustomerSheet
         open={customerSheetOpen}
         mode={customerSheetMode}
+        customers={customers}
         relatedCustomers={relatedCustomers}
         customerForm={customerForm}
         isCreatePending={createCustomerMutation.isPending}
         onOpenChange={setCustomerSheetOpen}
         onModeChange={setCustomerSheetMode}
         onCustomerFormChange={(patch) => setCustomerForm((prev) => ({ ...prev, ...patch }))}
+
         onSelectCustomer={(customer) => {
           const nextDraft = {
             ...(resumeDraft ?? currentDraft),
