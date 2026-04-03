@@ -4,11 +4,10 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState,
-  type CSSProperties,
   type KeyboardEventHandler,
   type ReactNode,
 } from "react";
+
 import { ClipboardList } from "lucide-react";
 
 import { customerOutlineActionClassName, customerPrimaryActionClassName } from "@/components/customers/customer-style";
@@ -17,9 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 const MIN_TEXTAREA_HEIGHT = 46;
 const MAX_TEXTAREA_HEIGHT = 156;
+
 
 export type VisitEntryComposerField = {
   key: string;
@@ -39,19 +38,10 @@ type VisitEntryComposerProps = {
   isReadyToSave: boolean;
   isExtractPending: boolean;
   isSavePending: boolean;
-  onHeightChange?: (height: number) => void;
   saveLabel?: string;
   placeholder?: string;
 };
 
-function getKeyboardInset() {
-  if (typeof window === "undefined" || !window.visualViewport) {
-    return 0;
-  }
-
-  const { height, offsetTop } = window.visualViewport;
-  return Math.max(0, window.innerHeight - (height + offsetTop));
-}
 
 export function VisitEntryComposer({
   inputText,
@@ -65,14 +55,11 @@ export function VisitEntryComposer({
   isReadyToSave,
   isExtractPending,
   isSavePending,
-  onHeightChange,
   saveLabel = "保存拜访记录",
   placeholder = "例如：今天见了王姐，她主要担心孩子教育金，约好下周三把方案发给她。",
 }: VisitEntryComposerProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [keyboardInset, setKeyboardInset] = useState(0);
+
 
   const syncTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
@@ -90,81 +77,11 @@ export function VisitEntryComposer({
     syncTextareaHeight();
   }, [inputText, syncTextareaHeight]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
 
-    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
-    const visualViewport = window.visualViewport;
-
-    const updateViewport = () => {
-      const nextIsMobile = mediaQuery.matches;
-      setIsMobile(nextIsMobile);
-      setKeyboardInset(nextIsMobile ? getKeyboardInset() : 0);
-    };
-
-    updateViewport();
-
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", updateViewport);
-    } else {
-      mediaQuery.addListener(updateViewport);
-    }
-
-    visualViewport?.addEventListener("resize", updateViewport);
-    visualViewport?.addEventListener("scroll", updateViewport);
-    window.addEventListener("resize", updateViewport);
-
-    return () => {
-      if (typeof mediaQuery.removeEventListener === "function") {
-        mediaQuery.removeEventListener("change", updateViewport);
-      } else {
-        mediaQuery.removeListener(updateViewport);
-      }
-
-      visualViewport?.removeEventListener("resize", updateViewport);
-      visualViewport?.removeEventListener("scroll", updateViewport);
-      window.removeEventListener("resize", updateViewport);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!onHeightChange || !wrapperRef.current) {
-      return;
-    }
-
-    const wrapper = wrapperRef.current;
-    const notifyHeight = () => onHeightChange(isMobile ? Math.ceil(wrapper.getBoundingClientRect().height) : 0);
-    notifyHeight();
-
-    if (typeof ResizeObserver === "undefined") {
-      return;
-    }
-
-    const observer = new ResizeObserver(notifyHeight);
-    observer.observe(wrapper);
-    return () => observer.disconnect();
-  }, [isMobile, onHeightChange]);
-
-  const containerStyle: CSSProperties | undefined = isMobile
-    ? {
-        bottom: `${keyboardInset}px`,
-        paddingBottom: `calc(0.65rem + ${keyboardInset > 0 ? "0px" : "env(safe-area-inset-bottom)"})`,
-      }
-    : undefined;
 
   return (
-    <div
-      ref={wrapperRef}
-      className={cn(
-        "advisor-panel-footer-surface z-30 px-2.5 pt-2 sm:px-4 md:px-5 lg:px-6",
-        isMobile
-          ? "fixed inset-x-0 border-t border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(248,250,252,0.98)_100%)] backdrop-blur-xl"
-          : "shrink-0 pb-[calc(0.65rem+env(safe-area-inset-bottom))]",
-      )}
-      style={containerStyle}
-    >
+    <div className="advisor-panel-footer-surface shrink-0 px-2.5 pt-2 sm:px-4 md:px-5 lg:px-6 pb-[calc(0.65rem+env(safe-area-inset-bottom))]">
+
       <div className="advisor-input-dock mx-auto max-w-3xl rounded-[22px] p-2.5 sm:rounded-[24px] sm:p-3.5">
         <div className="flex items-start gap-2.5">
           <div className="advisor-icon-badge advisor-icon-badge-info mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center sm:h-7 sm:w-7">

@@ -651,8 +651,8 @@ export default function NewCustomerPage() {
   const [mobileCustomersSheetMode, setMobileCustomersSheetMode] = useState<MobileCustomersSheetMode>("all");
   const [dismissedDuplicateNoticeKey, setDismissedDuplicateNoticeKey] = useState("");
   const [desktopCustomerPage, setDesktopCustomerPage] = useState(1);
-  const [mobileComposerHeight, setMobileComposerHeight] = useState(0);
   const [lastSavedCustomerId, setLastSavedCustomerId] = useState<string | null>(null);
+
 
 
 
@@ -1099,8 +1099,8 @@ export default function NewCustomerPage() {
             <div
               ref={scrollAreaRef}
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6"
-              style={mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : undefined}
             >
+
               <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
                 {messages.map(renderMessage)}
 
@@ -1143,8 +1143,8 @@ export default function NewCustomerPage() {
               isReadyToSave={isReadyToSave}
               isExtractPending={extractMutation.isPending}
               isSavePending={saveMutation.isPending}
-              onHeightChange={setMobileComposerHeight}
             />
+
 
           </CardContent>
         </Card>

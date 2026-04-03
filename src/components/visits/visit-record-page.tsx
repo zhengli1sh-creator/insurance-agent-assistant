@@ -101,8 +101,8 @@ export function VisitRecordPage() {
   const [messages, setMessages] = useState<VisitChatMessage[]>(() => [createVisitWelcomeMessage()]);
   const [inputText, setInputText] = useState("");
   const [currentDraft, setCurrentDraft] = useState<VisitDraftState>(createEmptyVisitDraft());
-  const [mobileComposerHeight, setMobileComposerHeight] = useState(0);
   const [customerSheetOpen, setCustomerSheetOpen] = useState(false);
+
   const [customerSheetMode, setCustomerSheetMode] = useState<VisitCustomerSheetMode>("related");
   const [customerForm, setCustomerForm] = useState<CustomerProfileFormValue>({ ...emptyCustomerProfileForm });
   const [resumeDraft, setResumeDraft] = useState<VisitDraftState | null>(null);
@@ -320,8 +320,9 @@ export function VisitRecordPage() {
           <div
             ref={scrollAreaRef}
             className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 [touch-action:pan-y] [webkit-overflow-scrolling:touch] sm:px-5 md:px-6"
-            style={{ WebkitOverflowScrolling: "touch", ...(mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : {}) }}
+            style={{ WebkitOverflowScrolling: "touch" }}
           >
+
             <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
               {messages.map((message) => {
                 const isAssistant = message.role === "assistant";
@@ -371,8 +372,8 @@ export function VisitRecordPage() {
             isExtractPending={extractMutation.isPending}
             isSavePending={saveMutation.isPending || createCustomerMutation.isPending}
             saveLabel={currentDraft.followWork.trim() ? "保存并继续确认任务" : "保存拜访记录"}
-            onHeightChange={setMobileComposerHeight}
           />
+
         </CardContent>
       </Card>
 
