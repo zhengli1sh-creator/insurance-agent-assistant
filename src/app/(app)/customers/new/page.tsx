@@ -391,10 +391,12 @@ function MobileCustomerEntryButton({
   customerCount,
   relatedCount,
   onOpen,
+  compact = false,
 }: {
   customerCount: number;
   relatedCount: number;
   onOpen: () => void;
+  compact?: boolean;
 }) {
   const label = relatedCount > 0 ? "先核对相近客户" : "查看现有客户";
   const helper = relatedCount > 0 ? `已发现 ${relatedCount} 位相近客户` : customerCount > 0 ? `已保存 ${customerCount} 位客户` : "暂无已建档客户";
@@ -403,19 +405,22 @@ function MobileCustomerEntryButton({
     <button
       type="button"
       onClick={onOpen}
-      className={customerEntryButtonClassName}
-
+      className={cn(
+        customerEntryButtonClassName,
+        compact ? "gap-2 rounded-[18px] px-3 py-2" : "",
+      )}
     >
-      <div className="advisor-icon-badge advisor-icon-badge-info flex h-8 w-8 shrink-0 items-center justify-center">
-        <Users className="h-4 w-4" />
+      <div className={cn("advisor-icon-badge advisor-icon-badge-info flex shrink-0 items-center justify-center", compact ? "h-7 w-7" : "h-8 w-8")}>
+        <Users className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
       </div>
       <div className="min-w-0">
-        <p className="text-[12px] font-medium text-slate-900">{label}</p>
-        <p className="text-[10px] leading-4 text-slate-400">{helper}</p>
+        <p className={cn("font-medium text-slate-900", compact ? "text-[11px] leading-4" : "text-[12px]")}>{label}</p>
+        {compact ? null : <p className="text-[10px] leading-4 text-slate-400">{helper}</p>}
       </div>
     </button>
   );
 }
+
 
 function DuplicateReviewCard({
   relatedCustomers,
@@ -577,14 +582,16 @@ function MobileCustomersSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="advisor-sheet-surface flex max-h-[82dvh] flex-col rounded-t-[32px] border-x-0 border-b-0 p-0 lg:hidden">
-        <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-300/80" />
-        <SheetHeader className="advisor-sheet-header-surface px-4 pb-2 pt-4">
+      <SheetContent
+        side="bottom"
+        className="advisor-sheet-surface flex h-[100dvh] max-h-[100dvh] flex-col rounded-none border-0 p-0 lg:hidden"
+      >
+        <SheetHeader className="advisor-sheet-header-surface px-4 pb-2 pt-[calc(1rem+env(safe-area-inset-top))]">
           <div className="pr-10">
             <SheetTitle className={customerSheetTitleClassName}>{isRelatedMode ? "相近客户核对" : "现有客户"}</SheetTitle>
-
           </div>
         </SheetHeader>
+
 
         {isRelatedMode ? (
           <ScrollArea className="min-h-0 flex-1 px-4 py-3">
@@ -939,7 +946,7 @@ export default function NewCustomerPage() {
         className={cn(
           "rounded-[22px] px-4 py-3 text-sm",
           isAssistant
-            ? "mr-auto inline-block max-w-[min(100%,34rem)] advisor-assistant-bubble text-left text-slate-700"
+            ? "w-fit max-w-[min(100%,34rem)] advisor-assistant-bubble text-left text-slate-700"
             : "ml-auto max-w-[88%] advisor-user-bubble text-left",
         )}
       >
@@ -947,25 +954,20 @@ export default function NewCustomerPage() {
       </div>
     ) : null;
 
-    return (
-      <div key={message.id} className={cn("flex gap-3", isAssistant ? "justify-start" : "justify-end")}>
-        {isAssistant ? (
-          <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
-            <AvatarFallback className="advisor-user-bubble text-xs text-white">AI</AvatarFallback>
-          </Avatar>
-        ) : null}
+    if (isAssistant) {
+      return (
+        <div key={message.id} className="space-y-2 text-left">
+          <div className="flex items-center gap-2 pl-1">
+            <Avatar className="h-7 w-7 shrink-0 border border-white/80 shadow-sm">
+              <AvatarFallback className="advisor-user-bubble text-[11px] text-white">AI</AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-slate-400">{message.timestamp}</span>
+          </div>
 
-        <div
-          className={cn(
-            "space-y-2",
-            isAssistant ? "min-w-0 flex-1 max-w-none text-left" : "max-w-[88%] items-end text-right",
-          )}
-        >
-          <span className={cn("block px-1 text-xs text-slate-400", isAssistant ? "text-left" : "text-right")}>{message.timestamp}</span>
           {textBubble}
 
-          {isAssistant && message.type === "extracted-summary" && message.currentFields ? (
-            <div className="mr-auto w-full max-w-[min(100%,42rem)]">
+          {message.type === "extracted-summary" && message.currentFields ? (
+            <div className="w-full max-w-[min(100%,42rem)]">
               <ExtractedSummaryCard
                 extractedFields={message.extractedFields ?? []}
                 currentFields={message.currentFields}
@@ -973,21 +975,31 @@ export default function NewCustomerPage() {
             </div>
           ) : null}
 
-          {isAssistant && message.type === "save-success" && message.savedCustomer ? (
-            <div className="mr-auto w-full max-w-[min(100%,42rem)]">
+          {message.type === "save-success" && message.savedCustomer ? (
+            <div className="w-full max-w-[min(100%,42rem)]">
               <SaveSuccessCard customer={message.savedCustomer} />
             </div>
           ) : null}
 
-          {isAssistant && message.type === "error-hint" ? (
-            <div className="mr-auto w-full max-w-[min(100%,42rem)]">
+          {message.type === "error-hint" ? (
+            <div className="w-full max-w-[min(100%,42rem)]">
               <ErrorHintCard message={message.content} />
             </div>
           ) : null}
         </div>
+      );
+    }
+
+    return (
+      <div key={message.id} className="flex justify-end gap-3">
+        <div className="max-w-[88%] space-y-2 text-right">
+          <span className="block px-1 text-xs text-slate-400">{message.timestamp}</span>
+          {textBubble}
+        </div>
       </div>
     );
   };
+
 
 
   const desktopPanelTitle = "现有客户";
@@ -1020,8 +1032,8 @@ export default function NewCustomerPage() {
 
           <div className="min-w-0 flex-1">
             <h1 className="text-lg font-semibold text-slate-900 md:text-[1.35rem]">添加客户档案</h1>
-            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-600 sm:text-sm">先保存基础信息，后续可继续补充。</p>
           </div>
+
 
         </CardContent>
       </Card>
@@ -1040,19 +1052,25 @@ export default function NewCustomerPage() {
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <div className="min-w-0 flex-1">
-                    <h1 className="text-base font-semibold text-slate-900">添加客户档案</h1>
-                    <p className="mt-1 text-[12px] leading-5 text-slate-500">先保存基础信息，后续可继续补充。</p>
+                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                    <h1 className="min-w-0 text-base font-semibold text-slate-900">添加客户档案</h1>
+                    <MobileCustomerEntryButton
+                      compact
+                      customerCount={totalCustomerCount}
+                      relatedCount={relatedCustomers.length}
+                      onOpen={relatedCustomers.length > 0 ? openRelatedCustomersSheet : openAllCustomersSheet}
+                    />
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-end gap-1.5">
+                <div className="hidden md:flex flex-wrap items-center justify-end gap-1.5">
                   <MobileCustomerEntryButton
                     customerCount={totalCustomerCount}
                     relatedCount={relatedCustomers.length}
                     onOpen={relatedCustomers.length > 0 ? openRelatedCustomersSheet : openAllCustomersSheet}
                   />
                 </div>
+
               </div>
             </div>
 
@@ -1067,18 +1085,20 @@ export default function NewCustomerPage() {
                 {messages.map(renderMessage)}
 
                 {extractMutation.isPending || saveMutation.isPending ? (
-                  <div className="flex justify-start gap-3">
-                    <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
-                      <AvatarFallback className="advisor-user-bubble text-xs text-white">AI</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1 text-left">
-                      <div className="mr-auto inline-flex max-w-[min(100%,34rem)] items-center gap-2 rounded-[22px] px-4 py-3 text-sm text-slate-600 advisor-assistant-bubble">
-                        <Sparkles className="h-4 w-4 animate-pulse text-amber-600" />
-                        {extractMutation.isPending ? "正在为你整理客户信息…" : "正在为你保存客户档案…"}
-                      </div>
+                  <div className="space-y-2 text-left">
+                    <div className="flex items-center gap-2 pl-1">
+                      <Avatar className="h-7 w-7 shrink-0 border border-white/80 shadow-sm">
+                        <AvatarFallback className="advisor-user-bubble text-[11px] text-white">AI</AvatarFallback>
+                      </Avatar>
+                      <span className="text-xs text-slate-400">{formatTime()}</span>
+                    </div>
+                    <div className="flex w-fit max-w-[min(100%,34rem)] items-center gap-2 rounded-[22px] px-4 py-3 text-sm text-slate-600 advisor-assistant-bubble">
+                      <Sparkles className="h-4 w-4 animate-pulse text-amber-600" />
+                      {extractMutation.isPending ? "正在为你整理客户信息…" : "正在为你保存客户档案…"}
                     </div>
                   </div>
                 ) : null}
+
 
 
                 <div className="h-2" />
