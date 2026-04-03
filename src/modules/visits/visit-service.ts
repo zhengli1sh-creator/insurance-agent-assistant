@@ -119,6 +119,10 @@ export async function createVisitService(supabase: SupabaseClient, ownerId: stri
     };
   }
 
+  if (parsed.data.skipTaskSync) {
+    return { status: 200, data, error: "", errorCode: undefined };
+  }
+
   const taskResult = await syncTasksFromSource(supabase, ownerId, "visit", data.id, followUps, {
     customerId: customerResult.data.id,
     customerName: visitName,
@@ -127,6 +131,7 @@ export async function createVisitService(supabase: SupabaseClient, ownerId: stri
 
   return { status: taskResult.error ? 400 : 200, data, error: taskResult.error, errorCode: taskResult.error ? "TASK_SYNC_FAILED" : undefined };
 }
+
 
 export async function updateVisitService(supabase: SupabaseClient, ownerId: string, payload: unknown) {
   const parsed = visitUpdateSchema.safeParse(payload);

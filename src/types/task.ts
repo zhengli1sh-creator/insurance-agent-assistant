@@ -48,3 +48,23 @@ export interface TaskSyncPayload {
   due_at?: string | null;
   note?: string | null;
 }
+
+export interface TaskDraftItem {
+  id: string;
+  title: string;
+  priority: TaskPriorityValue;
+  dueDate: string;
+  note: string;
+}
+
+export interface TaskDraftSeed {
+  from: "visit";
+  visitId: string;
+  visitDate: string;
+  customerId: string;
+  customerName: string;
+  customerNickname: string;
+  sourceSummary: string;
+  drafts: TaskDraftItem[];
+}
+

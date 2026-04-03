@@ -10,6 +10,8 @@ const requestSchema = z.object({
 });
 
 const fieldLabelMap = {
+  name: "客户姓名",
+  nickName: "客户昵称",
   timeVisit: "拜访日期",
   location: "地点",
   methodCommunicate: "沟通方式",
@@ -17,6 +19,7 @@ const fieldLabelMap = {
   briefContent: "拜访内容",
   followWork: "后续动作",
 } as const;
+
 
 export async function POST(request: Request) {
   const context = await requireUserContext();

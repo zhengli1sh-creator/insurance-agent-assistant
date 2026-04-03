@@ -42,4 +42,6 @@ export interface VisitInput {
   happenedAt?: string;
   tone?: string;
   followUps?: string[];
+  skipTaskSync?: boolean;
 }
+

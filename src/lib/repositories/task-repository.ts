@@ -20,6 +20,10 @@ export async function listTasksRepository(supabase: SupabaseClient, ownerId: str
     .returns<TaskEntity[]>();
 }
 
+export async function createTasksRepository(supabase: SupabaseClient, payload: TaskSyncPayload[]) {
+  return supabase.from("tasks").insert(payload).select("*").returns<TaskEntity[]>();
+}
+
 export async function replaceTasksBySourceRepository(
   supabase: SupabaseClient,
   ownerId: string,
@@ -58,3 +62,4 @@ export async function updateTaskStatusRepository(
     .select("*")
     .single();
 }
+

@@ -313,10 +313,19 @@ export function VisitManager({
     onSuccess: (data) => {
       const extractedFieldKeys: string[] = [];
 
+      if (data.fields.name) {
+        patchForm({ name: data.fields.name, customerId: "" });
+        extractedFieldKeys.push("name");
+      }
+      if (data.fields.nickName) {
+        patchForm({ nickName: data.fields.nickName, customerId: "" });
+        extractedFieldKeys.push("nickName");
+      }
       if (data.fields.timeVisit) {
         patchForm({ timeVisit: data.fields.timeVisit });
         extractedFieldKeys.push("timeVisit");
       }
+
       if (data.fields.location) {
         patchForm({ location: data.fields.location });
         extractedFieldKeys.push("location");

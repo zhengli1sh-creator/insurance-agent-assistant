@@ -1,6 +1,11 @@
 import { AssistantHome } from "@/components/dashboard/assistant-home";
 
-export default function DashboardPage() {
-  return <AssistantHome />;
-}
+type DashboardPageProps = {
+  searchParams?: Promise<{ returnMessage?: string }>;
+};
 
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = (await searchParams) ?? {};
+
+  return <AssistantHome returnMessage={params.returnMessage ?? ""} />;
+}
