@@ -1039,9 +1039,7 @@ export default function NewCustomerPage() {
 
   return (
 
-    <div className="advisor-entry-workspace">
-
-
+    <div className="flex min-h-[calc(100dvh-7rem)] flex-1 flex-col gap-1.5 md:min-h-[calc(100dvh-8rem)] md:gap-3">
       <Card className="glass-panel advisor-glass-surface-strong hidden shrink-0 rounded-[28px] md:block">
         <CardContent className="flex items-start gap-3 p-3.5 sm:p-4 md:px-5 md:py-3.5">
           <Button
@@ -1100,11 +1098,9 @@ export default function NewCustomerPage() {
 
             <div
               ref={scrollAreaRef}
-              className="advisor-entry-scroll-area px-4 py-3 sm:px-5 md:px-6"
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6"
               style={mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : undefined}
             >
-
-
               <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
                 {messages.map(renderMessage)}
 

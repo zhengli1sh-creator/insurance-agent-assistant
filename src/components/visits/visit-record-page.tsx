@@ -290,7 +290,7 @@ export function VisitRecordPage() {
         : null;
 
   return (
-    <div className="advisor-entry-workspace">
+    <div className="flex min-h-[calc(100dvh-7rem)] flex-1 flex-col gap-1.5 md:min-h-[calc(100dvh-8rem)] md:gap-3">
       <Card className="glass-panel advisor-glass-surface-strong flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px]">
         <CardContent className="flex min-h-0 flex-1 flex-col p-0">
           <div className="advisor-panel-header-surface shrink-0 px-4 py-2.5 sm:px-5 md:px-6">
@@ -319,8 +319,8 @@ export function VisitRecordPage() {
 
           <div
             ref={scrollAreaRef}
-            className="advisor-entry-scroll-area px-4 py-3 sm:px-5 md:px-6"
-            style={mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : undefined}
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 [touch-action:pan-y] [webkit-overflow-scrolling:touch] sm:px-5 md:px-6"
+            style={{ WebkitOverflowScrolling: "touch", ...(mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : {}) }}
           >
             <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
               {messages.map((message) => {
