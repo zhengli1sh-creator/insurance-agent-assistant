@@ -76,7 +76,7 @@ export function CustomerCenterShell() {
   const reminders = useMemo(() => getCustomerReminderStats(customers), [customers]);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-5">
+    <div className="mx-auto h-full max-w-4xl space-y-5 overflow-y-auto overscroll-contain">
       <Card className={customerHeroCardClassName}>
 
         <CardContent className="p-5 sm:p-7">
