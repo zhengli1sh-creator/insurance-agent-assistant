@@ -1047,16 +1047,15 @@ export default function NewCustomerPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-end gap-1.5">
-
-                    <MobileCustomerEntryButton
-                      customerCount={totalCustomerCount}
-                      relatedCount={relatedCustomers.length}
-                      onOpen={relatedCustomers.length > 0 ? openRelatedCustomersSheet : openAllCustomersSheet}
-                    />
-                  </div>
+                  <MobileCustomerEntryButton
+                    customerCount={totalCustomerCount}
+                    relatedCount={relatedCustomers.length}
+                    onOpen={relatedCustomers.length > 0 ? openRelatedCustomersSheet : openAllCustomersSheet}
+                  />
                 </div>
               </div>
             </div>
+
 
             <div
               ref={scrollAreaRef}
