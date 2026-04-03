@@ -12,10 +12,10 @@ import {
   Circle,
   Lightbulb,
   Sparkles,
-  UserPlus,
   Users,
 } from "lucide-react";
 
+import { CustomerEntryComposer } from "@/components/customers/customer-entry-composer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   customerCardHeadingClassName,
@@ -38,8 +38,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
 import { fetchJson } from "@/lib/crm-api";
+
 import { cn } from "@/lib/utils";
 import type { CustomerRecord } from "@/types/customer";
 
@@ -831,6 +831,8 @@ export default function NewCustomerPage() {
   const [mobileCustomersSheetMode, setMobileCustomersSheetMode] = useState<MobileCustomersSheetMode>("all");
   const [dismissedDuplicateNoticeKey, setDismissedDuplicateNoticeKey] = useState("");
   const [desktopCustomerPage, setDesktopCustomerPage] = useState(1);
+  const [mobileComposerHeight, setMobileComposerHeight] = useState(0);
+
 
   const customersQuery = useQuery({
     queryKey: ["customers-list"],
@@ -869,9 +871,13 @@ export default function NewCustomerPage() {
   };
 
   const isReadyToSave = validateNameComplete(currentDraft.name);
-
+  const suggestedComposerFields = useMemo(
+    () => customerFields.filter((field) => !currentDraft[field.key]?.trim()),
+    [currentDraft],
+  );
 
   const relatedCustomers = useMemo(() => {
+
     const name = currentDraft.name.trim();
     const nickname = currentDraft.nickname.trim();
 
@@ -1173,8 +1179,19 @@ export default function NewCustomerPage() {
   const desktopPanelTitle = "现有客户";
   const desktopRelatedHint = relatedCustomers.length > 0 ? `已发现 ${relatedCustomers.length} 位相近客户，建议优先核对。` : "";
   const mobileRelatedHint = relatedCustomers.length > 0 ? `以下仅展示当前筛出的 ${relatedCustomers.length} 位相近客户，用于核对是否重复建档。` : "";
+  const duplicateReviewCard = shouldShowDuplicateReviewCard ? (
+    <DuplicateReviewCard
+      relatedCustomers={relatedCustomers}
+      hasBlockingDuplicate={hasBlockingDuplicate}
+      onOpenSheet={openRelatedCustomersSheet}
+      onDismiss={() => setDismissedDuplicateNoticeKey(duplicateNoticeKey)}
+      emphasized={shouldCoverInputAreaWithDuplicateReview}
+    />
+  ) : null;
+
 
   return (
+
     <div className="flex h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1.5 md:h-[calc(100dvh-8rem)] md:gap-3">
       <Card className="glass-panel advisor-glass-surface-strong hidden shrink-0 rounded-[28px] md:block">
         <CardContent className="flex items-start gap-3 p-3.5 sm:p-4 md:px-5 md:py-3.5">
@@ -1233,7 +1250,12 @@ export default function NewCustomerPage() {
               </div>
             </div>
 
-            <div ref={scrollAreaRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6">
+            <div
+              ref={scrollAreaRef}
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6"
+              style={mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : undefined}
+            >
+
               <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
                 {messages.map(renderMessage)}
 
@@ -1255,71 +1277,27 @@ export default function NewCustomerPage() {
               </div>
             </div>
 
-            <div className="advisor-panel-footer-surface shrink-0 px-2.5 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 md:px-5 lg:px-6">
-              <div className="advisor-input-dock mx-auto max-w-3xl rounded-[22px] p-2.5 sm:rounded-[24px] sm:p-3.5">
-                {shouldCoverInputAreaWithDuplicateReview ? (
-                  <DuplicateReviewCard
-                    relatedCustomers={relatedCustomers}
-                    hasBlockingDuplicate={hasBlockingDuplicate}
-                    onOpenSheet={openRelatedCustomersSheet}
-                    onDismiss={() => setDismissedDuplicateNoticeKey(duplicateNoticeKey)}
-                    emphasized
-                  />
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2.5">
-                      <div className="advisor-icon-badge advisor-icon-badge-info flex h-6 w-6 shrink-0 items-center justify-center sm:h-7 sm:w-7">
-                        <UserPlus className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-medium text-slate-900 sm:text-sm">输入客户信息</p>
-                      </div>
-                    </div>
+            <CustomerEntryComposer
+              inputText={inputText}
+              onInputTextChange={setInputText}
+              onExtract={handleExtract}
+              onSave={handleSave}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                  event.preventDefault();
+                  handleExtract();
+                }
+              }}
+              suggestedFields={suggestedComposerFields}
+              duplicateReview={duplicateReviewCard}
+              shouldCoverInputAreaWithDuplicateReview={shouldCoverInputAreaWithDuplicateReview}
+              shouldShowPrimaryActions={shouldShowPrimaryActions}
+              isReadyToSave={isReadyToSave}
+              isExtractPending={extractMutation.isPending}
+              isSavePending={saveMutation.isPending}
+              onHeightChange={setMobileComposerHeight}
+            />
 
-                    <Textarea
-                      value={inputText}
-                      onChange={(event) => setInputText(event.target.value)}
-                      placeholder="例如：王敏，35岁，私营业主，已婚，有一个孩子，最近关注教育金和家庭保障。"
-                      className="advisor-form-control advisor-form-textarea mt-2.5 min-h-[60px] resize-none rounded-[16px] px-3 py-2.5 text-sm leading-6 focus-visible:ring-0 sm:mt-3 sm:min-h-[72px] sm:rounded-[18px] md:min-h-[84px]"
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-                          handleExtract();
-                        }
-                      }}
-                    />
-
-                    {shouldShowDuplicateReviewCard ? (
-                      <DuplicateReviewCard
-                        relatedCustomers={relatedCustomers}
-                        hasBlockingDuplicate={hasBlockingDuplicate}
-                        onOpenSheet={openRelatedCustomersSheet}
-                        onDismiss={() => setDismissedDuplicateNoticeKey(duplicateNoticeKey)}
-                      />
-                    ) : null}
-                  </>
-                )}
-
-                {shouldShowPrimaryActions ? (
-                  <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
-                    <Button onClick={handleExtract} disabled={extractMutation.isPending || !inputText.trim()} className={cn(primaryActionClassName, "h-9 text-sm sm:h-10")}>
-                      {extractMutation.isPending ? "整理中…" : "整理信息"}
-                    </Button>
-                    <Button
-                      onClick={handleSave}
-                      disabled={saveMutation.isPending}
-                      className={cn(isReadyToSave ? primaryActionClassName : outlineActionClassName, "h-9 text-sm sm:h-10")}
-                    >
-
-                      {saveMutation.isPending ? "保存中…" : "保存客户"}
-                    </Button>
-                  </div>
-                ) : null}
-
-                <p className="mt-2 hidden text-[11px] leading-5 text-slate-400 md:block">
-                  需要确认的内容会先提醒你，不会直接误写客户资料。支持 `Ctrl/Cmd + Enter` 快速整理。
-                </p>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
