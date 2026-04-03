@@ -291,9 +291,7 @@ export function VisitRecordPage() {
 
   return (
     <div className="advisor-entry-workspace">
-      <div className="grid min-h-0 flex-1 gap-3">
-        <Card className="glass-panel advisor-glass-surface-strong flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px]">
-
+      <Card className="glass-panel advisor-glass-surface-strong flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px]">
         <CardContent className="flex min-h-0 flex-1 flex-col p-0">
           <div className="advisor-panel-header-surface shrink-0 px-4 py-2.5 sm:px-5 md:px-6">
             <div className="flex flex-col gap-2 md:gap-2.5">
@@ -307,7 +305,7 @@ export function VisitRecordPage() {
                 </div>
               </div>
 
-              <div className="hidden md:flex items-center gap-3">
+              <div className="hidden items-center gap-3 md:flex">
                 <Button variant="ghost" size="icon" onClick={() => router.push("/records?tab=visits")} className="advisor-outline-button h-9 w-9 rounded-full hover:bg-white">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -319,14 +317,11 @@ export function VisitRecordPage() {
             </div>
           </div>
 
-
           <div
             ref={scrollAreaRef}
             className="advisor-entry-scroll-area px-4 py-3 sm:px-5 md:px-6"
             style={mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : undefined}
           >
-
-
             <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
               {messages.map((message) => {
                 const isAssistant = message.role === "assistant";
@@ -354,8 +349,7 @@ export function VisitRecordPage() {
                 );
               })}
 
-
-              {(extractMutation.isPending || saveMutation.isPending || createCustomerMutation.isPending) ? <div className="flex w-fit items-center gap-2 rounded-[22px] px-4 py-3 text-sm advisor-assistant-bubble text-slate-600"><Sparkles className="h-4 w-4 animate-pulse text-amber-600" />{createCustomerMutation.isPending ? "正在保存客户档案并继续当前拜访…" : saveMutation.isPending ? "正在为你保存拜访记录…" : "正在为你整理拜访信息…"}</div> : null}
+              {extractMutation.isPending || saveMutation.isPending || createCustomerMutation.isPending ? <div className="flex w-fit items-center gap-2 rounded-[22px] px-4 py-3 text-sm advisor-assistant-bubble text-slate-600"><Sparkles className="h-4 w-4 animate-pulse text-amber-600" />{createCustomerMutation.isPending ? "正在保存客户档案并继续当前拜访…" : saveMutation.isPending ? "正在为你保存拜访记录…" : "正在为你整理拜访信息…"}</div> : null}
               <div className="h-2" />
             </div>
           </div>
@@ -381,9 +375,9 @@ export function VisitRecordPage() {
           />
         </CardContent>
       </Card>
-      </div>
 
       <VisitCustomerSheet
+
 
         open={customerSheetOpen}
         mode={customerSheetMode}
