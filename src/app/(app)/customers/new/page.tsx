@@ -1099,7 +1099,7 @@ export default function NewCustomerPage() {
 
             <div
               ref={scrollAreaRef}
-              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6"
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 pb-[260px] sm:px-5 sm:pb-[280px] md:px-6 md:pb-[300px]"
             >
 
               <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
