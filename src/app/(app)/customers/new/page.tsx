@@ -3,17 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  CheckCircle,
-  ChevronDown,
-  ChevronLeft,
-  ChevronUp,
-  Circle,
-  Lightbulb,
-  Sparkles,
-  Users,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, ChevronLeft, Sparkles, Users } from "lucide-react";
+
 
 import { CustomerEntryComposer } from "@/components/customers/customer-entry-composer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -80,32 +71,8 @@ const labelToKeyMap: Record<string, CustomerFieldKey> = {
   备注: "remark",
 };
 
-const infoCategories = [
-  {
-    title: "基础信息",
-    items: [
-      { label: "姓名", required: true },
-      { label: "昵称" },
-      { label: "年龄" },
-      { label: "性别" },
-      { label: "职业" },
-    ],
-  },
-  {
-    title: "家庭与财富",
-    items: [{ label: "家庭情况" }, { label: "财富情况" }, { label: "近期资金情况" }],
-  },
-  {
-    title: "经营相关",
-    items: [{ label: "核心关注点" }, { label: "沟通偏好" }, { label: "客户来源" }],
-  },
-  {
-    title: "其他",
-    items: [{ label: "备注及其他任意信息" }],
-  },
-] as const;
-
 const DESKTOP_CUSTOMERS_PAGE_SIZE = 5;
+
 const EMPTY_CUSTOMERS: CustomerRecord[] = [];
 const primaryActionClassName = customerPrimaryActionClassName;
 const outlineActionClassName = customerOutlineActionClassName;
@@ -265,135 +232,21 @@ function validateNameComplete(name: string) {
 }
 
 function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
-  const [isCardExpanded, setIsCardExpanded] = useState(false);
-  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
-
-  const condensedCard = (
-    <div className={cn(customerReviewCardCompactClassName, "advisor-review-card-success")}>
-
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0 flex flex-1 items-center gap-3">
-          <div className="advisor-icon-badge advisor-icon-badge-success flex h-7 w-7 shrink-0 items-center justify-center sm:h-8 sm:w-8">
-            <Lightbulb className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-medium text-slate-900">直接描述客户</h3>
-          </div>
+  return (
+    <div className={cn(customerReviewCardCompactClassName, "advisor-review-card-success", compact ? "" : "md:px-4 md:py-4")}>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <div className="advisor-notice-card advisor-notice-card-warning rounded-2xl px-3.5 py-3 text-sm leading-6 text-slate-600">
+          <span className="font-medium text-slate-900">最小必填：</span>
+          客户姓名
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setIsCardExpanded(true)}
-          className={cn(outlineActionClassName, "h-8 shrink-0 px-3 text-xs")}
-        >
-
-          说明
-          <ChevronDown className="ml-1 h-3.5 w-3.5" />
-        </Button>
-      </div>
-    </div>
-  );
-
-  const expandedCard = (
-    <div className={cn(customerReviewCardClassName, "advisor-review-card-success")}>
-
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex flex-1 items-start gap-3">
-          <div className="advisor-icon-badge advisor-icon-badge-success mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center">
-            <Lightbulb className="h-4 w-4" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className={customerCardHeadingClassName}>直接描述客户</h3>
-
-          </div>
-        </div>
-
-        {compact || isCardExpanded ? (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setIsCardExpanded(false)}
-            className={cn(outlineActionClassName, "h-8 shrink-0 px-3 text-xs")}
-          >
-
-            收起
-            <ChevronUp className="ml-1 h-3.5 w-3.5" />
-          </Button>
-        ) : null}
-      </div>
-
-      <div className="mt-4 space-y-2.5">
         <div className="advisor-meta-tile rounded-2xl border border-white/75 px-3.5 py-3 text-sm leading-6 text-slate-600">
-          <span className="font-medium text-slate-900">已支持整理：</span>
-          姓名、昵称、年龄、职业、家庭情况、财富情况、核心关注点、沟通偏好、客户来源等。
-        </div>
-
-        <div className="grid gap-2 sm:grid-cols-2">
-          <div className="advisor-notice-card advisor-notice-card-warning rounded-2xl px-3.5 py-3 text-sm leading-6 text-slate-600">
-            <span className="font-medium text-slate-900">最小必填：</span>
-            客户姓名
-          </div>
-          <div className="advisor-meta-tile rounded-2xl border border-white/75 px-3.5 py-3 text-sm leading-6 text-slate-600">
-            不需要一次说全，先说你现在记得的内容即可。
-          </div>
+          不需要一次说全，先输入你当前记得的内容即可。
         </div>
       </div>
-
-      <div className="advisor-disclosure-card mt-4 rounded-2xl px-3.5 py-3">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setIsDetailsExpanded((prev) => !prev)}
-          className="h-auto w-full justify-between rounded-2xl px-0 py-0 text-left text-sm font-medium text-slate-800 hover:bg-transparent hover:text-slate-900"
-        >
-          <span>查看全部可保存信息项</span>
-          {isDetailsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </Button>
-
-        {isDetailsExpanded ? (
-          <div className="mt-3 grid gap-3 md:grid-cols-2">
-            {infoCategories.map((category) => (
-              <div key={category.title} className="advisor-subtle-card rounded-2xl px-3.5 py-3">
-                <p className="text-sm font-medium text-slate-700">{category.title}</p>
-                <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
-                  {category.items.map((item) => (
-                    <li key={item.label} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-600/70" />
-                      <span>{item.label}</span>
-                      {"required" in item && item.required ? (
-                        <span className="advisor-chip-info rounded-full px-2 py-0.5 text-[11px]">必填</span>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
-
-      <p className="mt-4 text-xs leading-5 text-slate-500">
-        例如：王敏，35岁，私营业主，已婚，有一个孩子，最近比较关注教育金和家庭保障。
-      </p>
     </div>
   );
-
-
-  if (!isCardExpanded) {
-    if (compact) {
-      return condensedCard;
-    }
-
-    return (
-      <>
-        <div className="md:hidden">{condensedCard}</div>
-        <div className="hidden md:block">{expandedCard}</div>
-      </>
-    );
-  }
-
-  return expandedCard;
 }
+
 
 
 function ExtractedSummaryCard({
@@ -404,7 +257,6 @@ function ExtractedSummaryCard({
   currentFields: Record<CustomerFieldKey, string>;
 }) {
   const filledFields = customerFields.filter((field) => currentFields[field.key]?.trim());
-  const suggestedFields = customerFields.filter((field) => !currentFields[field.key]?.trim());
   const nameReady = validateNameComplete(currentFields.name);
 
   return (
@@ -417,10 +269,7 @@ function ExtractedSummaryCard({
           </div>
           <div>
             <h3 className={customerCardHeadingClassName}>已为你整理出以下客户信息</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-
-              当前以顾问简报方式呈现，保存前仍可继续补充。
-            </p>
+            <p className="mt-1 text-sm leading-6 text-slate-600">当前以顾问简报方式呈现，保存前仍可继续补充。</p>
           </div>
         </div>
         <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">已具备 {filledFields.length} 项</Badge>
@@ -440,25 +289,6 @@ function ExtractedSummaryCard({
         </div>
       ) : null}
 
-      <div className="advisor-subtle-card mt-4 rounded-2xl p-3.5 sm:p-4">
-        <div className="flex items-center gap-2">
-          <Circle className="h-4 w-4 text-amber-600" />
-          <p className="text-sm font-medium text-slate-700">可继续补充</p>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2.5 text-sm leading-6 text-slate-600">
-          {suggestedFields.length > 0 ? (
-            suggestedFields.map((field) => (
-              <span key={field.key} className="advisor-chip-warning inline-flex items-center gap-1.5 rounded-full px-3 py-1.5">
-                <span>{field.label}</span>
-                {field.required ? <span className="advisor-chip-info rounded-full px-1.5 py-0.5 text-[11px] leading-4">必填</span> : null}
-              </span>
-            ))
-          ) : (
-            <p>当前信息已相当完整，可以直接保存当前客户档案。</p>
-          )}
-        </div>
-      </div>
-
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
         <span className={cn("rounded-full px-3 py-1", nameReady ? "advisor-status-healthy" : "advisor-status-pending")}>
           {nameReady ? "当前已具备保存条件" : "还需先补充客户姓名"}
@@ -468,6 +298,7 @@ function ExtractedSummaryCard({
     </div>
   );
 }
+
 
 
 function SaveSuccessCard({ customer }: { customer: CustomerRecord }) {
