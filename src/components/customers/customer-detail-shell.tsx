@@ -238,7 +238,7 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
 
   if (customerQuery.isLoading && !customer) {
     return (
-      <div className="mx-auto max-w-4xl space-y-5">
+      <div className="mx-auto h-full max-w-4xl space-y-5 overflow-y-auto overscroll-contain">
         <DetailStateCard title="正在整理客户详情…" description="请稍候，我正在为你准备这位客户的基础资料与经营简报。" />
       </div>
     );
@@ -246,7 +246,7 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
 
   if (!customer || !status || !briefing) {
     return (
-      <div className="mx-auto max-w-4xl space-y-5">
+      <div className="mx-auto h-full max-w-4xl space-y-5 overflow-y-auto overscroll-contain">
         <Link href="/customers" className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-slate-900">
           <ArrowLeft className="h-4 w-4" />
           返回客户列表
@@ -264,7 +264,7 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
 
   return (
     <>
-      <div className="mx-auto max-w-4xl space-y-5">
+      <div className="mx-auto h-full max-w-4xl space-y-5 overflow-y-auto overscroll-contain">
         <Link href="/customers" className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-slate-900">
           <ArrowLeft className="h-4 w-4" />
           返回客户列表
