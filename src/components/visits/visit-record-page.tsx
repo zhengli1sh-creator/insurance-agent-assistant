@@ -318,11 +318,11 @@ export function VisitRecordPage() {
             </div>
           </div>
 
-          <div
-            ref={scrollAreaRef}
-            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 [touch-action:pan-y] [webkit-overflow-scrolling:touch] sm:px-5 md:px-6"
-            style={{ WebkitOverflowScrolling: "touch" }}
-          >
+        <div
+          ref={scrollAreaRef}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 pb-[260px] [touch-action:pan-y] [webkit-overflow-scrolling:touch] sm:px-5 sm:pb-[280px] md:px-6 md:pb-[300px]"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
 
             <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
               {messages.map((message) => {
