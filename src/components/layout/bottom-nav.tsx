@@ -15,9 +15,11 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
 
-  if (pathname === "/dashboard" || pathname === "/customers/new") {
+  if (pathname === "/dashboard" || pathname === "/customers/new" || pathname === "/visits/new" || pathname === "/tasks/new") {
     return null;
   }
+
+
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/35 bg-white/85 px-4 py-3 backdrop-blur-2xl lg:hidden">
