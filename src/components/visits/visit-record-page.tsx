@@ -84,7 +84,8 @@ function ExistingCustomersButton({ count, compact = false, onOpen }: { count: nu
         <Users className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
       </div>
       <div className="min-w-0">
-        <p className={cn("font-medium text-slate-900", compact ? "text-[11px] leading-4" : "text-[12px]")}>查看现有客户</p>
+        <p className={cn("font-medium text-slate-900", compact ? "text-[11px] leading-4" : "text-[12px]")}>选择现有客户</p>
+
         {compact ? null : <p className="text-[10px] leading-4 text-slate-400">{count > 0 ? `已保存 ${count} 位客户` : "暂无已建档客户"}</p>}
       </div>
     </button>
@@ -318,7 +319,12 @@ export function VisitRecordPage() {
           </div>
 
 
-          <div ref={scrollAreaRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 md:px-6" style={mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : undefined}>
+          <div
+            ref={scrollAreaRef}
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 [touch-action:pan-y] [webkit-overflow-scrolling:touch] sm:px-5 md:px-6"
+            style={{ WebkitOverflowScrolling: "touch", ...(mobileComposerHeight > 0 ? { paddingBottom: mobileComposerHeight + 12 } : {}) }}
+          >
+
             <div className="mx-auto flex max-w-3xl flex-col gap-4 md:gap-5">
               {messages.map((message) => {
                 const isAssistant = message.role === "assistant";
