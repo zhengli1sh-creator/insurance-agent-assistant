@@ -653,6 +653,8 @@ export default function NewCustomerPage() {
   const [dismissedDuplicateNoticeKey, setDismissedDuplicateNoticeKey] = useState("");
   const [desktopCustomerPage, setDesktopCustomerPage] = useState(1);
   const [mobileComposerHeight, setMobileComposerHeight] = useState(0);
+  const [lastSavedCustomerId, setLastSavedCustomerId] = useState<string | null>(null);
+
 
 
   const customersQuery = useQuery({
@@ -691,7 +693,14 @@ export default function NewCustomerPage() {
     setMessages((prev) => [...prev, message]);
   };
 
+  useEffect(() => {
+    if (currentDraft.name.trim() || currentDraft.nickname.trim()) {
+      setLastSavedCustomerId(null);
+    }
+  }, [currentDraft.name, currentDraft.nickname]);
+
   const isReadyToSave = validateNameComplete(currentDraft.name);
+
   const suggestedComposerFields = useMemo(
     () => customerFields.filter((field) => !currentDraft[field.key]?.trim()),
     [currentDraft],
@@ -708,6 +717,10 @@ export default function NewCustomerPage() {
 
     return customers
       .filter((customer) => {
+        if (customer.id === lastSavedCustomerId) {
+          return false;
+        }
+
         const customerName = customer.name.trim();
         const customerNickname = customer.nickname?.trim() ?? "";
 
@@ -718,7 +731,7 @@ export default function NewCustomerPage() {
         return sameName || fuzzyName || sameNickname;
       })
       .slice(0, 5);
-  }, [currentDraft.name, currentDraft.nickname, customers]);
+  }, [currentDraft.name, currentDraft.nickname, customers, lastSavedCustomerId]);
 
   const exactDuplicateCustomer = useMemo(() => {
     const name = currentDraft.name.trim();
@@ -729,11 +742,16 @@ export default function NewCustomerPage() {
     }
 
     return customers.find((customer) => {
+      if (customer.id === lastSavedCustomerId) {
+        return false;
+      }
+
       const sameName = customer.name.trim() === name;
       const sameNickname = (customer.nickname ?? "").trim() === nickname;
       return sameName && sameNickname;
     }) ?? null;
-  }, [currentDraft.name, currentDraft.nickname, customers]);
+  }, [currentDraft.name, currentDraft.nickname, customers, lastSavedCustomerId]);
+
   const hasBlockingDuplicate = Boolean(exactDuplicateCustomer);
   const relatedCustomersFingerprint = useMemo(() => relatedCustomers.map((customer) => customer.id).join(","), [relatedCustomers]);
   const duplicateNoticeKey = `${currentDraft.name.trim()}|${currentDraft.nickname.trim()}|${relatedCustomersFingerprint}`;
@@ -810,6 +828,12 @@ export default function NewCustomerPage() {
         }),
       }),
     onSuccess: async (savedCustomer) => {
+      setLastSavedCustomerId(savedCustomer.id);
+      setCurrentDraft(createEmptyDraft());
+      setInputText("");
+      setIsExistingCustomersOpen(false);
+      setDesktopCustomerPage(1);
+
       await queryClient.invalidateQueries({ queryKey: ["customers-list"] });
       await queryClient.refetchQueries({ queryKey: ["customers-list"] });
       queryClient.invalidateQueries({ queryKey: ["customers-crm"] });
@@ -823,12 +847,9 @@ export default function NewCustomerPage() {
         timestamp: formatTime(),
         savedCustomer,
       });
-      setDesktopCustomerPage(1);
-      setCurrentDraft(createEmptyDraft());
-      setInputText("");
-      setIsExistingCustomersOpen(false);
 
       setTimeout(() => {
+
         addMessage({
           id: crypto.randomUUID(),
           role: "assistant",
