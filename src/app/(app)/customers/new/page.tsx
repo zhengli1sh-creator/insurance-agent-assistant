@@ -231,25 +231,8 @@ function validateNameComplete(name: string) {
   return name.trim().length >= 2;
 }
 
-function WelcomeMessageCard({ compact = false }: { compact?: boolean }) {
-  return (
-    <div className={cn(customerReviewCardCompactClassName, "advisor-review-card-success", compact ? "" : "md:px-4 md:py-4")}>
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div className="advisor-notice-card advisor-notice-card-warning rounded-2xl px-3.5 py-3 text-sm leading-6 text-slate-600">
-          <span className="font-medium text-slate-900">最小必填：</span>
-          客户姓名
-        </div>
-        <div className="advisor-meta-tile rounded-2xl border border-white/75 px-3.5 py-3 text-sm leading-6 text-slate-600">
-          不需要一次说全，先输入你当前记得的内容即可。
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-
 function ExtractedSummaryCard({
+
   extractedFields,
   currentFields,
 }: {
@@ -947,33 +930,22 @@ export default function NewCustomerPage() {
     const showTextBubble = !(isAssistant && message.type === "error-hint") && hasBubbleContent;
     const isWelcomeMessage = isAssistant && message.type === "welcome";
 
+    if (isWelcomeMessage && !showTextBubble) {
+      return null;
+    }
+
     const textBubble = showTextBubble ? (
       <div
         className={cn(
           "rounded-[22px] px-4 py-3 text-sm",
-          isAssistant ? "advisor-assistant-bubble text-slate-700" : "advisor-user-bubble",
+          isAssistant
+            ? "mr-auto inline-block max-w-[min(100%,34rem)] advisor-assistant-bubble text-left text-slate-700"
+            : "ml-auto max-w-[88%] advisor-user-bubble text-left",
         )}
       >
         <p className="leading-7">{bubbleContent}</p>
       </div>
     ) : null;
-
-    if (isWelcomeMessage) {
-      return (
-        <div key={message.id} className="space-y-2">
-          <div className="flex justify-start gap-3">
-            <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
-              <AvatarFallback className="advisor-user-bubble text-xs text-white">AI</AvatarFallback>
-            </Avatar>
-            <div className="max-w-[88%] space-y-2">
-              {showTextBubble ? <span className="px-1 text-xs text-slate-400">{message.timestamp}</span> : null}
-              {textBubble}
-            </div>
-          </div>
-          <WelcomeMessageCard compact={shouldCompactWelcome} />
-        </div>
-      );
-    }
 
     return (
       <div key={message.id} className={cn("flex gap-3", isAssistant ? "justify-start" : "justify-end")}>
@@ -983,30 +955,41 @@ export default function NewCustomerPage() {
           </Avatar>
         ) : null}
 
-
-        <div className={cn("max-w-[88%] space-y-2", isAssistant ? "items-start" : "items-end text-right")}>
-          <span className="px-1 text-xs text-slate-400">{message.timestamp}</span>
+        <div
+          className={cn(
+            "space-y-2",
+            isAssistant ? "min-w-0 flex-1 max-w-none text-left" : "max-w-[88%] items-end text-right",
+          )}
+        >
+          <span className={cn("block px-1 text-xs text-slate-400", isAssistant ? "text-left" : "text-right")}>{message.timestamp}</span>
           {textBubble}
 
           {isAssistant && message.type === "extracted-summary" && message.currentFields ? (
-            <ExtractedSummaryCard
-              extractedFields={message.extractedFields ?? []}
-              currentFields={message.currentFields}
-            />
+            <div className="mr-auto w-full max-w-[min(100%,42rem)]">
+              <ExtractedSummaryCard
+                extractedFields={message.extractedFields ?? []}
+                currentFields={message.currentFields}
+              />
+            </div>
           ) : null}
 
           {isAssistant && message.type === "save-success" && message.savedCustomer ? (
-            <SaveSuccessCard customer={message.savedCustomer} />
+            <div className="mr-auto w-full max-w-[min(100%,42rem)]">
+              <SaveSuccessCard customer={message.savedCustomer} />
+            </div>
           ) : null}
 
-          {isAssistant && message.type === "error-hint" ? <ErrorHintCard message={message.content} /> : null}
+          {isAssistant && message.type === "error-hint" ? (
+            <div className="mr-auto w-full max-w-[min(100%,42rem)]">
+              <ErrorHintCard message={message.content} />
+            </div>
+          ) : null}
         </div>
       </div>
     );
   };
 
 
-  const shouldCompactWelcome = messages.some((message) => message.type !== "welcome");
   const desktopPanelTitle = "现有客户";
   const desktopRelatedHint = relatedCustomers.length > 0 ? `已发现 ${relatedCustomers.length} 位相近客户，建议优先核对。` : "";
   const mobileRelatedHint = relatedCustomers.length > 0 ? `以下仅展示当前筛出的 ${relatedCustomers.length} 位相近客户，用于核对是否重复建档。` : "";
@@ -1037,10 +1020,9 @@ export default function NewCustomerPage() {
 
           <div className="min-w-0 flex-1">
             <h1 className="text-lg font-semibold text-slate-900 md:text-[1.35rem]">添加客户档案</h1>
-            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-600 sm:text-sm">
-              先保存基础信息，后续可继续补充；最小必填：客户姓名。
-            </p>
+            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-600 sm:text-sm">先保存基础信息，后续可继续补充。</p>
           </div>
+
         </CardContent>
       </Card>
 
@@ -1059,18 +1041,13 @@ export default function NewCustomerPage() {
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-base font-semibold text-slate-900">添加客户档案</h1>
-                      <span className="advisor-chip-warning rounded-full px-2 py-1 text-[11px] font-medium">最小必填：客户姓名</span>
-                    </div>
+                    <h1 className="text-base font-semibold text-slate-900">添加客户档案</h1>
                     <p className="mt-1 text-[12px] leading-5 text-slate-500">先保存基础信息，后续可继续补充。</p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[11px] font-medium tracking-[0.14em] text-slate-500">助手主流程</p>
+                <div className="flex flex-wrap items-center justify-end gap-1.5">
 
-                  <div className="flex flex-wrap items-center justify-end gap-1.5">
                     <MobileCustomerEntryButton
                       customerCount={totalCustomerCount}
                       relatedCount={relatedCustomers.length}
@@ -1095,14 +1072,15 @@ export default function NewCustomerPage() {
                     <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/80 shadow-sm">
                       <AvatarFallback className="advisor-user-bubble text-xs text-white">AI</AvatarFallback>
                     </Avatar>
-                    <div className="advisor-assistant-bubble rounded-[22px] px-4 py-3 text-sm text-slate-600">
-                      <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1 text-left">
+                      <div className="mr-auto inline-flex max-w-[min(100%,34rem)] items-center gap-2 rounded-[22px] px-4 py-3 text-sm text-slate-600 advisor-assistant-bubble">
                         <Sparkles className="h-4 w-4 animate-pulse text-amber-600" />
                         {extractMutation.isPending ? "正在为你整理客户信息…" : "正在为你保存客户档案…"}
                       </div>
                     </div>
                   </div>
                 ) : null}
+
 
                 <div className="h-2" />
               </div>
