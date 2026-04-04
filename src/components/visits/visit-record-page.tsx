@@ -139,16 +139,31 @@ export function VisitRecordPage() {
   };
   const openAllCustomersSheet = () => openCustomerSheet("all");
 
+  const resolveDraftForSave = (draft: VisitDraftState) => {
+    const matchedCustomer = (draft.customerId ? customers.find((customer) => customer.id === draft.customerId) : null) ?? findExactCustomerMatch(draft, customers);
+
+    if (!matchedCustomer) {
+      return draft;
+    }
+
+    return {
+      ...draft,
+      customerId: matchedCustomer.id,
+      name: matchedCustomer.name,
+      nickName: matchedCustomer.nickname ?? "",
+    } satisfies VisitDraftState;
+  };
 
   const saveMutation = useMutation({
     mutationFn: ({ draft }: SaveVisitVariables) => {
-      const matchedCustomer = findExactCustomerMatch(draft, customers);
+      const resolvedDraft = resolveDraftForSave(draft);
       return fetchJson<VisitRecordEntity>("/api/visits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...draft, customerId: draft.customerId || matchedCustomer?.id || undefined, skipTaskSync: true }),
+        body: JSON.stringify({ ...resolvedDraft, skipTaskSync: true }),
       });
     },
+
     onSuccess: async (savedVisit, variables) => {
       setResumeDraft(null);
       setCustomerSheetOpen(false);
@@ -278,8 +293,10 @@ export function VisitRecordPage() {
       return;
     }
 
-    saveMutation.mutate({ draft: currentDraft });
+    const resolvedDraft = resolveDraftForSave(currentDraft);
+    saveMutation.mutate({ draft: resolvedDraft });
   };
+
 
   const helperSlot = customerStatus.tone === "matched"
     ? buildHelperAction("related", openCustomerSheet, `已匹配：${customerStatus.customer?.name ?? "现有客户"}`, true)
