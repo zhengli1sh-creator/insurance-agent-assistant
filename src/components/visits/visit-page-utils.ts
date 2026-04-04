@@ -80,9 +80,9 @@ export function findExactCustomerMatch(draft: VisitDraftState, customers: Custom
   }
 
   const matches = customers.filter((customer) => {
-    const sameName = name ? normalizeText(customer.name) === name : true;
-    const sameNickname = nickname ? normalizeText(customer.nickname) === nickname : true;
-    return sameName && sameNickname;
+    const sameName = name ? normalizeText(customer.name) === name : false;
+    // 只要姓名精确匹配，即视为精确匹配（昵称不作为必要条件）
+    return sameName;
   });
 
   return matches.length === 1 ? matches[0] : null;
