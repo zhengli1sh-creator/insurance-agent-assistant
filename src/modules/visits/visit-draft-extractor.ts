@@ -229,7 +229,7 @@ function buildDeepSeekPrompt() {
 
     "请尽量提取这些字段：name（客户姓名）、nickName（客户昵称）、timeVisit（拜访日期，格式YYYY-MM-DD）、location（地点）、methodCommunicate（沟通方式，如面谈/电话/微信等）、corePain（客户当下最在意的问题/核心痛点）、briefContent（拜访内容摘要）、followWork（后续待办事项）。",
     "如果原文只出现像“王姐”“李总”这类称呼，优先填入 nickName，无法确认正式姓名时 name 保持空字符串。",
-    "日期处理：\"今天\"输出当天日期，\"昨天\"输出昨天日期，\"3月15日\"转换为YYYY-03-15。",
+    `今天是 ${new Date().toISOString().slice(0, 10)}。日期处理："今天"输出今天日期，"昨天"输出昨天日期，"3月15日"转换为YYYY-03-15。`,
     "briefContent 应该是对拜访过程的简要总结，不要包含已经单独提取的日期、地点、沟通方式。",
     "followWork 应该包含后续需要跟进的动作、待办事项、约定等。",
     '输出结构严格为：{"name":"","nickName":"","timeVisit":"","location":"","methodCommunicate":"","corePain":"","briefContent":"","followWork":""}',
