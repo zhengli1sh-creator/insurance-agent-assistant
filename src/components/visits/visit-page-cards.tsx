@@ -152,7 +152,58 @@ export function VisitExtractedSummaryCard({
   );
 }
 
+const visitFieldLabels: Record<string, string> = {
+  name: "姓名",
+  nick_name: "昵称",
+  time_visit: "拜访日期",
+  location: "地点",
+  method_communicate: "沟通方式",
+  core_pain: "客户关注点",
+  brief_content: "沟通摘要",
+  follow_work: "后续工作",
+  title: "标题",
+  summary: "摘要",
+  happened_at: "发生时间",
+  tone: "沟通氛围",
+};
+
+const systemFields = new Set([
+  "id",
+  "owner_id",
+  "customer_id",
+  "sys_platform",
+  "uuid",
+  "bstudio_create_time",
+  "created_at",
+  "updated_at",
+  "follow_ups",
+  "customer",
+]);
+
 export function VisitSaveSuccessCard({ visit, pendingTaskCount = 0 }: { visit: VisitRecordEntity; pendingTaskCount?: number }) {
+  // 动态收集所有有值的业务字段
+  const filledRows: Array<{ key: string; label: string; value: string }> = [];
+
+  // 优先按固定顺序展示主要字段
+  const priorityFields = ["name", "time_visit", "location", "method_communicate", "core_pain", "brief_content", "follow_work"];
+
+  // 处理优先字段
+  priorityFields.forEach((key) => {
+    const value = visit[key as keyof VisitRecordEntity];
+    if (typeof value === "string" && value.trim()) {
+      filledRows.push({ key, label: visitFieldLabels[key] || key, value: value.trim() });
+    }
+  });
+
+  // 处理其他业务字段（排除系统字段和已处理的优先字段）
+  Object.entries(visit).forEach(([key, value]) => {
+    if (systemFields.has(key) || priorityFields.includes(key)) return;
+    if (key === "nick_name") return; // 昵称特殊处理，合并到姓名
+    if (typeof value === "string" && value.trim()) {
+      filledRows.push({ key, label: visitFieldLabels[key] || key, value: value.trim() });
+    }
+  });
+
   return (
     <div className={cn(customerNoticeCardClassName, "advisor-notice-card-success")}>
       <div className="flex items-start gap-3">
@@ -167,17 +218,31 @@ export function VisitSaveSuccessCard({ visit, pendingTaskCount = 0 }: { visit: V
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3.5">
-        <p className="text-lg font-semibold text-slate-900">{visit.name}{visit.nick_name ? `（${visit.nick_name}）` : ""}</p>
-        <p className="mt-1 text-sm text-slate-500">{formatVisitMeta(visit)}</p>
-      </div>
+      {/* 展示所有已保存的字段，带有对应的信息项标签 */}
+      <div className="advisor-subtle-card mt-4 rounded-2xl p-3.5 sm:p-4">
+        <p className="advisor-kicker">拜访简报</p>
+        <div className="mt-3 space-y-2.5">
+          {filledRows.map(({ key, label, value }) => {
+            // 姓名特殊处理：加上昵称
+            if (key === "name") {
+              const displayValue = visit.nick_name ? `${value}（${visit.nick_name}）` : value;
+              return (
+                <div key={key} className="flex gap-3 text-sm leading-6">
+                  <span className="w-20 shrink-0 text-slate-500">{label}</span>
+                  <span className="flex-1 font-medium text-slate-900">{displayValue}</span>
+                </div>
+              );
+            }
 
-      {visit.brief_content ? (
-        <div className="mt-4 rounded-2xl border border-white/80 bg-white/74 p-3.5 sm:p-4">
-          <p className="text-sm font-medium text-slate-700">沟通摘要</p>
-          <p className="mt-3 text-sm leading-6 text-slate-700">{visit.brief_content}</p>
+            return (
+              <div key={key} className="flex gap-3 text-sm leading-6">
+                <span className="w-20 shrink-0 text-slate-500">{label}</span>
+                <span className="flex-1 text-slate-700">{value}</span>
+              </div>
+            );
+          })}
         </div>
-      ) : null}
+      </div>
 
       <p className="mt-4 text-xs leading-5 text-slate-500">
         {pendingTaskCount > 0 ? "任务不会直接写入，仍需你在下一页补充并确认。" : "当前未检测到明确后续事项，本次仅保存拜访记录。"}
