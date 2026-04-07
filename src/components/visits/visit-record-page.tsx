@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { buildTaskDraftSeedFromVisit } from "@/modules/tasks/task-draft";
 import { persistTaskDraftSeed } from "@/modules/tasks/task-draft-session";
 import type { VisitDraftExtraction } from "@/modules/visits/visit-draft-extractor";
+import { clearVisitDraft, persistVisitDraft, readVisitDraft } from "@/modules/visits/visit-draft-session";
 import type { CustomerRecord } from "@/types/customer";
 import type { VisitRecordEntity } from "@/types/visit";
 
@@ -132,6 +133,26 @@ export function VisitRecordPage() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    const persisted = readVisitDraft();
+    if (persisted) {
+      setCurrentDraft(persisted.currentDraft);
+      const hasWelcome = persisted.messages.some((m) => m.type === "welcome");
+      setMessages(
+        hasWelcome
+          ? persisted.messages
+          : [createVisitWelcomeMessage("已为你恢复之前的拜访草稿，可继续录入。"), ...persisted.messages],
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      persistVisitDraft(currentDraft, messages);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [currentDraft, messages]);
+
   const addMessage = (message: VisitChatMessage) => setMessages((prev) => [...prev, message]);
   const openCustomerSheet = (mode: VisitCustomerSheetMode) => {
     setCustomerSheetMode(mode);
@@ -165,6 +186,7 @@ export function VisitRecordPage() {
     },
 
     onSuccess: async (savedVisit, variables) => {
+      clearVisitDraft();
       setResumeDraft(null);
       setCustomerSheetOpen(false);
       setCustomerForm({ ...emptyCustomerProfileForm });

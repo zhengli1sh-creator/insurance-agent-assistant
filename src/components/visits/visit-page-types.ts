@@ -6,6 +6,7 @@ export type VisitDraftFieldKey =
   | "timeVisit"
   | "location"
   | "methodCommunicate"
+  | "tone"
   | "corePain"
   | "briefContent"
   | "followWork";
@@ -17,6 +18,7 @@ export type VisitDraftState = {
   timeVisit: string;
   location: string;
   methodCommunicate: string;
+  tone: string;
   corePain: string;
   briefContent: string;
   followWork: string;

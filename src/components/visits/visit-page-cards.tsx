@@ -10,6 +10,7 @@ const summaryRows: Array<{ key: keyof VisitDraftState; label: string }> = [
   { key: "timeVisit", label: "拜访日期" },
   { key: "location", label: "地点" },
   { key: "methodCommunicate", label: "沟通方式" },
+  { key: "tone", label: "沟通氛围" },
   { key: "corePain", label: "客户关注点" },
   { key: "briefContent", label: "沟通摘要" },
 ];
@@ -178,6 +179,9 @@ const systemFields = new Set([
   "updated_at",
   "follow_ups",
   "customer",
+  "title",
+  "summary",
+  "happened_at",
 ]);
 
 export function VisitSaveSuccessCard({ visit, pendingTaskCount = 0 }: { visit: VisitRecordEntity; pendingTaskCount?: number }) {
@@ -185,7 +189,7 @@ export function VisitSaveSuccessCard({ visit, pendingTaskCount = 0 }: { visit: V
   const filledRows: Array<{ key: string; label: string; value: string }> = [];
 
   // 优先按固定顺序展示主要字段
-  const priorityFields = ["name", "time_visit", "location", "method_communicate", "core_pain", "brief_content", "follow_work"];
+  const priorityFields = ["name", "time_visit", "location", "method_communicate", "tone", "core_pain", "brief_content", "follow_work"];
 
   // 处理优先字段
   priorityFields.forEach((key) => {
