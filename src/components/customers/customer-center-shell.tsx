@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useDeferredValue } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Plus, Search, Sparkles, X } from "lucide-react";
+import { ArrowRight, Search, Sparkles, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,17 +87,11 @@ export function CustomerCenterShell() {
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="advisor-accent-chip w-fit rounded-full px-3 py-1">客户中心</Badge>
-                <span className="advisor-section-label">单列经营入口</span>
                 {isDemoMode ? <Badge className="advisor-chip-neutral rounded-full border-0 px-3 py-1">示例预览</Badge> : null}
-
               </div>
 
               <div className="space-y-3">
                 <p className="advisor-kicker">Customer dossier</p>
-                <h1 className={`${customerHeroTitleClassName} max-w-3xl`}>
-                  按客户查看基础资料，并逐步沉淀后续经营记录。
-                </h1>
-
                 <p className="max-w-3xl text-sm leading-7 text-slate-600 sm:text-[0.95rem]">
                   列表页只负责找到客户、查看资料提醒并进入详情。后续的拜访、活动和提醒任务，会逐步沉淀到客户详情页中。
                 </p>
@@ -105,7 +99,8 @@ export function CustomerCenterShell() {
             </div>
 
             <div className="advisor-input-dock rounded-[28px] p-3">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3">
+                <p className="text-sm font-medium text-slate-700">搜索客户</p>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -119,7 +114,7 @@ export function CustomerCenterShell() {
                   <Input
                     value={keyword}
                     onChange={(event) => setKeyword(event.target.value)}
-                    placeholder="按姓名、昵称、职业、来源或核心关注点检索"
+                    placeholder="按姓名或昵称检索"
                     className="advisor-form-control h-12 rounded-full pl-11 pr-10 focus-visible:ring-0"
                   />
                   {isSearching && (
@@ -132,13 +127,6 @@ export function CustomerCenterShell() {
                     </button>
                   )}
                 </form>
-
-                <Link href="/customers/new" className="w-full sm:w-auto">
-                  <Button className={`${customerPrimaryActionClassName} h-12 w-full hover:-translate-y-0.5 sm:w-auto`}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    新增客户
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
