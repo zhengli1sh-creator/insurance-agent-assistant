@@ -25,6 +25,8 @@ import {
 import { fetchJson } from "@/lib/crm-api";
 import type { CustomerRecord } from "@/types/customer";
 
+import { CustomerVisitList } from "./customer-visit-list";
+
 import {
   createFallbackCustomerRecords,
   getCustomerBriefing,
@@ -44,11 +46,6 @@ import {
 
 
 const futureModules = [
-  {
-    title: "拜访记录",
-    description: "后续将在这里沉淀这位客户的每次拜访内容、关键判断与后续动作。",
-    icon: ClipboardList,
-  },
   {
     title: "活动参与",
     description: "后续将在这里查看这位客户参与过的活动及活动后的经营线索。",
@@ -396,6 +393,8 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
             <ProfileSectionCard key={section.title} title={section.title} fields={section.fields} />
           ))}
         </div>
+
+        <CustomerVisitList customerId={customerId} customerName={customer.name} />
 
         <div className="space-y-4">
           {futureModules.map((module) => (

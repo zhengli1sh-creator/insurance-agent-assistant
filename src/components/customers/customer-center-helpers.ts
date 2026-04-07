@@ -220,13 +220,19 @@ export function getCustomerReminderStats(customers: CustomerRecord[]) {
 
 export function filterCustomers(customers: CustomerRecord[], keyword: string) {
   const normalizedKeyword = keyword.trim().toLowerCase();
+  
+  // 如果没有关键词，返回按时间排序的所有客户
   if (!normalizedKeyword) {
     return [...customers].sort((left, right) => getCustomerSortTime(right) - getCustomerSortTime(left));
   }
 
+  // 将关键词按空格分割，支持多关键词搜索
+  const keywords = normalizedKeyword.split(/\s+/).filter(Boolean);
+  
   return customers
     .filter((customer) => {
-      const haystack = [
+      // 构建搜索文本，包含客户所有可搜索字段
+      const searchFields = [
         customer.name,
         customer.nickname,
         customer.profession,
@@ -234,12 +240,18 @@ export function filterCustomers(customers: CustomerRecord[], keyword: string) {
         customer.core_interesting,
         customer.prefer_communicate,
         customer.remark,
-      ]
-        .filter(Boolean)
+        customer.family_profile,
+        customer.wealth_profile,
+        customer.recent_money,
+      ];
+      
+      const haystack = searchFields
+        .filter((value): value is string => typeof value === "string" && value.length > 0)
         .join(" ")
         .toLowerCase();
 
-      return haystack.includes(normalizedKeyword);
+      // 所有关键词都必须匹配（AND 逻辑）
+      return keywords.every((kw) => haystack.includes(kw));
     })
     .sort((left, right) => getCustomerSortTime(right) - getCustomerSortTime(left));
 }

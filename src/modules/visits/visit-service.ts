@@ -1,6 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 
-import { createVisitRepository, deleteVisitRepository, listVisitsRepository, updateVisitRepository } from "@/lib/repositories/visit-repository";
+import { createVisitRepository, deleteVisitRepository, listVisitsByCustomerRepository, listVisitsRepository, updateVisitRepository } from "@/lib/repositories/visit-repository";
 import { visitCreateSchema, visitUpdateSchema } from "@/lib/validation/visit";
 import { resolveCustomerSnapshotService } from "@/modules/customers/customer-service";
 import { syncTasksFromSource } from "@/modules/tasks/task-service";
@@ -58,6 +58,11 @@ function visitErrorStatus(error: PostgrestError | null) {
 
 export async function listVisitsService(supabase: SupabaseClient, ownerId: string) {
   const { data, error } = await listVisitsRepository(supabase, ownerId);
+  return { status: error ? 400 : 200, data: data ?? [], error: error?.message ?? "" };
+}
+
+export async function listVisitsByCustomerService(supabase: SupabaseClient, ownerId: string, customerId: string) {
+  const { data, error } = await listVisitsByCustomerRepository(supabase, ownerId, customerId);
   return { status: error ? 400 : 200, data: data ?? [], error: error?.message ?? "" };
 }
 

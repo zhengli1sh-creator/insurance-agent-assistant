@@ -8,6 +8,15 @@ export async function listVisitsRepository(supabase: SupabaseClient, ownerId: st
     .order("time_visit", { ascending: false });
 }
 
+export async function listVisitsByCustomerRepository(supabase: SupabaseClient, ownerId: string, customerId: string) {
+  return supabase
+    .from("visit_records")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .eq("customer_id", customerId)
+    .order("time_visit", { ascending: false });
+}
+
 export async function createVisitRepository(
   supabase: SupabaseClient,
   payload: {

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useDeferredValue } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Plus, Search, Sparkles } from "lucide-react";
+import { ArrowRight, Plus, Search, Sparkles, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,7 @@ function CenterStateCard({ title, description }: { title: string; description?: 
 
 export function CustomerCenterShell() {
   const [keyword, setKeyword] = useState("");
+  const deferredKeyword = useDeferredValue(keyword);
 
   const customersQuery = useQuery({
     queryKey: ["customers-center-list"],
@@ -72,8 +73,10 @@ export function CustomerCenterShell() {
     () => (isDemoMode ? createFallbackCustomerRecords() : customersQuery.data ?? []),
     [customersQuery.data, isDemoMode],
   );
-  const filteredCustomers = useMemo(() => filterCustomers(customers, keyword), [customers, keyword]);
+  const filteredCustomers = useMemo(() => filterCustomers(customers, deferredKeyword), [customers, deferredKeyword]);
   const reminders = useMemo(() => getCustomerReminderStats(customers), [customers]);
+  
+  const isSearching = keyword.trim().length > 0;
 
   return (
     <div className="mx-auto h-full max-w-4xl space-y-5 overflow-y-auto overscroll-contain">
@@ -109,14 +112,21 @@ export function CustomerCenterShell() {
                     value={keyword}
                     onChange={(event) => setKeyword(event.target.value)}
                     placeholder="按姓名、昵称、职业、来源或核心关注点检索"
-                    className="advisor-form-control h-12 rounded-full pl-11 pr-4 focus-visible:ring-0"
+                    className="advisor-form-control h-12 rounded-full pl-11 pr-10 focus-visible:ring-0"
                   />
+                  {isSearching && (
+                    <button
+                      type="button"
+                      onClick={() => setKeyword("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
 
                 <Link href="/customers/new" className="w-full sm:w-auto">
-
                   <Button className={`${customerPrimaryActionClassName} h-12 w-full hover:-translate-y-0.5 sm:w-auto`}>
-
                     <Plus className="mr-2 h-4 w-4" />
                     新增客户
                   </Button>
@@ -156,8 +166,17 @@ export function CustomerCenterShell() {
       <div className="space-y-4">
         {customersQuery.isLoading ? <CenterStateCard title="正在整理客户资料…" /> : null}
 
+        {isSearching && !customersQuery.isLoading && filteredCustomers.length > 0 ? (
+          <div className="px-1 text-sm text-slate-500">
+            找到 {filteredCustomers.length} 位匹配的客户
+          </div>
+        ) : null}
+
         {!customersQuery.isLoading && filteredCustomers.length === 0 ? (
-          <CenterStateCard title="当前没有匹配到客户" description="可以换一个关键词继续查找，或先新增客户档案。" />
+          <CenterStateCard 
+            title={isSearching ? "未找到匹配的客户" : "当前暂无客户档案"} 
+            description={isSearching ? `没有找到与 "${keyword}" 匹配的客户，可以尝试其他关键词或添加新客户。` : "可以点击下方按钮新增客户档案，开始建立客户基础信息。"} 
+          />
         ) : null}
 
 

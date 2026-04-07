@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 
 import { requireUserContext } from "@/lib/supabase/require-user";
-import { createVisitService, deleteVisitService, listVisitsService, updateVisitService } from "@/modules/visits/visit-service";
+import { createVisitService, deleteVisitService, listVisitsByCustomerService, listVisitsService, updateVisitService } from "@/modules/visits/visit-service";
 
-export async function GET() {
+export async function GET(request: Request) {
   const context = await requireUserContext();
   if (!context.supabase || !context.user) {
     return NextResponse.json({ error: context.message }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const customerId = searchParams.get("customerId");
+
+  if (customerId) {
+    const result = await listVisitsByCustomerService(context.supabase, context.user.id, customerId);
+    return NextResponse.json(result.error ? { error: result.error } : result.data, { status: result.status });
   }
 
   const result = await listVisitsService(context.supabase, context.user.id);
