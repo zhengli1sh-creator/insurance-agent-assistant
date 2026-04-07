@@ -18,6 +18,7 @@ const fieldLabelMap = {
   timeVisit: "拜访日期",
   location: "地点",
   methodCommunicate: "沟通方式",
+  tone: "沟通氛围",
   corePain: "核心痛点",
   briefContent: "拜访内容",
   followWork: "后续动作",

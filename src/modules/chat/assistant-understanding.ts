@@ -90,6 +90,7 @@ function normalizePayload(payload: Record<string, unknown>, message: string) {
     "location",
     "corePain",
     "methodCommunicate",
+    "tone",
     "name",
     "nickname",
 
@@ -535,7 +536,7 @@ function buildDeepSeekSystemPrompt() {
     "多意图时，只保留一个主流程 intent，其余信息放进 payload.summary、payload.followWork 或其他合适字段，不要并发多个 intent。",
     "若意图不明确、信息不完整、存在歧义、可能口误或对象混淆，必须返回 clarification，不要猜测，不要假设。",
     "高风险写动作不会在这里执行，你只做结构化理解。",
-    "visit_create 的 payload 尽量提取：customerName、nickName、timeVisit、location、corePain、profession、source、summary、followWork、methodCommunicate。followWork 优先输出字符串数组。若只有客户常用昵称、没有正式姓名，也要把昵称写入 nickName。若文本里出现客户来源或职业 / 身份，也一并提取。",
+    "visit_create 的 payload 尽量提取：customerName、nickName、timeVisit、location、tone（沟通氛围，如轻松愉快/客户积极/有些犹豫等）、corePain、profession、source、summary、followWork、methodCommunicate。followWork 优先输出字符串数组。若只有客户常用昵称、没有正式姓名，也要把昵称写入 nickName。若文本里出现客户来源或职业 / 身份，也一并提取。",
     "当用户是在补充或纠正客户身份时，要优先按语义理解，而不是机械截取字面片段。像‘我说的刘总就是刘涛’这类句子，应理解为 nickName=刘总、customerName=刘涛，不要把‘我说的刘总’整体当成昵称。",
     "若句子里同时出现一个昵称和一个正式姓名，并带有‘就是 / 是 / 叫 / 也叫’这类对应关系，优先把更像尊称或常用叫法的值放进 nickName，把正式姓名放进 customerName。",
 

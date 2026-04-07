@@ -106,7 +106,7 @@ export async function createVisitService(supabase: SupabaseClient, ownerId: stri
     title: parsed.data.title || buildVisitTitle(visitName, parsed.data.timeVisit),
     summary: parsed.data.briefContent || parsed.data.summary || "待补充谈话摘要",
     happened_at: buildVisitTimestamp(parsed.data.timeVisit, parsed.data.happenedAt),
-    tone: toNullableText(parsed.data.tone || parsed.data.methodCommunicate),
+    tone: toNullableText(parsed.data.tone),
     follow_ups: followUps,
   });
 
@@ -178,7 +178,7 @@ export async function updateVisitService(supabase: SupabaseClient, ownerId: stri
     title: fields.title || buildVisitTitle(visitName, timeVisit),
     summary: fields.briefContent || fields.summary || "待补充谈话摘要",
     happened_at: buildVisitTimestamp(timeVisit, fields.happenedAt),
-    tone: toNullableText(fields.tone || fields.methodCommunicate),
+    tone: toNullableText(fields.tone),
     follow_ups: followUps,
   });
 

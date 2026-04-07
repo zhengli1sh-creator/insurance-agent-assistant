@@ -8,6 +8,7 @@ export interface VisitDraftExtraction {
   timeVisit: string;
   location: string;
   methodCommunicate: string;
+  tone: string;
   corePain: string;
   briefContent: string;
   followWork: string;
@@ -20,6 +21,7 @@ export const visitDraftExtractionSchema = z.object({
   timeVisit: z.string().trim().optional().default(""),
   location: z.string().trim().optional().default(""),
   methodCommunicate: z.string().trim().optional().default(""),
+  tone: z.string().trim().optional().default(""),
   corePain: z.string().trim().optional().default(""),
   briefContent: z.string().trim().optional().default(""),
   followWork: z.string().trim().optional().default(""),
@@ -31,6 +33,7 @@ const emptyExtraction: VisitDraftExtraction = {
   timeVisit: "",
   location: "",
   methodCommunicate: "",
+  tone: "",
   corePain: "",
   briefContent: "",
   followWork: "",
@@ -47,6 +50,7 @@ function buildCurrentDraftContext(currentDraft?: Partial<VisitDraftExtraction>) 
     ["拜访日期", currentDraft.timeVisit],
     ["地点", currentDraft.location],
     ["沟通方式", currentDraft.methodCommunicate],
+    ["沟通氛围", currentDraft.tone],
     ["核心痛点", currentDraft.corePain],
     ["拜访内容", currentDraft.briefContent],
     ["后续动作", currentDraft.followWork],
@@ -204,6 +208,34 @@ function extractFollowWork(message: string): string {
   return followClauses.map(normalizeSentence).join("；");
 }
 
+function extractTone(message: string): string {
+  const clauses = splitClauses(message);
+
+  // 匹配描述氛围的词句
+  const tonePatterns = [
+    /氛围(很|比较|非常)?([^，。；\n]{2,20})/,
+    /气氛(很|比较|非常)?([^，。；\n]{2,20})/,
+    /(轻松|愉快|融洽|正式|紧张|犹豫|积极|冷淡|热情|抵触|友好|严肃)([^，。；\n]{0,10})/,
+    /客户(很|比较|非常)?(积极|主动|配合|犹豫|冷淡|热情|抵触|满意|开心)/,
+    /聊得(很|比较)?([^，。；\n]{2,15})/,
+    /整体(感觉|印象|氛围)?(很|比较|非常)?([^，。；\n]{2,15})/,
+  ];
+
+  for (const pattern of tonePatterns) {
+    const match = message.match(pattern);
+    if (match) {
+      // 提取完整的匹配内容
+      const fullMatch = match[0];
+      // 过滤掉太短的
+      if (fullMatch.length >= 4) {
+        return fullMatch.replace(/^(氛围|气氛|整体)/, "").trim();
+      }
+    }
+  }
+
+  return "";
+}
+
 export function extractVisitDraftByRules(message: string): VisitDraftExtraction {
   const normalized = message.trim();
 
@@ -214,6 +246,7 @@ export function extractVisitDraftByRules(message: string): VisitDraftExtraction 
     timeVisit: extractDate(normalized),
     location: extractLocation(normalized),
     methodCommunicate: extractMethod(normalized),
+    tone: extractTone(normalized),
     corePain: extractCorePain(normalized),
     briefContent: extractBriefContent(normalized),
     followWork: extractFollowWork(normalized),
@@ -227,12 +260,12 @@ function buildDeepSeekPrompt() {
     "禁止编造。没有提到的字段输出空字符串。",
     "用户本次输入可能只是增量补充。如果某字段在本次输入里没有新增或更正，请输出空字符串，不要重复已知字段，也不要要求用户重填已识别字段。",
 
-    "请尽量提取这些字段：name（客户姓名）、nickName（客户昵称）、timeVisit（拜访日期，格式YYYY-MM-DD）、location（地点）、methodCommunicate（沟通方式，如面谈/电话/微信等）、corePain（客户当下最在意的问题/核心痛点）、briefContent（拜访内容摘要）、followWork（后续待办事项）。",
-    "如果原文只出现像“王姐”“李总”这类称呼，优先填入 nickName，无法确认正式姓名时 name 保持空字符串。",
+    "请尽量提取这些字段：name（客户姓名）、nickName（客户昵称）、timeVisit（拜访日期，格式YYYY-MM-DD）、location（地点）、methodCommunicate（沟通方式，如面谈/电话/微信等）、tone（沟通氛围，如轻松愉快/客户很积极/有些犹豫/比较正式/聊得很投机等描述整体气氛的词句）、corePain（客户当下最在意的问题/核心痛点）、briefContent（拜访内容摘要）、followWork（后续待办事项）。",
+    "如果原文只出现像"王姐""李总"这类称呼，优先填入 nickName，无法确认正式姓名时 name 保持空字符串。",
     `今天是 ${new Date().toISOString().slice(0, 10)}。日期处理："今天"输出今天日期，"昨天"输出昨天日期，"3月15日"转换为YYYY-03-15。`,
     "briefContent 应该是对拜访过程的简要总结，不要包含已经单独提取的日期、地点、沟通方式。",
     "followWork 应该包含后续需要跟进的动作、待办事项、约定等。",
-    '输出结构严格为：{"name":"","nickName":"","timeVisit":"","location":"","methodCommunicate":"","corePain":"","briefContent":"","followWork":""}',
+    '输出结构严格为：{"name":"","nickName":"","timeVisit":"","location":"","methodCommunicate":"","tone":"","corePain":"","briefContent":"","followWork":""}',
   ].join("\n");
 }
 
