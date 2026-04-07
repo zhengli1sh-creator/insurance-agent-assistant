@@ -106,7 +106,13 @@ export function CustomerCenterShell() {
 
             <div className="advisor-input-dock rounded-[28px] p-3">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="relative w-full sm:max-w-md">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    (e.currentTarget.querySelector('input') as HTMLInputElement)?.blur();
+                  }}
+                  className="relative w-full sm:max-w-md"
+                >
                   <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     value={keyword}
@@ -123,7 +129,7 @@ export function CustomerCenterShell() {
                       <X className="h-4 w-4" />
                     </button>
                   )}
-                </div>
+                </form>
 
                 <Link href="/customers/new" className="w-full sm:w-auto">
                   <Button className={`${customerPrimaryActionClassName} h-12 w-full hover:-translate-y-0.5 sm:w-auto`}>
