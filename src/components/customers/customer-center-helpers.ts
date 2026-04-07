@@ -231,21 +231,13 @@ export function filterCustomers(customers: CustomerRecord[], keyword: string) {
   
   return customers
     .filter((customer) => {
-      // 构建搜索文本，包含客户所有可搜索字段
-      const searchFields = [
+      // 只搜索姓名和昵称
+      const nameFields = [
         customer.name,
         customer.nickname,
-        customer.profession,
-        customer.source,
-        customer.core_interesting,
-        customer.prefer_communicate,
-        customer.remark,
-        customer.family_profile,
-        customer.wealth_profile,
-        customer.recent_money,
       ];
       
-      const haystack = searchFields
+      const haystack = nameFields
         .filter((value): value is string => typeof value === "string" && value.length > 0)
         .join(" ")
         .toLowerCase();
