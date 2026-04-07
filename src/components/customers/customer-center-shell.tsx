@@ -109,7 +109,9 @@ export function CustomerCenterShell() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    (e.currentTarget.querySelector('input') as HTMLInputElement)?.blur();
+                    if (document.activeElement instanceof HTMLElement) {
+                      document.activeElement.blur();
+                    }
                   }}
                   className="relative w-full sm:max-w-md"
                 >
