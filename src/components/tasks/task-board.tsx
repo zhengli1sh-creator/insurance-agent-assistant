@@ -166,9 +166,8 @@ export function TaskBoard({ tasks, isLoading = false }: TaskBoardProps) {
                       <span className={meta.iconBadgeClassName}>
                         <Icon className="h-4 w-4" />
                       </span>
-                      <div className="space-y-1">
+                      <div>
                         <CardTitle className="text-lg text-slate-900">{meta.title}</CardTitle>
-                        <p className="text-sm leading-6 text-slate-600">{meta.description}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
