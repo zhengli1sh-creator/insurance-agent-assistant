@@ -6,10 +6,19 @@ import { createTasksService, listTasksService, updateTaskStatusService } from "@
 export async function GET() {
   const context = await requireUserContext();
   if (!context.supabase || !context.user) {
+    // eslint-disable-next-line no-console
+    console.log("[API /tasks GET] Auth failed:", context.message);
     return NextResponse.json({ error: context.message }, { status: 401 });
   }
 
+  // eslint-disable-next-line no-console
+  console.log("[API /tasks GET] User:", context.user.id, "Email:", context.user.email);
+
   const result = await listTasksService(context.supabase, context.user.id);
+
+  // eslint-disable-next-line no-console
+  console.log("[API /tasks GET] Result:", { count: result.data?.length, status: result.status, error: result.error });
+
   return NextResponse.json(result.error ? { error: result.error } : result.data, { status: result.status });
 }
 

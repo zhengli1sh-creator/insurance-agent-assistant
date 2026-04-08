@@ -65,7 +65,14 @@ type SyncTasksOptions = {
 };
 
 export async function listTasksService(supabase: SupabaseClient, ownerId: string) {
+  // eslint-disable-next-line no-console
+  console.log("[listTasksService] Querying tasks for owner:", ownerId);
+
   const { data, error } = await listTasksRepository(supabase, ownerId);
+
+  // eslint-disable-next-line no-console
+  console.log("[listTasksService] Result:", { dataCount: data?.length, error: error?.message });
+
   return { status: error ? 400 : 200, data: (data ?? []).map(normalizeTaskEntity), error: error?.message ?? "" };
 }
 

@@ -42,7 +42,7 @@ export async function replaceTasksBySourceRepository(
     return deleteResult;
   }
 
-  return supabase.from("tasks").insert(tasks);
+  return supabase.from("tasks").insert(tasks).select("*").returns<TaskEntity[]>();
 }
 
 export async function updateTaskStatusRepository(
