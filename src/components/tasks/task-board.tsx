@@ -161,16 +161,16 @@ export function TaskBoard({ tasks, isLoading = false }: TaskBoardProps) {
             return (
               <Card key={status} className={cn(meta.cardClassName, "rounded-[30px]")}>
                 <CardHeader className="space-y-4 pb-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <span className={meta.iconBadgeClassName}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span className={cn(meta.iconBadgeClassName, "shrink-0")}>
                         <Icon className="h-4 w-4" />
                       </span>
-                      <div>
-                        <CardTitle className="text-lg text-slate-900">{meta.title}</CardTitle>
+                      <div className="min-w-0">
+                        <CardTitle className="whitespace-nowrap text-lg text-slate-900">{meta.title}</CardTitle>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                       {isPending && items.length > 0 && (
                         <div className="flex items-center bg-white/60 rounded-full p-0.5">
                           <Button
