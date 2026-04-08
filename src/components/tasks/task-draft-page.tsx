@@ -11,16 +11,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { fetchJson } from "@/lib/crm-api";
+import { ApiRequestError, fetchJson } from "@/lib/crm-api";
 import { cn } from "@/lib/utils";
 import { clearTaskDraftSeed, readTaskDraftSeed } from "@/modules/tasks/task-draft-session";
 import type { TaskDraftItem, TaskDraftSeed, TaskEntity, TaskPriorityValue } from "@/types/task";
+
 
 function createEmptyTaskDraft(): TaskDraftItem {
   return { id: crypto.randomUUID(), title: "", priority: "中", dueDate: "", note: "" };
 }
 
+function fetchLiveTasks() {
+  return fetchJson<TaskEntity[]>("/api/tasks", { cache: "no-store" });
+}
+
 function SourceNoticeCard({ seed }: { seed: TaskDraftSeed }) {
+
   return (
     <Card className="advisor-notice-card advisor-notice-card-info rounded-[30px]">
       <CardContent className="space-y-4 p-5">
@@ -111,6 +117,7 @@ export function TaskDraftPage() {
       fetchJson<TaskEntity[]>("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        cache: "no-store",
         body: JSON.stringify({
           tasks: drafts
             .filter((item) => item.title.trim())
@@ -128,17 +135,27 @@ export function TaskDraftPage() {
             })),
         }),
       }),
-    onSuccess: async (result) => {
+    onMutate: () => {
       setErrorMessage("");
+      setSaveSuccessCount(0);
+    },
+    onSuccess: async (result) => {
       setSaveSuccessCount(result.length);
       clearTaskDraftSeed();
       await queryClient.invalidateQueries({ queryKey: ["tasks-live"] });
+      await queryClient.fetchQuery({ queryKey: ["tasks-live"], queryFn: fetchLiveTasks }).catch(() => undefined);
       window.setTimeout(() => router.push("/tasks"), 900);
     },
     onError: (error) => {
-      setErrorMessage(error.message || "这次还没有创建成功，请再核对一下任务内容。");
+      if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
+        setErrorMessage("登录状态已失效，请重新登录后再创建任务。");
+        return;
+      }
+
+      setErrorMessage(error instanceof Error ? error.message : "这次还没有创建成功，请再核对一下任务内容。");
     },
   });
+
 
 
   return (

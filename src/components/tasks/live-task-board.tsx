@@ -5,9 +5,9 @@ import { AlertCircle, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TaskBoard } from "@/components/tasks/task-board";
-import { tasks as demoTasks } from "@/lib/demo-data";
-import { fetchJson } from "@/lib/crm-api";
+import { ApiRequestError, fetchJson } from "@/lib/crm-api";
 import type { TaskEntity } from "@/types/task";
+
 
 function formatTaskDueDate(task: TaskEntity) {
   if (task.remind_at) {
@@ -42,8 +42,14 @@ function formatTaskHint(task: TaskEntity) {
   return task.result_note ?? task.description ?? task.note ?? "等待进一步安排";
 }
 
-// 判断是否为认证相关错误
+function fetchLiveTasks() {
+  return fetchJson<TaskEntity[]>("/api/tasks", { cache: "no-store" });
+}
+
 function isAuthError(error: unknown): boolean {
+  if (error instanceof ApiRequestError) {
+    return error.status === 401 || error.status === 403;
+  }
   if (error instanceof Response) {
     return error.status === 401 || error.status === 403;
   }
@@ -53,8 +59,18 @@ function isAuthError(error: unknown): boolean {
   return false;
 }
 
-// 获取错误信息
 function getErrorMessage(error: unknown): string {
+  if (error instanceof ApiRequestError) {
+    if (error.status === 401 || error.status === 403) {
+      return "登录状态已失效，请重新登录后查看任务。";
+    }
+
+    if (error.status >= 500) {
+      return "任务中心暂时无法读取数据，请稍后重试。";
+    }
+
+    return error.message || `服务器返回 ${error.status} 错误`;
+  }
   if (error instanceof Response) {
     return `服务器返回 ${error.status} 错误`;
   }
@@ -65,12 +81,13 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function LiveTaskBoard() {
-  const query = useQuery({ 
-    queryKey: ["tasks-live"], 
-    queryFn: () => fetchJson<TaskEntity[]>("/api/tasks"),
+  const query = useQuery({
+    queryKey: ["tasks-live"],
+    queryFn: fetchLiveTasks,
     retry: 1,
     refetchOnWindowFocus: true,
   });
+
 
   // 调试日志：输出查询状态
   if (process.env.NODE_ENV === "development") {
