@@ -16,9 +16,13 @@ interface TaskCalendarProps {
   onTaskClick?: (task: TaskItem) => void;
 }
 
-function getCalendarDateKey(dueDate: string) {
-  const matchedDate = dueDate.match(/\d{4}-\d{2}-\d{2}/)?.[0];
-  return matchedDate ?? null;
+/**
+ * 从 plannedAt 提取日期键（YYYY-MM-DD）
+ */
+function getCalendarDateKey(plannedAt: string): string | null {
+  if (!plannedAt) return null;
+  // ISO 8601 格式：2024-01-15T09:00:00.000Z
+  return plannedAt.slice(0, 10);
 }
 
 export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
@@ -56,11 +60,11 @@ export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
     }
   };
 
-  // 按日期分组任务
+  // 按日期分组任务（基于 plannedAt）
   const tasksByDate = useMemo(
     () =>
       tasks.reduce((acc, task) => {
-        const dateKey = getCalendarDateKey(task.dueDate);
+        const dateKey = getCalendarDateKey(task.plannedAt);
         if (!dateKey) {
           return acc;
         }
@@ -206,10 +210,12 @@ export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
                   onClick={() => onTaskClick?.(task)}
                   className={cn(
                     "advisor-list-item-card cursor-pointer rounded-[18px] p-3",
-                    "border-l-[3px] transition-all duration-200",
+                    "border border-white/80 bg-white/78",
+                    "transition-all duration-200",
                     "hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,23,42,0.06)]"
                   )}
                   style={{
+                    borderLeftWidth: "4px",
                     borderLeftColor: getPriorityBorderColor(task.priority),
                   }}
                 >

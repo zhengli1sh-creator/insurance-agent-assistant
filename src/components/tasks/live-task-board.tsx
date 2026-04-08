@@ -1,3 +1,13 @@
+/**
+ * 实时任务看板组件
+ * 基于任务管理设计文档 v1.0
+ *
+ * 负责：
+ * 1. 从 API 获取已分区的任务数据
+ * 2. 数据格式转换
+ * 3. 渲染 TaskBoard
+ */
+
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
@@ -6,30 +16,34 @@ import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TaskBoard } from "@/components/tasks/task-board";
 import { ApiRequestError, fetchJson } from "@/lib/crm-api";
-import type { TaskEntity } from "@/types/task";
+import type { TaskCategorizedResult, TaskEntity } from "@/types/task";
 
-
-function formatTaskDueDate(task: TaskEntity) {
-  if (task.remind_at) {
-    return task.remind_at.replace("T", " ").slice(0, 16);
-  }
-
-  if (task.due_at) {
-    return task.due_at.replace("T", " ").slice(0, 16);
-  }
-
-  return task.due_date ?? "待安排";
+/**
+ * 格式化计划执行时间
+ */
+function formatPlannedAt(task: TaskEntity): string {
+  if (!task.planned_at) return "待安排";
+  return task.planned_at.replace("T", " ").slice(0, 16);
 }
 
-function formatTaskSource(task: TaskEntity) {
+/**
+ * 格式化提醒时间
+ */
+function formatRemindAt(task: TaskEntity): string | null {
+  if (!task.remind_at) return null;
+  return task.remind_at.replace("T", " ").slice(0, 16);
+}
+
+/**
+ * 格式化任务来源
+ */
+function formatTaskSource(task: TaskEntity): string {
   const sourceLabelMap: Record<TaskEntity["source_type"], string> = {
     manual: "手工提醒",
-    customer: "来自客户档案",
     visit: "来自拜访记录",
     activity: "来自客户活动",
-    activity_event: "来自活动信息",
-    activity_participant: "来自活动参与客户",
   };
+
   const sourceIdLabel = task.source_id ? ` ${task.source_id.slice(0, 8)}` : "";
   const customerLabel = task.customer_name
     ? `｜${task.customer_name}${task.customer_nickname ? `（${task.customer_nickname}）` : ""}`
@@ -38,14 +52,23 @@ function formatTaskSource(task: TaskEntity) {
   return `${sourceLabelMap[task.source_type]}${sourceIdLabel}${customerLabel}`;
 }
 
-function formatTaskHint(task: TaskEntity) {
-  return task.result_note ?? task.description ?? task.note ?? "等待进一步安排";
+/**
+ * 格式化任务提示
+ */
+function formatTaskHint(task: TaskEntity): string {
+  return task.note ?? "等待进一步安排";
 }
 
-function fetchLiveTasks() {
-  return fetchJson<TaskEntity[]>("/api/tasks", { cache: "no-store" });
+/**
+ * 获取任务列表（已分区）
+ */
+function fetchLiveTasks(): Promise<TaskCategorizedResult> {
+  return fetchJson<TaskCategorizedResult>("/api/tasks", { cache: "no-store" });
 }
 
+/**
+ * 判断是否为认证错误
+ */
 function isAuthError(error: unknown): boolean {
   if (error instanceof ApiRequestError) {
     return error.status === 401 || error.status === 403;
@@ -59,6 +82,9 @@ function isAuthError(error: unknown): boolean {
   return false;
 }
 
+/**
+ * 获取错误信息
+ */
 function getErrorMessage(error: unknown): string {
   if (error instanceof ApiRequestError) {
     if (error.status === 401 || error.status === 403) {
@@ -80,6 +106,27 @@ function getErrorMessage(error: unknown): string {
   return "未知错误";
 }
 
+/**
+ * 将 TaskEntity 映射为 TaskItem
+ */
+function mapTaskToItem(task: TaskEntity) {
+  return {
+    id: task.id,
+    title: task.title,
+    plannedAt: formatPlannedAt(task),
+    remindAt: formatRemindAt(task),
+    status: task.status,
+    priority: task.priority,
+    customerId: task.customer_id,
+    customerName: task.customer_name,
+    sourceType: task.source_type,
+    // 废弃字段兼容
+    source: formatTaskSource(task),
+    ownerHint: formatTaskHint(task),
+    dueDate: formatPlannedAt(task),
+  };
+}
+
 export function LiveTaskBoard() {
   const query = useQuery({
     queryKey: ["tasks-live"],
@@ -88,7 +135,6 @@ export function LiveTaskBoard() {
     refetchOnWindowFocus: true,
   });
 
-
   // 调试日志：输出查询状态
   if (process.env.NODE_ENV === "development") {
     // eslint-disable-next-line no-console
@@ -96,27 +142,27 @@ export function LiveTaskBoard() {
       isLoading: query.isLoading,
       isError: query.isError,
       error: query.error,
-      dataLength: query.data?.length,
+      hasData: !!query.data,
     });
   }
 
   // 区分不同类型的错误
   const isAuthError_ = query.isError && isAuthError(query.error);
   const isOtherError = query.isError && !isAuthError_;
-  const isDemoMode = false; // 不再因错误而自动进入演示模式
+  const isDemoMode = false;
 
   const isLoading = query.isLoading && !query.data;
 
-  // 真实数据映射
-  const mappedTasks = (query.data ?? []).map((item) => ({
-    id: item.id,
-    title: item.title,
-    dueDate: formatTaskDueDate(item),
-    status: item.status,
-    priority: item.priority,
-    source: formatTaskSource(item),
-    ownerHint: formatTaskHint(item),
-  }));
+  // 真实数据映射（已分区）
+  const mappedData = query.data
+    ? {
+        todayReminders: query.data.todayReminders.map(mapTaskToItem),
+        pending: query.data.pending.map(mapTaskToItem),
+        overdue: query.data.overdue.map(mapTaskToItem),
+        completed: query.data.completed.map(mapTaskToItem),
+        canceled: query.data.canceled.map(mapTaskToItem),
+      }
+    : null;
 
   // 认证错误状态
   if (isAuthError_) {
@@ -125,9 +171,7 @@ export function LiveTaskBoard() {
         <AlertCircle className="h-12 w-12 text-amber-500 mb-4" />
         <h3 className="text-lg font-medium text-slate-800 mb-2">需要登录</h3>
         <p className="text-sm text-slate-500 mb-4">请先登录后查看您的任务</p>
-        <Button onClick={() => window.location.href = "/login"}>
-          去登录
-        </Button>
+        <Button onClick={() => (window.location.href = "/login")}>去登录</Button>
       </div>
     );
   }
@@ -148,5 +192,12 @@ export function LiveTaskBoard() {
     );
   }
 
-  return <TaskBoard tasks={mappedTasks} isLoading={isLoading} isDemoMode={isDemoMode} />;
+  return (
+    <TaskBoard
+      data={mappedData}
+      isLoading={isLoading}
+      isDemoMode={isDemoMode}
+      onRefetch={() => query.refetch()}
+    />
+  );
 }

@@ -3,7 +3,8 @@ import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { createVisitRepository, deleteVisitRepository, listVisitsByCustomerRepository, listVisitsRepository, updateVisitRepository } from "@/lib/repositories/visit-repository";
 import { visitCreateSchema, visitUpdateSchema } from "@/lib/validation/visit";
 import { resolveCustomerSnapshotService } from "@/modules/customers/customer-service";
-import { syncTasksFromSource } from "@/modules/tasks/task-service";
+import { generateTaskDraftsFromFollowUps, checkSourceTaskDuplicateRepository } from "@/modules/tasks/task-service";
+import type { TaskDraftItem } from "@/types/task";
 
 function toNullableText(value?: string) {
   return value && value.trim() ? value.trim() : null;
@@ -124,17 +125,39 @@ export async function createVisitService(supabase: SupabaseClient, ownerId: stri
     };
   }
 
-  if (parsed.data.skipTaskSync) {
+  // 如果跳过任务同步或没有后续事项，直接返回
+  if (parsed.data.skipTaskSync || followUps.length === 0) {
     return { status: 200, data, error: "", errorCode: undefined };
   }
 
-  const taskResult = await syncTasksFromSource(supabase, ownerId, "visit", data.id, followUps, {
-    customerId: customerResult.data.id,
-    customerName: visitName,
-    customerNickname: visitNickName,
-  });
+  // 生成任务草稿（不再直接同步到数据库）
+  const taskDrafts = generateTaskDraftsFromFollowUps(
+    followUps,
+    "visit",
+    data.id,
+    customerResult.data.id,
+    visitName,
+  );
 
-  return { status: taskResult.error ? 400 : 200, data, error: taskResult.error, errorCode: taskResult.error ? "TASK_SYNC_FAILED" : undefined };
+  // 返回拜访记录数据和任务草稿，前端负责引导用户确认
+  return {
+    status: 200,
+    data: {
+      visit: data,
+      taskDrafts: {
+        from: "visit" as const,
+        sourceId: data.id,
+        sourceDate: parsed.data.timeVisit,
+        customerId: customerResult.data.id,
+        customerName: visitName,
+        customerNickname: visitNickName,
+        sourceSummary: parsed.data.briefContent || "",
+        drafts: taskDrafts,
+      },
+    },
+    error: "",
+    errorCode: undefined,
+  };
 }
 
 
@@ -196,13 +219,58 @@ export async function updateVisitService(supabase: SupabaseClient, ownerId: stri
     };
   }
 
-  const taskResult = await syncTasksFromSource(supabase, ownerId, "visit", fields.id, followUps, {
-    customerId: customerResult.data.id,
-    customerName: visitName,
-    customerNickname: visitNickName,
-  });
+  // 编辑拜访时，不再静默覆盖已有任务
+  // 只返回新增的任务草稿（如果有新的后续事项）
+  let taskDrafts: TaskDraftItem[] = [];
+  if (followUps.length > 0) {
+    // 检查哪些任务是新增的（去重）
+    const newFollowUps: string[] = [];
+    for (const followUp of followUps) {
+      const duplicate = await checkSourceTaskDuplicateRepository(
+        supabase,
+        ownerId,
+        "visit",
+        fields.id,
+        followUp,
+        customerResult.data.id,
+      );
+      if (!duplicate.exists) {
+        newFollowUps.push(followUp);
+      }
+    }
 
-  return { status: taskResult.error ? 400 : 200, data, error: taskResult.error, errorCode: taskResult.error ? "TASK_SYNC_FAILED" : undefined };
+    if (newFollowUps.length > 0) {
+      taskDrafts = generateTaskDraftsFromFollowUps(
+        newFollowUps,
+        "visit",
+        fields.id,
+        customerResult.data.id,
+        visitName,
+      );
+    }
+  }
+
+  return {
+    status: 200,
+    data: {
+      visit: data,
+      // 只在有新增草稿时返回 taskDrafts
+      ...(taskDrafts.length > 0 && {
+        taskDrafts: {
+          from: "visit" as const,
+          sourceId: fields.id,
+          sourceDate: timeVisit,
+          customerId: customerResult.data.id,
+          customerName: visitName,
+          customerNickname: visitNickName,
+          sourceSummary: fields.briefContent || "",
+          drafts: taskDrafts,
+        },
+      }),
+    },
+    error: "",
+    errorCode: undefined,
+  };
 }
 
 export async function deleteVisitService(supabase: SupabaseClient, ownerId: string, id: string) {
@@ -210,11 +278,8 @@ export async function deleteVisitService(supabase: SupabaseClient, ownerId: stri
     return { status: 400, data: null, error: "缺少拜访记录标识", errorCode: "VALIDATION_ERROR" };
   }
 
-  const taskResult = await syncTasksFromSource(supabase, ownerId, "visit", id, []);
-  if (taskResult.error) {
-    return { status: 400, data: null, error: taskResult.error, errorCode: "TASK_SYNC_FAILED" };
-  }
-
+  // 删除拜访记录时，不再自动删除关联的任务
+  // 任务一旦创建就成为独立的经营事项
   const { error } = await deleteVisitRepository(supabase, id, ownerId);
   return { status: error ? 400 : 200, data: { id }, error: error?.message ?? "", errorCode: error ? visitErrorCode(error) : undefined };
 }

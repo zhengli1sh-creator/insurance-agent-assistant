@@ -11,9 +11,10 @@ import {
 } from "@/lib/repositories/activity-repository";
 import { activityCreateSchema, activityUpdateSchema } from "@/lib/validation/activity";
 import { ensureCustomerSnapshotsMatchService } from "@/modules/customers/customer-service";
-import { syncTasksFromSource } from "@/modules/tasks/task-service";
+import { generateTaskDraftsFromFollowUps, checkSourceTaskDuplicateRepository } from "@/modules/tasks/task-service";
 import type { ActivityParticipant } from "@/types/activity";
 import type { CustomerSnapshot } from "@/types/customer";
+import type { TaskDraftItem } from "@/types/task";
 
 function toNullableText(value?: string) {
   return value && value.trim() ? value.trim() : null;
@@ -173,20 +174,39 @@ export async function createActivityService(supabase: SupabaseClient, ownerId: s
     };
   }
 
-  const taskResult = await syncTasksFromSource(supabase, ownerId, "activity_event", activityResult.data.id, followUps, {
-    description: "来自客户活动",
-    category: "活动回访",
-  });
-
-  if (taskResult.error) {
-    await deleteActivityRepository(supabase, activityResult.data.id, ownerId);
-    return { status: 400, data: null, error: taskResult.error };
+  // 生成任务草稿（不再直接同步到数据库）
+  let taskDrafts: TaskDraftItem[] = [];
+  if (followUps.length > 0) {
+    // 使用第一个参与客户的ID和名称
+    const firstParticipant = participantsToSave[0];
+    taskDrafts = generateTaskDraftsFromFollowUps(
+      followUps,
+      "activity",
+      activityResult.data.id,
+      firstParticipant?.customerId ?? null,
+      firstParticipant?.name ?? null,
+    );
   }
 
   const fetched = await fetchActivityRepository(supabase, activityResult.data.id, ownerId);
   return {
     status: fetched.error ? 400 : 200,
-    data: fetched.data,
+    data: {
+      activity: fetched.data,
+      // 只在有草稿时返回
+      ...(taskDrafts.length > 0 && {
+        taskDrafts: {
+          from: "activity" as const,
+          sourceId: activityResult.data.id,
+          sourceDate: parsed.data.dateActivity,
+          customerId: participantsToSave[0]?.customerId ?? null,
+          customerName: participantsToSave[0]?.name ?? null,
+          customerNickname: participantsToSave[0]?.nickName ?? null,
+          sourceSummary: parsed.data.effectProfile || parsed.data.customerProfile || "",
+          drafts: taskDrafts,
+        },
+      }),
+    },
     error: activityErrorMessage(fetched.error),
   };
 }
@@ -293,19 +313,58 @@ export async function updateActivityService(supabase: SupabaseClient, ownerId: s
     }
   }
 
-  const taskResult = await syncTasksFromSource(supabase, ownerId, "activity_event", parsed.data.id, followUps, {
-    description: "来自客户活动",
-    category: "活动回访",
-  });
+  // 编辑活动时，不再静默覆盖已有任务
+  // 只返回新增的任务草稿（如果有新的后续事项）
+  let taskDrafts: TaskDraftItem[] = [];
+  if (followUps.length > 0) {
+    // 检查哪些任务是新增的（去重）
+    const newFollowUps: string[] = [];
+    const firstParticipant = participantsToSave[0];
 
-  if (taskResult.error) {
-    return { status: 400, data: null, error: taskResult.error };
+    for (const followUp of followUps) {
+      const duplicate = await checkSourceTaskDuplicateRepository(
+        supabase,
+        ownerId,
+        "activity",
+        parsed.data.id,
+        followUp,
+        firstParticipant?.customerId ?? null,
+      );
+      if (!duplicate.exists) {
+        newFollowUps.push(followUp);
+      }
+    }
+
+    if (newFollowUps.length > 0) {
+      taskDrafts = generateTaskDraftsFromFollowUps(
+        newFollowUps,
+        "activity",
+        parsed.data.id,
+        firstParticipant?.customerId ?? null,
+        firstParticipant?.name ?? null,
+      );
+    }
   }
 
   const fetched = await fetchActivityRepository(supabase, parsed.data.id, ownerId);
   return {
     status: fetched.error ? 400 : 200,
-    data: fetched.data,
+    data: {
+      activity: fetched.data,
+      // 只在有新增草稿时返回
+      ...(taskDrafts.length > 0 && {
+        taskDrafts: {
+          from: "activity" as const,
+          sourceId: parsed.data.id,
+          sourceDate: mergedActivity.dateActivity,
+          customerId: participantsToSave[0]?.customerId ?? null,
+          customerName: participantsToSave[0]?.name ?? null,
+          customerNickname: participantsToSave[0]?.nickName ?? null,
+          sourceSummary: mergedActivity.effectProfile || mergedActivity.customerProfile || "",
+          drafts: taskDrafts,
+        },
+      }),
+    },
     error: activityErrorMessage(fetched.error),
   };
 }
@@ -315,15 +374,8 @@ export async function deleteActivityService(supabase: SupabaseClient, ownerId: s
     return { status: 400, data: null, error: "缺少活动记录标识" };
   }
 
-  const taskResult = await syncTasksFromSource(supabase, ownerId, "activity_event", id, [], {
-    description: "来自客户活动",
-    category: "活动回访",
-  });
-
-  if (taskResult.error) {
-    return { status: 400, data: null, error: taskResult.error };
-  }
-
+  // 删除活动记录时，不再自动删除关联的任务
+  // 任务一旦创建就成为独立的经营事项
   const { error } = await deleteActivityRepository(supabase, id, ownerId);
   return { status: error ? 400 : 200, data: { id }, error: error?.message ?? "" };
 }
