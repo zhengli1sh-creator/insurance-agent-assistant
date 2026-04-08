@@ -15,7 +15,9 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
 
-  if (pathname === "/dashboard" || pathname === "/customers/new" || pathname === "/visits/new" || pathname === "/tasks/new") {
+  // 隐藏底部导航的页面
+  const hiddenPaths = ["/dashboard", "/customers/new", "/visits/new", "/tasks/new", "/tasks"];
+  if (hiddenPaths.includes(pathname)) {
     return null;
   }
 
