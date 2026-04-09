@@ -30,6 +30,9 @@ import type {
   TaskUpdatePayload,
 } from "@/types/task";
 
+export { checkSourceTaskDuplicateRepository };
+
+
 // ============================================
 // 任务分区计算
 // ============================================
@@ -183,9 +186,11 @@ export async function createTaskService(
   }
 
   const taskData: TaskCreatePayload = parsed.data;
+  const sourceType = taskData.sourceType ?? "manual";
 
   // 去重检查
-  if (taskData.sourceType === "manual") {
+  if (sourceType === "manual") {
+
     const duplicate = await checkManualTaskDuplicateRepository(
       supabase,
       ownerId,
@@ -206,11 +211,12 @@ export async function createTaskService(
     const duplicate = await checkSourceTaskDuplicateRepository(
       supabase,
       ownerId,
-      taskData.sourceType,
+      sourceType,
       taskData.sourceId,
       taskData.title,
       taskData.customerId,
     );
+
 
     if (duplicate.exists) {
       return {
@@ -241,7 +247,10 @@ export async function batchCreateTasksService(
 ) {
   // 逐个检查去重
   for (const taskData of payloads) {
-    if (taskData.sourceType === "manual") {
+    const sourceType = taskData.sourceType ?? "manual";
+
+    if (sourceType === "manual") {
+
       const duplicate = await checkManualTaskDuplicateRepository(
         supabase,
         ownerId,
@@ -262,7 +271,8 @@ export async function batchCreateTasksService(
       const duplicate = await checkSourceTaskDuplicateRepository(
         supabase,
         ownerId,
-        taskData.sourceType,
+        sourceType,
+
         taskData.sourceId,
         taskData.title,
         taskData.customerId,

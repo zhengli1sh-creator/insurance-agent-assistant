@@ -38,14 +38,16 @@ function buildResponse(body: unknown, status: number) {
  */
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+
   const context = await requireUserContext();
   if (!context.supabase || !context.user) {
     return buildResponse({ error: context.message }, 401);
   }
 
-  const taskId = params.id;
+  const { id: taskId } = await params;
+
   if (!taskId) {
     return buildResponse({ error: "任务标识不能为空" }, 400);
   }

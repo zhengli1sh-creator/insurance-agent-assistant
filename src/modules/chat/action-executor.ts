@@ -12,6 +12,8 @@ import { listInsightsService } from "@/modules/queries/query-service";
 import { listTasksService } from "@/modules/tasks/task-service";
 import { createVisitService } from "@/modules/visits/visit-service";
 import type { AgentActionPreview, AssistantWorkflowDirective, ChatResponse, CustomerWorkflowDraftValues } from "@/types/agent";
+import type { TaskCategorizedResult } from "@/types/task";
+
 
 
 
@@ -27,7 +29,24 @@ function previewItemsFromList(items: string[]) {
   return items.slice(0, 6);
 }
 
+function previewTaskItems(result: TaskCategorizedResult | null | undefined) {
+  if (!result) {
+    return [];
+  }
+
+  return previewItemsFromList(
+    [
+      ...result.todayReminders,
+      ...result.overdue,
+      ...result.pending,
+      ...result.completed,
+      ...result.canceled,
+    ].map((item) => `${item.status}｜${item.title}`),
+  );
+}
+
 function normalizeTextField(value: unknown) {
+
   return typeof value === "string" ? value.trim() : "";
 }
 
@@ -461,7 +480,8 @@ export async function executeChatMessage(supabase: SupabaseClient, user: User, m
       preview: {
         title: "今日任务概览",
         description: "以下是当前按任务服务读取到的提醒。",
-        items: previewItemsFromList((result.data ?? []).map((item) => `${item.status}｜${item.title}`)),
+        items: previewTaskItems(result.data),
+
         requiresConfirmation: false,
       },
     });
@@ -736,9 +756,10 @@ export async function executeChatMessage(supabase: SupabaseClient, user: User, m
             title: "已执行：客户活动创建成功",
             description: "活动信息表与客户参加活动表已经写入数据库。",
             items: previewItemsFromList([
-              `${result.data.name_activity}｜${result.data.date_activity}`,
+              `${result.data.activity.name_activity}｜${result.data.activity.date_activity}`,
               ...participants.map((item) => (item.nickname ? `${item.name}（${item.nickname}）` : item.name)),
             ]),
+
             requiresConfirmation: false,
           }
         : null,

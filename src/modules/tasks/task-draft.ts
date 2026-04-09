@@ -110,15 +110,30 @@ function buildTaskNote(sourceSummary: string, title: string) {
   return `来源：刚才的拜访记录。沟通背景：${truncate(summary, 90)}。待办：${title}`;
 }
 
-function buildTaskDraftItem(title: string, visitDate: string, sourceSummary: string): TaskDraftItem {
+function resolvePlannedAt(title: string, visitDate: string) {
+  const plannedDate = extractDueDate(title, visitDate) || visitDate || new Date().toISOString().slice(0, 10);
+  return `${plannedDate}T09:00:00.000Z`;
+}
+
+function buildTaskDraftItem(
+  title: string,
+  visitDate: string,
+  sourceSummary: string,
+  customerId: string,
+  customerName: string,
+): TaskDraftItem {
   return {
     id: crypto.randomUUID(),
     title,
     priority: priorityFromText(title),
-    dueDate: extractDueDate(title, visitDate),
+    plannedAt: resolvePlannedAt(title, visitDate),
+    remindAt: null,
     note: buildTaskNote(sourceSummary, title),
+    customerId,
+    customerName,
   };
 }
+
 
 export function buildTaskDraftSeedFromVisit({
   visit,
@@ -141,12 +156,13 @@ export function buildTaskDraftSeedFromVisit({
 
   return {
     from: "visit",
-    visitId: visit.id,
-    visitDate: visit.time_visit,
+    sourceId: visit.id,
+    sourceDate: visit.time_visit,
     customerId,
     customerName: visit.name,
     customerNickname: normalizeText(visit.nick_name),
     sourceSummary: summary,
-    drafts: followUps.map((item) => buildTaskDraftItem(item, visit.time_visit, summary)),
+    drafts: followUps.map((item) => buildTaskDraftItem(item, visit.time_visit, summary, customerId, visit.name)),
   };
 }
+

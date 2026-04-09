@@ -156,8 +156,9 @@ export async function updateTaskRepository(
   supabase: SupabaseClient,
   ownerId: string,
   id: string,
-  payload: TaskUpdatePayload,
+  payload: Omit<TaskUpdatePayload, "id">,
 ) {
+
   const updateData: Record<string, unknown> = {};
 
   if (payload.title !== undefined) updateData.title = payload.title;
