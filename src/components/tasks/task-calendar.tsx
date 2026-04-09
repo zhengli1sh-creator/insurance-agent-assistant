@@ -2,18 +2,28 @@
 
 import { useMemo, useState } from "react";
 import { DayButton as BaseDayButton, DayPicker, getDefaultClassNames, type DayButtonProps } from "react-day-picker";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import { format, isToday } from "date-fns";
 
 
 import { zhCN } from "date-fns/locale";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, CheckCircle2, XCircle } from "lucide-react";
 import { TaskItem } from "@/types/domain";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface TaskCalendarProps {
   tasks: TaskItem[];
   onTaskClick?: (task: TaskItem) => void;
+  onStatusChange?: (taskId: string, status: "已完成" | "已取消") => void;
 }
 
 /**
@@ -25,11 +35,25 @@ function getCalendarDateKey(plannedAt: string): string | null {
   return plannedAt.slice(0, 10);
 }
 
-export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
+export function TaskCalendar({ tasks, onTaskClick, onStatusChange }: TaskCalendarProps) {
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [month, setMonth] = useState<Date>(new Date());
   const defaultClassNames = getDefaultClassNames();
+
+  // 确认对话框状态
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    task: TaskItem | null;
+    action: "已完成" | "已取消" | null;
+  }>({ isOpen: false, task: null, action: null });
+
+  const handleConfirm = () => {
+    if (confirmDialog.task && confirmDialog.action && onStatusChange) {
+      onStatusChange(confirmDialog.task.id, confirmDialog.action);
+    }
+    setConfirmDialog({ isOpen: false, task: null, action: null });
+  };
 
 
   // 获取任务优先级颜色
@@ -207,9 +231,8 @@ export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
               {selectedDateTasks.map((task) => (
                 <div
                   key={task.id}
-                  onClick={() => onTaskClick?.(task)}
                   className={cn(
-                    "advisor-list-item-card cursor-pointer rounded-[18px] p-3",
+                    "advisor-list-item-card rounded-[18px] p-3",
                     "border border-white/80 bg-white/78",
                     "transition-all duration-200",
                     "hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,23,42,0.06)]"
@@ -219,9 +242,11 @@ export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
                     borderLeftColor: getPriorityBorderColor(task.priority),
                   }}
                 >
-
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
+                    <div 
+                      className="min-w-0 flex-1 cursor-pointer"
+                      onClick={() => onTaskClick?.(task)}
+                    >
                       <p className="truncate text-sm font-medium text-[#2c3e50]">
                         {task.title}
                       </p>
@@ -239,12 +264,69 @@ export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
                       {task.priority}优先
                     </span>
                   </div>
+                  
+                  {/* 操作按钮组 */}
+                  {onStatusChange && (
+                    <div className="flex items-center justify-end gap-2 pt-2 mt-2 border-t border-white/60">
+                      <Button
+                        size="sm"
+                        onClick={() => setConfirmDialog({ isOpen: true, task, action: "已完成" })}
+                        className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-full px-3 h-7 text-xs font-medium transition-colors"
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                        完成
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirmDialog({ isOpen: true, task, action: "已取消" })}
+                        className="text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-full px-3 h-7 text-xs font-medium transition-colors"
+                      >
+                        <XCircle className="h-3.5 w-3.5 mr-1" />
+                        取消
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
       )}
+
+      {/* 确认对话框 */}
+      <Dialog open={confirmDialog.isOpen} onOpenChange={(open) => !open && setConfirmDialog({ isOpen: false, task: null, action: null })}>
+        <DialogContent className="sm:max-w-md" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>
+              {confirmDialog.action === "已完成" ? "确认完成任务" : "确认取消任务"}
+            </DialogTitle>
+            <DialogDescription>
+              {confirmDialog.task
+                ? confirmDialog.action === "已完成"
+                  ? `确定将任务"${confirmDialog.task.title}"标记为已完成吗？完成后任务将移动到"已完成"区。`
+                  : `确定将任务"${confirmDialog.task.title}"标记为已取消吗？取消后任务将移动到"已取消"区。`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:gap-0">
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirmDialog({ isOpen: false, task: null, action: null })}
+              className="w-full sm:w-auto"
+            >
+              取消
+            </Button>
+            <Button 
+              variant={confirmDialog.action === "已完成" ? "default" : "destructive"}
+              onClick={handleConfirm}
+              className="w-full sm:w-auto"
+            >
+              {confirmDialog.action === "已完成" ? "确认完成" : "确认取消"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

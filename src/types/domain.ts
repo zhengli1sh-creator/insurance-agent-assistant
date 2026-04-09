@@ -55,6 +55,10 @@ export interface TaskItem {
   customerName: string | null;
   sourceType: "manual" | "visit" | "activity";
   
+  // 完成/取消时间（仅已完成/已取消状态有值）
+  completedAt?: string | null;
+  canceledAt?: string | null;
+  
   /** @deprecated 使用 sourceType 替代 */
   source?: string;
   /** @deprecated 使用 customerName 替代 */

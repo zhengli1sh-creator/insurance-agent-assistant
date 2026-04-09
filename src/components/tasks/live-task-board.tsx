@@ -115,6 +115,8 @@ function mapTaskToItem(task: TaskEntity) {
     title: task.title,
     plannedAt: formatPlannedAt(task),
     remindAt: formatRemindAt(task),
+    completedAt: task.completed_at,
+    canceledAt: task.canceled_at,
     status: task.status,
     priority: task.priority,
     customerId: task.customer_id,
