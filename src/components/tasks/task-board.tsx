@@ -156,8 +156,6 @@ function TaskColumnSkeleton() {
  * 今日提醒聚焦区组件
  */
 function TodayRemindersSection({ reminders }: { reminders: TaskItem[] }) {
-  if (reminders.length === 0) return null;
-
   return (
     <Card className="rounded-[30px] border-amber-200 bg-gradient-to-br from-amber-50/80 to-orange-50/60">
       <CardHeader className="pb-4">
@@ -168,7 +166,7 @@ function TodayRemindersSection({ reminders }: { reminders: TaskItem[] }) {
             </span>
             <div>
               <CardTitle className="text-lg text-slate-900">今日提醒</CardTitle>
-              <p className="text-sm text-slate-600 mt-1">需要今天关注和处理的任务</p>
+              <p className="mt-1 text-sm text-slate-600">需要今天关注和处理的任务</p>
             </div>
           </div>
           <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">
@@ -177,41 +175,50 @@ function TodayRemindersSection({ reminders }: { reminders: TaskItem[] }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {reminders.map((task) => {
-          const priority = priorityMeta[task.priority];
-          return (
-            <div
-              key={task.id}
-              className="advisor-list-item-card rounded-[26px] p-4 sm:p-5 bg-white/80"
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-base font-semibold text-slate-900 truncate">{task.title}</p>
-                    {task.customerName && (
-                      <p className="text-sm text-slate-500 mt-1">关联客户：{task.customerName}</p>
-                    )}
+        {reminders.length === 0 ? (
+          <div className="advisor-empty-state-card rounded-[24px] p-4">
+            <p className="text-sm font-medium text-slate-900">今天没有需要提醒的任务</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              如需提前提醒，可在创建任务时补充提醒时间，今天命中的提醒会展示在这里。
+            </p>
+          </div>
+        ) : (
+          reminders.map((task) => {
+            const priority = priorityMeta[task.priority];
+            return (
+              <div
+                key={task.id}
+                className="advisor-list-item-card rounded-[26px] bg-white/80 p-4 sm:p-5"
+              >
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-base font-semibold text-slate-900">{task.title}</p>
+                      {task.customerName && (
+                        <p className="mt-1 text-sm text-slate-500">关联客户：{task.customerName}</p>
+                      )}
+                    </div>
+                    <Badge className={cn(priority.className, "shrink-0 rounded-full border-0 px-3 py-1")}>
+                      {priority.label}
+                    </Badge>
                   </div>
-                  <Badge className={cn(priority.className, "shrink-0 rounded-full border-0 px-3 py-1")}>
-                    {priority.label}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-slate-600">
-                  {task.remindAt && (
+                  <div className="flex items-center gap-4 text-sm text-slate-600">
+                    {task.remindAt && (
+                      <span className="flex items-center gap-1.5">
+                        <AlarmClock className="h-3.5 w-3.5" />
+                        提醒时间：{task.remindAt}
+                      </span>
+                    )}
                     <span className="flex items-center gap-1.5">
-                      <AlarmClock className="h-3.5 w-3.5" />
-                      提醒时间：{task.remindAt}
+                      <Calendar className="h-3.5 w-3.5" />
+                      计划执行：{task.plannedAt}
                     </span>
-                  )}
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
-                    计划执行：{task.plannedAt}
-                  </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </CardContent>
     </Card>
   );
