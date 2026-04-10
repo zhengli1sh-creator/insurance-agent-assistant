@@ -7,11 +7,10 @@
  * 2. 主分区：待开始 / 已过期 / 已完成 / 已取消
  */
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Bell,
   Calendar,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   CircleAlert,
@@ -19,24 +18,17 @@ import {
   CircleDashed,
   CircleX,
   List,
-  XCircle,
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { TaskItem } from "@/types/domain";
 import { TaskCalendar } from "./task-calendar";
+import { TaskItemCard } from "./task-item-card";
+
 
 /**
  * 变更任务状态 API
@@ -676,8 +668,10 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
           {mainZones.map(({ key, meta }) => {
             const allItems = data?.[key] ?? [];
             const Icon = meta.icon;
-            const isPending = key === "pending";
+            const isPendingZone = key === "pending";
+            const isActionableZone = key === "pending" || key === "overdue";
             const isHistoryZone = key === "completed" || key === "canceled";
+
 
             // 历史区域：时间筛选 + 懒加载
             let displayItems = allItems;
@@ -814,14 +808,16 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
                       // 列表视图
                       <>
                         {displayItems.map((task) => (
-                          <TaskCard
+                          <TaskItemCard
                             key={task.id}
                             task={task}
-                            zoneMeta={meta}
-                            isPending={key === "pending" || key === "overdue"}
-                            onStatusChange={handleStatusChange}
+                            isActionable={isActionableZone}
+                            statusLabel={meta.title}
+                            statusBadgeClassName={meta.badgeClassName}
+                            onStatusChange={isActionableZone ? handleStatusChange : undefined}
                           />
                         ))}
+
                         {/* 懒加载更多按钮 */}
                         {isHistoryZone && hasMore && (
                           <Button
