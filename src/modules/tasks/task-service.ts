@@ -163,9 +163,108 @@ export async function listTodayRemindersService(supabase: SupabaseClient, ownerI
   };
 }
 
+async function hydrateTaskCreatePayload(
+  supabase: SupabaseClient,
+  ownerId: string,
+  payload: TaskCreatePayload,
+) {
+  if (!payload.customerId) {
+    return { status: 200, data: payload, error: "" };
+  }
+
+  const snapshotResult = await listCustomerSnapshotsService(supabase, ownerId, [payload.customerId]);
+
+  if (snapshotResult.error) {
+    return {
+      status: 400,
+      data: null,
+      error: snapshotResult.error,
+    };
+  }
+
+  const snapshot = snapshotResult.data[0];
+
+  if (!snapshot) {
+    return {
+      status: 404,
+      data: null,
+      error: "关联客户未找到，请先完成客户建档",
+    };
+  }
+
+  return {
+    status: 200,
+    data: {
+      ...payload,
+      customerName: snapshot.name,
+      customerNickname: snapshot.nickname ?? null,
+    },
+    error: "",
+  };
+}
+
+async function hydrateTaskCreatePayloads(
+  supabase: SupabaseClient,
+  ownerId: string,
+  payloads: TaskCreatePayload[],
+) {
+  const customerIds = [...new Set(payloads.map((item) => item.customerId).filter(Boolean))] as string[];
+
+  if (customerIds.length === 0) {
+    return { status: 200, data: payloads, error: "" };
+  }
+
+  const snapshotResult = await listCustomerSnapshotsService(supabase, ownerId, customerIds);
+
+  if (snapshotResult.error) {
+    return {
+      status: 400,
+      data: null,
+      error: snapshotResult.error,
+    };
+  }
+
+  const snapshotMap = new Map(snapshotResult.data.map((item) => [item.id, item]));
+
+  for (const payload of payloads) {
+    if (!payload.customerId) {
+      continue;
+    }
+
+    const snapshot = snapshotMap.get(payload.customerId);
+
+    if (!snapshot) {
+      return {
+        status: 404,
+        data: null,
+        error: `任务“${payload.title}”关联客户未找到，请先完成客户建档`,
+      };
+    }
+  }
+
+  return {
+    status: 200,
+    data: payloads.map((payload) => {
+      if (!payload.customerId) {
+        return payload;
+      }
+
+      const snapshot = snapshotMap.get(payload.customerId);
+
+      return {
+        ...payload,
+        customerName: snapshot?.name ?? null,
+        customerNickname: snapshot?.nickname ?? null,
+      };
+    }),
+    error: "",
+  };
+}
+
 // ============================================
 // 创建服务
 // ============================================
+
 
 /**
  * 创建单个任务
@@ -185,12 +284,22 @@ export async function createTaskService(
     };
   }
 
-  const taskData: TaskCreatePayload = parsed.data;
+  const baseTaskData: TaskCreatePayload = parsed.data;
+  const hydratedResult = await hydrateTaskCreatePayload(supabase, ownerId, baseTaskData);
+
+  if (hydratedResult.error || !hydratedResult.data) {
+    return {
+      status: hydratedResult.status,
+      data: null,
+      error: hydratedResult.error,
+    };
+  }
+
+  const taskData = hydratedResult.data;
   const sourceType = taskData.sourceType ?? "manual";
 
   // 去重检查
   if (sourceType === "manual") {
-
     const duplicate = await checkManualTaskDuplicateRepository(
       supabase,
       ownerId,
@@ -216,7 +325,6 @@ export async function createTaskService(
       taskData.title,
       taskData.customerId,
     );
-
 
     if (duplicate.exists) {
       return {
@@ -245,12 +353,23 @@ export async function batchCreateTasksService(
   ownerId: string,
   payloads: TaskCreatePayload[],
 ) {
+  const hydratedResult = await hydrateTaskCreatePayloads(supabase, ownerId, payloads);
+
+  if (hydratedResult.error || !hydratedResult.data) {
+    return {
+      status: hydratedResult.status,
+      data: null,
+      error: hydratedResult.error,
+    };
+  }
+
+  const taskPayloads = hydratedResult.data;
+
   // 逐个检查去重
-  for (const taskData of payloads) {
+  for (const taskData of taskPayloads) {
     const sourceType = taskData.sourceType ?? "manual";
 
     if (sourceType === "manual") {
-
       const duplicate = await checkManualTaskDuplicateRepository(
         supabase,
         ownerId,
@@ -272,7 +391,6 @@ export async function batchCreateTasksService(
         supabase,
         ownerId,
         sourceType,
-
         taskData.sourceId,
         taskData.title,
         taskData.customerId,
@@ -289,7 +407,7 @@ export async function batchCreateTasksService(
     }
   }
 
-  const { data, error } = await batchCreateTasksRepository(supabase, ownerId, payloads);
+  const { data, error } = await batchCreateTasksRepository(supabase, ownerId, taskPayloads);
 
   return {
     status: error ? 400 : 201,
@@ -443,7 +561,10 @@ import {
   updateTaskStatusRepository,
 } from "@/lib/repositories/task-repository";
 import { taskStatusUpdateSchema } from "@/lib/validation/task";
-import { resolveCustomerSnapshotService } from "@/modules/customers/customer-service";
+import {
+  listCustomerSnapshotsService,
+  resolveCustomerSnapshotService,
+} from "@/modules/customers/customer-service";
 import type { TaskSourceTypeValue, TaskSyncPayload } from "@/types/task";
 
 function toNullableText(value?: string | null) {

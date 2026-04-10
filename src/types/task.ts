@@ -97,6 +97,8 @@ export interface TaskCreatePayload {
   priority?: TaskPriorityValue; // 默认 "中"
   note?: string | null;
   customerId?: string | null;
+  customerName?: string | null;      // 服务层按 customerId 回查后补齐
+  customerNickname?: string | null;  // 服务层按 customerId 回查后补齐
   sourceType?: TaskSourceTypeValue; // 默认 "manual"
   sourceId?: string | null;
 }
