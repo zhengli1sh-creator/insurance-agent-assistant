@@ -44,11 +44,7 @@ function formatTaskSource(task: TaskEntity): string {
     activity: "来自客户活动",
   };
 
-  const customerLabel = task.customer_name
-    ? `｜${task.customer_name}${task.customer_nickname ? `（${task.customer_nickname}）` : ""}`
-    : "";
-
-  return `${sourceLabelMap[task.source_type]}${customerLabel}`;
+  return sourceLabelMap[task.source_type];
 }
 
 /**
