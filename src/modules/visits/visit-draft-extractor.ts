@@ -204,8 +204,23 @@ function extractBriefContent(message: string): string {
 
 function extractFollowWork(message: string): string {
   const clauses = splitClauses(message);
-  const followClauses = clauses.filter((clause) => /后续|接下来|后面|然后|待办|动作|需要|跟进|准备|计划|安排|约|联系/.test(clause));
-  return followClauses.map(normalizeSentence).join("；");
+  
+  // 扩展关键词以捕获更多后续动作，包括"做方案"、"回去做"等
+  const followKeywords = /后续|接下来|后面|然后|待办|动作|需要|跟进|准备|计划|安排|约|联系|做|整理|提交|发给|回去做|做好|完成|反馈|确认/;
+  
+  // 首先尝试找到包含明确后续动作的子句
+  const followClauses = clauses.filter((clause) => followKeywords.test(clause));
+  
+  if (followClauses.length === 0) {
+    return "";
+  }
+  
+  // 合并相关子句，形成完整的后续事项描述
+  // 例如 "回去做个方案" + "本周五约他聊" 应该合并为一条
+  const normalized = followClauses.map(normalizeSentence).join("，");
+  
+  // 清理重复连接词
+  return normalized.replace(/，(然后|接着|之后|随后)，/g, "，").replace(/，{2,}/g, "，");
 }
 
 function extractTone(message: string): string {

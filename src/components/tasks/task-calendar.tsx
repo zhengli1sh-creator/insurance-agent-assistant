@@ -242,23 +242,28 @@ export function TaskCalendar({ tasks, onTaskClick, onStatusChange }: TaskCalenda
                     borderLeftColor: getPriorityBorderColor(task.priority),
                   }}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div 
-                      className="min-w-0 flex-1 cursor-pointer"
-                      onClick={() => onTaskClick?.(task)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <p className="truncate text-sm font-medium text-[#2c3e50]">
-                          {task.title}
-                        </p>
-                        <p className="shrink-0 text-xs text-slate-400">
-                          {task.plannedAt}
-                        </p>
-                      </div>
-                      <p className="mt-0.5 truncate text-xs text-[#8b7355]">
-                        {task.source}
-                      </p>
-                    </div>
+              <div className="flex items-start justify-between gap-2">
+                <div 
+                  className="min-w-0 flex-1 cursor-pointer"
+                  onClick={() => onTaskClick?.(task)}
+                >
+                  {/* 1. 任务标题 */}
+                  <p className="truncate text-sm font-medium text-[#2c3e50]">
+                    {task.title}
+                  </p>
+
+                  {/* 2. 任务备注 */}
+                  {task.note && (
+                    <p className="mt-1 text-xs leading-5 text-slate-600 line-clamp-2">
+                      {task.note}
+                    </p>
+                  )}
+
+                  {/* 3. 任务来源 + 计划时间 */}
+                  <p className="mt-1 truncate text-xs text-[#8b7355]">
+                    {task.source} · {task.plannedAt}
+                  </p>
+                </div>
                     <span
                       className={cn(
                         "shrink-0 rounded-full px-1.5 py-0.5 text-[10px]",

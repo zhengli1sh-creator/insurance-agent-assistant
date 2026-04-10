@@ -255,6 +255,9 @@ function TodayRemindersSection({ reminders, onStatusChange }: TodayRemindersSect
                         {task.customerName && (
                           <p className="mt-1 text-sm text-slate-500">关联客户：{task.customerName}</p>
                         )}
+                        {task.note && (
+                          <p className="mt-1.5 text-sm text-slate-600 line-clamp-2">{task.note}</p>
+                        )}
                       </div>
                       <Badge className={cn(priority.className, "shrink-0 rounded-full border-0 px-3 py-1")}>
                         {priority.label}
@@ -391,8 +394,18 @@ function TaskCard({ task, zoneMeta, isPending = false, onStatusChange }: TaskCar
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2 flex-1 min-w-0">
-              <p className="advisor-section-label">任务内容</p>
+              {/* 1. 任务标题 */}
               <p className="text-base font-semibold leading-7 text-slate-900">{task.title}</p>
+              
+              {/* 2. 任务备注 */}
+              {task.note && (
+                <p className="text-sm leading-6 text-slate-600 line-clamp-3">{task.note}</p>
+              )}
+              
+              {/* 3. 任务来源 */}
+              <p className="text-xs text-slate-500">{task.source}</p>
+              
+              {/* 4. 关联客户（如果有） */}
               {task.customerName && (
                 <p className="text-sm leading-6 text-slate-500">关联客户：{task.customerName}</p>
               )}
@@ -404,7 +417,7 @@ function TaskCard({ task, zoneMeta, isPending = false, onStatusChange }: TaskCar
 
           <div className="advisor-hairline" />
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className={cn("grid gap-3", zoneMeta.title === "已过期" ? "grid-cols-1" : "sm:grid-cols-2")}>
             <div className="advisor-meta-tile rounded-[22px] border border-white/75 p-4">
               <p className="advisor-section-label">计划执行时间</p>
               <p className="mt-3 text-sm font-medium text-slate-900">{task.plannedAt}</p>
@@ -412,37 +425,39 @@ function TaskCard({ task, zoneMeta, isPending = false, onStatusChange }: TaskCar
                 <p className="mt-2 text-xs text-slate-500">提醒：{task.remindAt}</p>
               )}
             </div>
-            <div className="advisor-field-card rounded-[22px] p-4">
-              <p className="advisor-section-label">
-                {task.status === "已完成" ? "完成时间" : task.status === "已取消" ? "取消时间" : "任务状态"}
-              </p>
-              {task.status === "已完成" || task.status === "已取消" ? (
-                <p className="mt-3 text-sm font-medium text-slate-900">
-                  {task.status === "已完成"
-                    ? (task.completedAt
-                        ? new Date(task.completedAt).toLocaleString("zh-CN", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })
-                        : "未知")
-                    : (task.canceledAt
-                        ? new Date(task.canceledAt).toLocaleString("zh-CN", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })
-                        : "未知")
-                  }
+            {zoneMeta.title !== "已过期" && (
+              <div className="advisor-field-card rounded-[22px] p-4">
+                <p className="advisor-section-label">
+                  {task.status === "已完成" ? "完成时间" : task.status === "已取消" ? "取消时间" : "任务状态"}
                 </p>
-              ) : (
-                <Badge className={cn(zoneMeta.badgeClassName, "mt-3 rounded-full border-0 px-3 py-1")}>
-                  {zoneMeta.title}
-                </Badge>
-              )}
-            </div>
+                {task.status === "已完成" || task.status === "已取消" ? (
+                  <p className="mt-3 text-sm font-medium text-slate-900">
+                    {task.status === "已完成"
+                      ? (task.completedAt
+                          ? new Date(task.completedAt).toLocaleString("zh-CN", {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })
+                          : "未知")
+                      : (task.canceledAt
+                          ? new Date(task.canceledAt).toLocaleString("zh-CN", {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })
+                          : "未知")
+                    }
+                  </p>
+                ) : (
+                  <Badge className={cn(zoneMeta.badgeClassName, "mt-3 rounded-full border-0 px-3 py-1")}>
+                    {zoneMeta.title}
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
 
           {/* 外露操作按钮组 - 更明显 */}

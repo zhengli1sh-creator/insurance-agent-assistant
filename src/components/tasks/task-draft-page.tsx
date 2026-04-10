@@ -156,9 +156,9 @@ function TaskEditorCard({
             className="advisor-form-control advisor-form-textarea min-h-24 rounded-[22px] px-4 py-3 focus-visible:ring-0"
           />
 
-          {/* 预计开始时间 */}
+          {/* 计划执行时间 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">预计开始时间</label>
+            <label className="text-sm font-medium text-slate-700">计划执行时间</label>
             <Input
               value={draft.plannedAt}
               onChange={(event) => onChange({ plannedAt: event.target.value })}
@@ -336,7 +336,7 @@ export function TaskDraftPage() {
     mutationFn: async () => {
       const draft = drafts[0];
       if (!draft.title.trim() || !draft.plannedAt) {
-        throw new Error("请填写任务标题和预计开始时间");
+        throw new Error("请填写任务标题和计划执行时间");
       }
 
       // 构建请求体
@@ -463,9 +463,17 @@ export function TaskDraftPage() {
       <div className="advisor-panel-footer-surface fixed inset-x-0 bottom-0 border-t border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(248,250,252,0.98)_100%)] px-4 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl gap-3">
           <Button
+            variant="outline"
+            onClick={() => router.push("/")}
+            disabled={createMutation.isPending}
+            className="h-11 flex-1 rounded-full border-slate-200 bg-white/80 text-slate-700 hover:bg-white"
+          >
+            暂不创建
+          </Button>
+          <Button
             onClick={() => createMutation.mutate()}
             disabled={createMutation.isPending || !isValidDraft}
-            className={cn(customerPrimaryActionClassName, "h-11 w-full")}
+            className={cn(customerPrimaryActionClassName, "h-11 flex-1")}
           >
             {createMutation.isPending ? "创建中…" : "确认创建"}
           </Button>

@@ -47,6 +47,7 @@ export interface RecordSummary {
 export interface TaskItem {
   id: string;
   title: string;
+  note: string | null;         // 任务备注
   plannedAt: string;           // 计划执行时间（ISO 8601）
   remindAt: string | null;     // 提醒时间（ISO 8601）
   status: TaskStatus;

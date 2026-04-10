@@ -113,6 +113,7 @@ function mapTaskToItem(task: TaskEntity) {
   return {
     id: task.id,
     title: task.title,
+    note: task.note,
     plannedAt: formatPlannedAt(task),
     remindAt: formatRemindAt(task),
     completedAt: task.completed_at,
