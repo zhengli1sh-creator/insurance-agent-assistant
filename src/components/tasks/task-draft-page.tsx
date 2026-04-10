@@ -10,7 +10,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle, ChevronLeft, Search, User } from "lucide-react";
 
@@ -127,17 +127,18 @@ function TaskEditorCard({
                 <User className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                 <span>关联客户</span>
               </div>
-              <p className="mt-1 text-sm leading-6 text-slate-600">
-                {selectedCustomer
-                  ? `${selectedCustomer.name}${selectedCustomer.nickname ? `（${selectedCustomer.nickname}）` : ""}`
-                  : "当前未关联客户，可先创建任务，后续再补充客户归属。"}
-              </p>
+              {selectedCustomer ? (
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  {selectedCustomer.name}
+                  {selectedCustomer.nickname ? `（${selectedCustomer.nickname}）` : ""}
+                </p>
+              ) : null}
             </div>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={onSelectCustomer}
-              className="h-8 shrink-0 rounded-full border-white/80 bg-white/85 px-3 text-xs text-slate-700 hover:bg-white"
+              className="h-8 shrink-0 rounded-full bg-slate-900 px-4 text-xs text-white hover:bg-slate-800"
             >
               {selectedCustomer ? "重新选择" : "选择客户"}
             </Button>
@@ -297,7 +298,9 @@ function CustomerSelectSheet({
  */
 export function TaskDraftPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const returnTo = searchParams.get("from"); // "visit" 或其他
   const [seed, setSeed] = useState<TaskDraftSeed | null>(null);
   const [drafts, setDrafts] = useState<TaskDraftItem[]>([]);
   const [saveSuccessCount, setSaveSuccessCount] = useState(0);
@@ -380,14 +383,21 @@ export function TaskDraftPage() {
       await queryClient.invalidateQueries({ queryKey: ["tasks-live"] });
       await queryClient.fetchQuery({ queryKey: ["tasks-live"], queryFn: fetchLiveTasks }).catch(() => undefined);
 
-      // 重置表单，方便继续创建下一个任务
-      setDrafts([createEmptyTaskDraft()]);
-      setSelectedCustomer(null);
+      // 清除草稿种子
       clearTaskDraftSeed();
       setSeed(null);
 
-      // 3秒后自动隐藏成功提示
-      window.setTimeout(() => setSaveSuccessCount(0), 3000);
+      // 根据来源决定跳转行为
+      if (returnTo === "visit") {
+        // 从拜访记录页面来的，保存成功后返回拜访记录页面
+        window.setTimeout(() => router.push("/visits/new"), 1200);
+      } else {
+        // 其他情况（首页来的），重置表单方便继续创建
+        setDrafts([createEmptyTaskDraft()]);
+        setSelectedCustomer(null);
+        // 3秒后自动隐藏成功提示
+        window.setTimeout(() => setSaveSuccessCount(0), 3000);
+      }
     },
     onError: (error) => {
       if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
