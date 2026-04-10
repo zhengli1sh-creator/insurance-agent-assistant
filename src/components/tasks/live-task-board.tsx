@@ -39,17 +39,16 @@ function formatRemindAt(task: TaskEntity): string | null {
  */
 function formatTaskSource(task: TaskEntity): string {
   const sourceLabelMap: Record<TaskEntity["source_type"], string> = {
-    manual: "手工创建",
-    visit: "拜访记录",
+    manual: "来自手工创建",
+    visit: "来自拜访记录",
     activity: "来自客户活动",
   };
 
-  const sourceIdLabel = task.source_id ? ` ${task.source_id.slice(0, 8)}` : "";
   const customerLabel = task.customer_name
     ? `｜${task.customer_name}${task.customer_nickname ? `（${task.customer_nickname}）` : ""}`
     : "";
 
-  return `${sourceLabelMap[task.source_type]}${sourceIdLabel}${customerLabel}`;
+  return `${sourceLabelMap[task.source_type]}${customerLabel}`;
 }
 
 /**
