@@ -19,6 +19,12 @@ const accentFont = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "保险代理人智能助手",
   description: "帮助保险代理人整理客户、记录与每日重点。",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

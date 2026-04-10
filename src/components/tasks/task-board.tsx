@@ -7,12 +7,13 @@
  * 2. 主分区：待开始 / 已过期 / 已完成 / 已取消
  */
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  AlarmClock,
   Bell,
   Calendar,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   CircleAlert,
   CircleCheckBig,
   CircleDashed,
@@ -260,12 +261,6 @@ function TodayRemindersSection({ reminders, onStatusChange }: TodayRemindersSect
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-slate-600">
-                      {task.remindAt && (
-                        <span className="flex items-center gap-1.5">
-                          <AlarmClock className="h-3.5 w-3.5" />
-                          提醒时间：{task.remindAt}
-                        </span>
-                      )}
                       <span className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         计划执行：{task.plannedAt}
@@ -500,6 +495,25 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
   const [pendingViewMode, setPendingViewMode] = useState<"list" | "calendar">("calendar");
   const queryClient = useQueryClient();
 
+  // 历史区域折叠状态：默认收起
+  const [expandedZones, setExpandedZones] = useState<{
+    completed: boolean;
+    canceled: boolean;
+  }>({ completed: false, canceled: false });
+
+  // 历史区域懒加载状态
+  const [historyDisplayCount, setHistoryDisplayCount] = useState<{
+    completed: number;
+    canceled: number;
+  }>({ completed: 5, canceled: 5 });
+
+  // 历史任务时间窗口：默认7天（单位：毫秒）
+  const HISTORY_WINDOW_DAYS = 7;
+  const HISTORY_WINDOW_MS = HISTORY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+
+  // 每次懒加载增加的数量
+  const LAZY_LOAD_BATCH_SIZE = 5;
+
   // 状态变更 mutation - 乐观更新
   const statusMutation = useMutation({
     mutationFn: ({ taskId, status }: { taskId: string; status: "已完成" | "已取消" }) =>
@@ -580,6 +594,30 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
     statusMutation.mutate({ taskId, status });
   };
 
+  // 切换历史区域展开/折叠
+  const toggleZone = (zone: "completed" | "canceled") => {
+    setExpandedZones((prev) => ({ ...prev, [zone]: !prev[zone] }));
+  };
+
+  // 加载更多历史任务
+  const loadMoreHistory = (zone: "completed" | "canceled") => {
+    setHistoryDisplayCount((prev) => ({
+      ...prev,
+      [zone]: prev[zone] + LAZY_LOAD_BATCH_SIZE,
+    }));
+  };
+
+  // 时间筛选：筛选最近 N 天的历史任务
+  const filterRecentTasks = (tasks: TaskItem[], zone: "completed" | "canceled") => {
+    const now = Date.now();
+    return tasks.filter((task) => {
+      const timeField = zone === "completed" ? task.completedAt : task.canceledAt;
+      if (!timeField) return false;
+      const taskTime = new Date(timeField).getTime();
+      return now - taskTime <= HISTORY_WINDOW_MS;
+    });
+  };
+
   // 计算总任务数
   const totalTasks = data
     ? data.todayReminders.length +
@@ -621,13 +659,41 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
 
           {/* 主分区 */}
           {mainZones.map(({ key, meta }) => {
-            const items = data?.[key] ?? [];
+            const allItems = data?.[key] ?? [];
             const Icon = meta.icon;
             const isPending = key === "pending";
+            const isHistoryZone = key === "completed" || key === "canceled";
+
+            // 历史区域：时间筛选 + 懒加载
+            let displayItems = allItems;
+            let recentCount = allItems.length;
+            let hasMore = false;
+
+            if (isHistoryZone) {
+              const zone = key as "completed" | "canceled";
+              const recentItems = filterRecentTasks(allItems, zone);
+              recentCount = recentItems.length;
+              const limit = historyDisplayCount[zone];
+              displayItems = expandedZones[zone] ? recentItems.slice(0, limit) : [];
+              hasMore = expandedZones[zone] && limit < recentItems.length;
+            }
 
             return (
-              <Card key={key} className={cn(meta.cardClassName, "rounded-[30px]")}>
-                <CardHeader className="space-y-4 pb-4">
+              <Card
+                key={key}
+                className={cn(
+                  meta.cardClassName,
+                  "rounded-[30px]",
+                  isHistoryZone && "transition-all duration-200"
+                )}
+              >
+                <CardHeader
+                  className={cn(
+                    "pb-4",
+                    isHistoryZone && "cursor-pointer hover:bg-slate-50/50 transition-colors"
+                  )}
+                  onClick={isHistoryZone ? () => toggleZone(key as "completed" | "canceled") : undefined}
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
                       <span className={cn(meta.iconBadgeClassName, "shrink-0")}>
@@ -641,12 +707,15 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {/* 待开始区支持切换视图 */}
-                      {isPending && items.length > 0 && (
+                      {isPending && allItems.length > 0 && (
                         <div className="flex items-center bg-white/60 rounded-full p-0.5">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setPendingViewMode("list")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPendingViewMode("list");
+                            }}
                             className={cn(
                               "h-7 px-2 rounded-full text-xs transition-all",
                               pendingViewMode === "list"
@@ -660,7 +729,10 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setPendingViewMode("calendar")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPendingViewMode("calendar");
+                            }}
                             className={cn(
                               "h-7 px-2 rounded-full text-xs transition-all",
                               pendingViewMode === "calendar"
@@ -673,36 +745,82 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
                           </Button>
                         </div>
                       )}
-                      <Badge className={cn(meta.badgeClassName, "rounded-full border-0 px-3 py-1")}>
-                        {items.length} 项
-                      </Badge>
+                      {/* 历史区域：显示最近7天数量 / 全部数量 */}
+                      {isHistoryZone ? (
+                        <Badge className={cn(meta.badgeClassName, "rounded-full border-0 px-3 py-1")}>
+                          {recentCount > 0 ? `最近7天 ${recentCount} 项` : `${allItems.length} 项`}
+                        </Badge>
+                      ) : (
+                        <Badge className={cn(meta.badgeClassName, "rounded-full border-0 px-3 py-1")}>
+                          {allItems.length} 项
+                        </Badge>
+                      )}
+                      {/* 历史区域：折叠/展开图标 */}
+                      {isHistoryZone && (
+                        <span className="text-slate-400">
+                          {expandedZones[key as "completed" | "canceled"] ? (
+                            <ChevronUp className="h-5 w-5" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5" />
+                          )}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">{meta.description}</p>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {items.length === 0 ? (
-                    // 空状态
-                    <div className="advisor-empty-state-card rounded-[24px] p-4">
-                      <p className="text-sm font-medium text-slate-900">{meta.emptyTitle}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-500">{meta.emptyDescription}</p>
-                    </div>
-                  ) : isPending && pendingViewMode === "calendar" ? (
-                    // 日历视图（仅待开始区）
-                    <TaskCalendar tasks={items} onStatusChange={handleStatusChange} />
-                  ) : (
-                    // 列表视图
-                    items.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        zoneMeta={meta}
-                        isPending={key === "pending" || key === "overdue"}
-                        onStatusChange={handleStatusChange}
-                      />
-                    ))
+                  {/* 历史区域：折叠状态提示 */}
+                  {isHistoryZone && !expandedZones[key as "completed" | "canceled"] && recentCount > 0 && (
+                    <p className="text-xs text-slate-400 mt-1">
+                      点击展开查看最近 {HISTORY_WINDOW_DAYS} 天的 {recentCount} 条记录
+                    </p>
                   )}
-                </CardContent>
+                </CardHeader>
+                {/* 历史区域：仅展开时显示内容 */}
+                {(!isHistoryZone || expandedZones[key as "completed" | "canceled"]) && (
+                  <CardContent className="space-y-3">
+                    {allItems.length === 0 ? (
+                      // 空状态
+                      <div className="advisor-empty-state-card rounded-[24px] p-4">
+                        <p className="text-sm font-medium text-slate-900">{meta.emptyTitle}</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">{meta.emptyDescription}</p>
+                      </div>
+                    ) : isHistoryZone && recentCount === 0 ? (
+                      // 历史区域：最近7天无数据
+                      <div className="advisor-empty-state-card rounded-[24px] p-4">
+                        <p className="text-sm font-medium text-slate-900">最近 {HISTORY_WINDOW_DAYS} 天无记录</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                          共 {allItems.length} 条历史记录，超过 {HISTORY_WINDOW_DAYS} 天的任务已归档。
+                        </p>
+                      </div>
+                    ) : isPending && pendingViewMode === "calendar" ? (
+                      // 日历视图（仅待开始区）
+                      <TaskCalendar tasks={allItems} onStatusChange={handleStatusChange} />
+                    ) : (
+                      // 列表视图
+                      <>
+                        {displayItems.map((task) => (
+                          <TaskCard
+                            key={task.id}
+                            task={task}
+                            zoneMeta={meta}
+                            isPending={key === "pending" || key === "overdue"}
+                            onStatusChange={handleStatusChange}
+                          />
+                        ))}
+                        {/* 懒加载更多按钮 */}
+                        {isHistoryZone && hasMore && (
+                          <Button
+                            variant="ghost"
+                            className="w-full mt-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100/50 rounded-full"
+                            onClick={() => loadMoreHistory(key as "completed" | "canceled")}
+                          >
+                            加载更多（还剩 {recentCount - historyDisplayCount[key as "completed" | "canceled"]} 条）
+                          </Button>
+                        )}
+                      </>
+                    )}
+                  </CardContent>
+                )}
               </Card>
             );
           })}

@@ -247,9 +247,14 @@ export function TaskCalendar({ tasks, onTaskClick, onStatusChange }: TaskCalenda
                       className="min-w-0 flex-1 cursor-pointer"
                       onClick={() => onTaskClick?.(task)}
                     >
-                      <p className="truncate text-sm font-medium text-[#2c3e50]">
-                        {task.title}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-medium text-[#2c3e50]">
+                          {task.title}
+                        </p>
+                        <p className="shrink-0 text-xs text-slate-400">
+                          {task.plannedAt}
+                        </p>
+                      </div>
                       <p className="mt-0.5 truncate text-xs text-[#8b7355]">
                         {task.source}
                       </p>

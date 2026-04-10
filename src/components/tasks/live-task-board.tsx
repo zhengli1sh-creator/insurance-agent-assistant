@@ -39,7 +39,7 @@ function formatRemindAt(task: TaskEntity): string | null {
  */
 function formatTaskSource(task: TaskEntity): string {
   const sourceLabelMap: Record<TaskEntity["source_type"], string> = {
-    manual: "手工提醒",
+    manual: "手工创建",
     visit: "来自拜访记录",
     activity: "来自客户活动",
   };

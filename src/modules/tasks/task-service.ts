@@ -458,7 +458,7 @@ function defaultTaskMeta(sourceType: TaskSourceTypeValue) {
       return { description: "来自客户活动", category: "活动回访" };
     case "manual":
     default:
-      return { description: "手工新增提醒", category: "手工提醒" };
+      return { description: "手工创建提醒", category: "手工创建" };
   }
 }
 
