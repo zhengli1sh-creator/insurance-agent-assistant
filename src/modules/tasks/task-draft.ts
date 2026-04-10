@@ -161,7 +161,7 @@ function buildTaskNote(sourceSummary: string, title: string) {
     return "来自刚才确认的拜访后续事项。";
   }
 
-  return `来源：刚才的拜访记录。沟通背景：${truncate(summary, 90)}。待办：${title}`;
+  return `来源：来自拜访记录。沟通背景：${truncate(summary, 90)}。待办：${title}`;
 }
 
 function toDatetimeLocalValue(date: Date): string {
