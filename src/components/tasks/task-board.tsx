@@ -192,306 +192,44 @@ interface TodayRemindersSectionProps {
 }
 
 function TodayRemindersSection({ reminders, onStatusChange }: TodayRemindersSectionProps) {
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean;
-    task: TaskItem | null;
-    action: "已完成" | "已取消" | null;
-  }>({ isOpen: false, task: null, action: null });
-
-  const handleConfirm = () => {
-    if (confirmDialog.task && confirmDialog.action && onStatusChange) {
-      onStatusChange(confirmDialog.task.id, confirmDialog.action);
-    }
-    setConfirmDialog({ isOpen: false, task: null, action: null });
-  };
-
   return (
-    <>
-      <Card className="rounded-[30px] border-amber-200 bg-gradient-to-br from-amber-50/80 to-orange-50/60">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="advisor-icon-badge advisor-icon-badge-warning advisor-icon-badge-md shrink-0">
-                <Bell className="h-4 w-4" />
-              </span>
-              <div>
-                <CardTitle className="text-lg text-slate-900">今日提醒</CardTitle>
-                <p className="mt-1 text-sm text-slate-600">需要今天关注和处理的任务</p>
-              </div>
+    <Card className="rounded-[30px] border-amber-200 bg-gradient-to-br from-amber-50/80 to-orange-50/60">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="advisor-icon-badge advisor-icon-badge-warning advisor-icon-badge-md shrink-0">
+              <Bell className="h-4 w-4" />
+            </span>
+            <div>
+              <CardTitle className="text-lg text-slate-900">今日提醒</CardTitle>
+              <p className="mt-1 text-sm text-slate-600">需要今天关注和处理的任务</p>
             </div>
-            <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">
-              {reminders.length} 项
-            </Badge>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {reminders.length === 0 ? (
-            <div className="advisor-empty-state-card rounded-[24px] p-4">
-              <p className="text-sm font-medium text-slate-900">今天没有需要提醒的任务</p>
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                如需提前提醒，可在创建任务时补充提醒时间，今天命中的提醒会展示在这里。
-              </p>
-            </div>
-          ) : (
-              reminders.map((task) => {
-              const priority = priorityMeta[task.priority];
-              return (
-                <div
-                  key={task.id}
-                  className="advisor-list-item-card rounded-[26px] bg-white/80 p-4 sm:p-5"
-                >
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-base font-semibold text-slate-900">{task.title}</p>
-                        {task.customerName && (
-                          <p className="mt-1 text-sm text-slate-500">关联客户：{task.customerName}</p>
-                        )}
-                        {task.note && (
-                          <p className="mt-1.5 text-sm text-slate-600 line-clamp-2">{task.note}</p>
-                        )}
-                      </div>
-                      <Badge className={cn(priority.className, "shrink-0 rounded-full border-0 px-3 py-1")}>
-                        {priority.label}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-slate-600">
-                      <span className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        计划执行：{task.plannedAt}
-                      </span>
-                    </div>
-                    {/* 外露操作按钮组 */}
-                    <div className="flex items-center justify-end gap-2 pt-1">
-                      <Button
-                        size="sm"
-                        onClick={() => setConfirmDialog({ isOpen: true, task, action: "已完成" })}
-                        className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-full px-4 h-9 text-sm font-medium transition-colors"
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                        完成
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setConfirmDialog({ isOpen: true, task, action: "已取消" })}
-                        className="text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-full px-4 h-9 text-sm font-medium transition-colors"
-                      >
-                        <XCircle className="h-4 w-4 mr-1.5" />
-                        取消
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
-
-      {/* 确认对话框 */}
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ isOpen: false, task: null, action: null })}
-        onConfirm={handleConfirm}
-        title={confirmDialog.action === "已完成" ? "确认完成任务" : "确认取消任务"}
-        description={
-          confirmDialog.task
-            ? confirmDialog.action === "已完成"
-              ? `确定将任务"${confirmDialog.task.title}"标记为已完成吗？完成后任务将移动到"已完成"区。`
-              : `确定将任务"${confirmDialog.task.title}"标记为已取消吗？取消后任务将移动到"已取消"区。`
-            : ""
-        }
-        confirmText={confirmDialog.action === "已完成" ? "确认完成" : "确认取消"}
-        confirmVariant={confirmDialog.action === "已完成" ? "default" : "destructive"}
-      />
-    </>
-  );
-}
-
-/**
- * 确认对话框组件
- */
-interface ConfirmDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  description: string;
-  confirmText: string;
-  confirmVariant?: "default" | "destructive";
-}
-
-function ConfirmDialog({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  description,
-  confirmText,
-  confirmVariant = "default",
-}: ConfirmDialogProps) {
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md" showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:gap-0">
-          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">
-            取消
-          </Button>
-          <Button variant={confirmVariant} onClick={onConfirm} className="w-full sm:w-auto">
-            {confirmText}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-/**
- * 任务卡片组件
- */
-interface TaskCardProps {
-  task: TaskItem;
-  zoneMeta: ZoneMeta;
-  isPending?: boolean;
-  onStatusChange?: (taskId: string, status: "已完成" | "已取消") => void;
-}
-
-function TaskCard({ task, zoneMeta, isPending = false, onStatusChange }: TaskCardProps) {
-  const priority = priorityMeta[task.priority];
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean;
-    action: "已完成" | "已取消" | null;
-  }>({ isOpen: false, action: null });
-
-  const handleConfirm = () => {
-    if (confirmDialog.action && onStatusChange) {
-      onStatusChange(task.id, confirmDialog.action);
-    }
-    setConfirmDialog({ isOpen: false, action: null });
-  };
-
-  return (
-    <>
-      <div
-        className={cn(
-          "advisor-list-item-card rounded-[26px] p-4 sm:p-5",
-          (task.status === "已完成" || task.status === "已取消") && "bg-white/72"
-        )}
-      >
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-2 flex-1 min-w-0">
-              {/* 1. 任务标题 */}
-              <p className="text-base font-semibold leading-7 text-slate-900">{task.title}</p>
-              
-              {/* 2. 任务备注 */}
-              {task.note && (
-                <p className="text-sm leading-6 text-slate-600 line-clamp-3">{task.note}</p>
-              )}
-              
-              {/* 3. 任务来源 */}
-              <p className="text-xs text-slate-500">{task.source}</p>
-              
-              {/* 4. 关联客户（如果有） */}
-              {task.customerName && (
-                <p className="text-sm leading-6 text-slate-500">关联客户：{task.customerName}</p>
-              )}
-            </div>
-            <Badge className={cn(priority.className, "w-fit shrink-0 rounded-full border-0 px-3 py-1")}>
-              {priority.label}
-            </Badge>
-          </div>
-
-          <div className="advisor-hairline" />
-
-          <div className={cn("grid gap-3", zoneMeta.title === "已过期" ? "grid-cols-1" : "sm:grid-cols-2")}>
-            <div className="advisor-meta-tile rounded-[22px] border border-white/75 p-4">
-              <p className="advisor-section-label">计划执行时间</p>
-              <p className="mt-3 text-sm font-medium text-slate-900">{task.plannedAt}</p>
-              {task.remindAt && (
-                <p className="mt-2 text-xs text-slate-500">提醒：{task.remindAt}</p>
-              )}
-            </div>
-            {zoneMeta.title !== "已过期" && (
-              <div className="advisor-field-card rounded-[22px] p-4">
-                <p className="advisor-section-label">
-                  {task.status === "已完成" ? "完成时间" : task.status === "已取消" ? "取消时间" : "任务状态"}
-                </p>
-                {task.status === "已完成" || task.status === "已取消" ? (
-                  <p className="mt-3 text-sm font-medium text-slate-900">
-                    {task.status === "已完成"
-                      ? (task.completedAt
-                          ? new Date(task.completedAt).toLocaleString("zh-CN", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit"
-                            })
-                          : "未知")
-                      : (task.canceledAt
-                          ? new Date(task.canceledAt).toLocaleString("zh-CN", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit"
-                            })
-                          : "未知")
-                    }
-                  </p>
-                ) : (
-                  <Badge className={cn(zoneMeta.badgeClassName, "mt-3 rounded-full border-0 px-3 py-1")}>
-                    {zoneMeta.title}
-                  </Badge>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* 外露操作按钮组 - 更明显 */}
-          {isPending && (
-            <div className="flex items-center justify-end gap-2 pt-1">
-              <Button
-                size="sm"
-                onClick={() => setConfirmDialog({ isOpen: true, action: "已完成" })}
-                className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-full px-4 h-9 text-sm font-medium transition-colors"
-              >
-                <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                完成
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setConfirmDialog({ isOpen: true, action: "已取消" })}
-                className="text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-full px-4 h-9 text-sm font-medium transition-colors"
-              >
-                <XCircle className="h-4 w-4 mr-1.5" />
-                取消
-              </Button>
-            </div>
-          )}
+          <Badge className="advisor-chip-warning rounded-full border-0 px-3 py-1">
+            {reminders.length} 项
+          </Badge>
         </div>
-      </div>
-
-      {/* 确认对话框 */}
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ isOpen: false, action: null })}
-        onConfirm={handleConfirm}
-        title={confirmDialog.action === "已完成" ? "确认完成任务" : "确认取消任务"}
-        description={
-          confirmDialog.action === "已完成"
-            ? `确定将任务"${task.title}"标记为已完成吗？完成后任务将移动到"已完成"区。`
-            : `确定将任务"${task.title}"标记为已取消吗？取消后任务将移动到"已取消"区。`
-        }
-        confirmText={confirmDialog.action === "已完成" ? "确认完成" : "确认取消"}
-        confirmVariant={confirmDialog.action === "已完成" ? "default" : "destructive"}
-      />
-    </>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {reminders.length === 0 ? (
+          <div className="advisor-empty-state-card rounded-[24px] p-4">
+            <p className="text-sm font-medium text-slate-900">今天没有需要提醒的任务</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              如需提前提醒，可在创建任务时补充提醒时间，今天命中的提醒会展示在这里。
+            </p>
+          </div>
+        ) : (
+          reminders.map((task) => (
+            <TaskItemCard
+              key={task.id}
+              task={task}
+              isActionable
+              onStatusChange={onStatusChange}
+            />
+          ))
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -716,7 +454,7 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {/* 待开始区支持切换视图 */}
-                      {isPending && allItems.length > 0 && (
+                      {isPendingZone && allItems.length > 0 && (
                         <div className="flex items-center bg-white/60 rounded-full p-0.5">
                           <Button
                             variant="ghost"
@@ -801,7 +539,7 @@ export function TaskBoard({ data, isLoading = false, onRefetch }: TaskBoardProps
                           共 {allItems.length} 条历史记录，超过 {HISTORY_WINDOW_DAYS} 天的任务已归档。
                         </p>
                       </div>
-                    ) : isPending && pendingViewMode === "calendar" ? (
+                    ) : isPendingZone && pendingViewMode === "calendar" ? (
                       // 日历视图（仅待开始区）
                       <TaskCalendar tasks={allItems} onStatusChange={handleStatusChange} />
                     ) : (
