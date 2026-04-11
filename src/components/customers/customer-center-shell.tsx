@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useDeferredValue } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Search, Sparkles, X } from "lucide-react";
+import { ArrowRight, Search, Sparkles, UserRoundPlus, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,15 @@ export function CustomerCenterShell() {
 
             <div className="advisor-input-dock rounded-[28px] p-3">
               <div className="flex flex-col gap-3">
-                <p className="text-sm font-medium text-slate-700">搜索客户</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-slate-700">搜索客户</p>
+                  <Link href="/customers/new?from=customers">
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 rounded-full text-slate-600 hover:bg-white/70 hover:text-slate-900">
+                      <UserRoundPlus className="h-4 w-4" />
+                      <span className="text-sm">添加客户档案</span>
+                    </Button>
+                  </Link>
+                </div>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle, ChevronLeft, Sparkles, Users } from "lucide-react";
 
@@ -637,8 +637,12 @@ function MobileCustomersSheet({
 
 export default function NewCustomerPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const backHref = searchParams.get("from") === "customers" ? "/customers" : "/dashboard";
+  const handleBack = () => router.push(backHref);
+
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => [createWelcomeMessage()]);
   const [inputText, setInputText] = useState("");
@@ -1042,7 +1046,7 @@ export default function NewCustomerPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/customers")}
+            onClick={handleBack}
             className="advisor-outline-button mt-0.5 h-9 w-9 shrink-0 rounded-full hover:bg-white"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -1065,7 +1069,7 @@ export default function NewCustomerPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => router.push("/customers")}
+                    onClick={handleBack}
                     className="advisor-outline-button h-8 w-8 shrink-0 rounded-full hover:bg-white"
                   >
                     <ChevronLeft className="h-4 w-4" />

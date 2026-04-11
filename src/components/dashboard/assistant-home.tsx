@@ -16,7 +16,7 @@ type ActionCard = {
 const quickActions: ActionCard[] = [
   {
     label: "添加客户档案",
-    href: "/customers/new",
+    href: "/customers/new?from=dashboard",
     icon: UserRoundPlus,
     iconClassName: "bg-[#123B5D]/10 text-[#123B5D]",
   },

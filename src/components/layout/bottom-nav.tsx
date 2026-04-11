@@ -15,13 +15,13 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  const isCustomersRoute = pathname === "/customers" || pathname.startsWith("/customers/");
+
   // 隐藏底部导航的页面
-  const hiddenPaths = ["/dashboard", "/customers/new", "/visits/new", "/tasks/new", "/tasks"];
-  if (hiddenPaths.includes(pathname)) {
+  const hiddenPaths = ["/dashboard", "/visits/new", "/tasks/new", "/tasks"];
+  if (isCustomersRoute || hiddenPaths.includes(pathname)) {
     return null;
   }
-
-
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/35 bg-white/85 px-4 py-3 backdrop-blur-2xl lg:hidden">
