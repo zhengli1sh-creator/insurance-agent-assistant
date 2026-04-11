@@ -18,7 +18,8 @@ export function BottomNav() {
   const isCustomersRoute = pathname === "/customers" || pathname.startsWith("/customers/");
 
   // 隐藏底部导航的页面
-  const hiddenPaths = ["/dashboard", "/visits/new", "/tasks/new", "/tasks"];
+  const hiddenPaths = ["/dashboard", "/chat", "/visits/new", "/tasks/new", "/tasks"];
+
   if (isCustomersRoute || hiddenPaths.includes(pathname)) {
     return null;
   }
