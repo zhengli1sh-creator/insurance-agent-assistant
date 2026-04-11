@@ -110,10 +110,12 @@ function createEmptyDraft(): Record<CustomerFieldKey, string> {
     nickname: "",
     age: "",
     sex: "",
+    profession: "",
     familyProfile: "",
     wealthProfile: "",
     coreInteresting: "",
     preferCommunicate: "",
+    source: "",
     recentMoney: "",
     remark: "",
   };
