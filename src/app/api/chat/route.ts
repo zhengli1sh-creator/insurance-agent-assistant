@@ -53,10 +53,18 @@ async function buildPreviewOnlyReply(message: string): Promise<ChatResponse> {
 export async function POST(request: Request) {
   const body = (await request.json()) as { message?: string; mode?: ChatRequestMode };
   const message = body.message?.trim() ?? "";
-  const mode = body.mode === "workflow" ? "workflow" : "chat";
+  const mode = body.mode === "workflow"
+    ? "workflow"
+    : body.mode === "companion"
+      ? "companion"
+      : "chat";
 
   if (!message) {
     return NextResponse.json({ error: "消息不能为空" }, { status: 400 });
+  }
+
+  if (mode === "companion") {
+    return NextResponse.json(await buildCompanionReply(message));
   }
 
   const context = await requireUserContext();
@@ -65,12 +73,11 @@ export async function POST(request: Request) {
     return NextResponse.json(await planChatMessage(message, context.supabase, context.user?.id ?? null));
   }
 
-
   if (!context.supabase || !context.user) {
     return NextResponse.json(await buildPreviewOnlyReply(message));
   }
 
-
   const result = await executeChatMessage(context.supabase, context.user, message);
   return NextResponse.json(result);
 }
+

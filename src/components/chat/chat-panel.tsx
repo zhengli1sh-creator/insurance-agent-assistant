@@ -240,10 +240,11 @@ export function ChatPanel({
           <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="advisor-kicker">Quick start</p>
-                <p className="mt-1 text-base font-semibold text-slate-900">直接从高频事项开始</p>
+                <p className="advisor-kicker">{getQuickStartKicker(mode)}</p>
+                <p className="mt-1 text-base font-semibold text-slate-900">{getQuickStartTitle(mode)}</p>
               </div>
-              <span className="advisor-section-label">一项一项处理</span>
+              <span className="advisor-section-label">{getQuickStartTag(mode)}</span>
+
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">

@@ -6,67 +6,46 @@ import { useRouter } from "next/navigation";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { persistAssistantWorkflow } from "@/modules/chat/workflow-session";
-import type { AssistantWorkflowDirective } from "@/types/agent";
+import type { AgentMessage } from "@/types/agent";
 
-function resolveWorkflowRoute(workflow: AssistantWorkflowDirective) {
-  if (workflow.preferredSurface === "visit" && workflow.visitSeed) {
-    return "/dashboard/task?surface=visit";
-  }
+const companionInitialMessages: AgentMessage[] = [
+  {
+    id: "companion-welcome-1",
+    role: "assistant",
+    mood: "安慰",
+    timestamp: "刚刚",
+    content: "今天如果你只是想缓一缓、理一理，或者想有人先接住你的情绪，也可以先在这里说。",
+  },
+  {
+    id: "companion-welcome-2",
+    role: "assistant",
+    mood: "鼓舞",
+    timestamp: "刚刚",
+    content: "这里暂时不直接打开客户、记录或任务流程；我先陪你把状态稳住，再决定下一步。",
+  },
+];
 
-  if (workflow.preferredSurface === "activities" && workflow.activitySeed) {
-    return "/dashboard/task?surface=activities";
-  }
-
-  if (workflow.preferredSurface === "customers") {
-    if (workflow.customerSeed) {
-      return "/dashboard/task?surface=customers";
-    }
-
-    return workflow.launcher.secondaryAction?.href ?? "/customers";
-  }
-
-  if (workflow.preferredSurface === "tasks") {
-    return workflow.launcher.secondaryAction?.href ?? "/tasks";
-  }
-
-  return workflow.launcher.secondaryAction?.href ?? null;
-}
-
-function shouldPersistWorkflow(workflow: AssistantWorkflowDirective) {
-  return Boolean(workflow.visitSeed || workflow.activitySeed || workflow.customerSeed);
-}
+const companionQuickActions = [
+  { label: "今天有点累，想先缓一缓", prompt: "今天有点累，想先缓一缓，你先陪我把状态稳一下。" },
+  { label: "刚被客户拒绝，心里有点堵", prompt: "我刚被客户拒绝了，心里有点堵，想先跟你说说。" },
+  { label: "今天节奏很乱，帮我稳一下", prompt: "今天节奏有点乱，你先帮我把思路稳一下。" },
+  { label: "你帮我看看，我最近做得怎么样", prompt: "你帮我看看，我最近其实做得怎么样。" },
+  { label: "我现在有点怀疑自己", prompt: "我现在有点怀疑自己，是不是哪里没做好。" },
+];
 
 export default function ChatPage() {
   const router = useRouter();
-
-  function handleWorkflowChange(nextWorkflow: AssistantWorkflowDirective | undefined) {
-    if (!nextWorkflow) {
-      return;
-    }
-
-    const targetHref = resolveWorkflowRoute(nextWorkflow);
-    if (!targetHref) {
-      return;
-    }
-
-    if (shouldPersistWorkflow(nextWorkflow)) {
-      persistAssistantWorkflow(nextWorkflow);
-    }
-
-    router.push(targetHref);
-  }
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3 px-1">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge className="advisor-accent-chip rounded-full px-3 py-1">自由沟通</Badge>
-            <span className="advisor-section-label">单主工作区</span>
+            <Badge className="advisor-accent-chip rounded-full px-3 py-1">随便聊聊</Badge>
+            <span className="advisor-section-label">轻陪伴工作区</span>
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            这里适合先交代眼前最想处理的一件事；需要转入客户、记录或任务视图时，我会直接带你进入对应工作区。
+            这里先不直接承接客户、记录或任务流程；如果你只是想缓一缓、理一理，或者想有人接住一下，我在。
           </p>
         </div>
 
@@ -82,17 +61,21 @@ export default function ChatPage() {
       </div>
 
       <ChatPanel
-        mode="chat"
-        onWorkflowChange={handleWorkflowChange}
-        badgeLabel="自由沟通页"
-        title="先把当前情况交给我"
-        description="你可以直接说客户近况、拜访补录、活动补录、任务整理或查询需求；我会先理解，再在需要时把你带到结构化工作区继续完成。"
+        mode="companion"
+        badgeLabel="陪伴模式"
+        title="先把今天的状态交给我"
+        description="这里更适合承接鼓励、安慰、压力整理和轻度复盘；不急着处理具体流程，先把节奏稳住。"
+        initialMessages={companionInitialMessages}
         initialDraft=""
-        statusIdleText="等待你交代当前情况"
-        statusSendingText="正在理解并整理下一步"
-        promptHint="直接说真实情况即可；涉及保存、修改、生成任务或跨客户关联时，我会先提醒确认。"
-        placeholder="例如：今天刚见完林雅雯，她希望下周前收到家庭保障缺口梳理，也想约一次关于子女教育金的深聊。"
+        quickActions={companionQuickActions}
+        statusIdleText="等你开口，我会先接住你"
+        statusSendingText="我在认真听你说"
+        promptHint="你可以直接说累、乱、堵、委屈、怀疑自己，或者说说今天最放不下的一件事。"
+        placeholder="例如：今天被客户婉拒了，心里有点堵，我有点怀疑是不是自己哪里没做好。"
+        submitLabel="继续说"
+        sendingLabel="正在陪你梳理"
       />
     </div>
   );
 }
+

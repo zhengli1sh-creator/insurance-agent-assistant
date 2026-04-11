@@ -1,6 +1,7 @@
 export type AgentRole = "assistant" | "user";
 export type AgentMood = "鼓舞" | "安慰" | "执行";
-export type ChatRequestMode = "chat" | "workflow";
+export type ChatRequestMode = "chat" | "workflow" | "companion";
+
 
 export interface AgentPreviewAction {
   label: string;
