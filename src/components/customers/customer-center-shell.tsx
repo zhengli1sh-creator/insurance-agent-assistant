@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState, useDeferredValue } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Search, Sparkles, UserRoundPlus, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, Search, Sparkles, UserRoundPlus, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ function CenterStateCard({ title, description }: { title: string; description?: 
 
 
 export function CustomerCenterShell() {
+  const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const deferredKeyword = useDeferredValue(keyword);
 
@@ -80,6 +82,19 @@ export function CustomerCenterShell() {
 
   return (
     <div className="mx-auto h-full max-w-4xl space-y-5 overflow-y-auto overscroll-contain">
+      {/* 顶部返回栏 - 桌面端和手机端都显示 */}
+      <div className="flex items-center gap-3 px-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push("/dashboard")}
+          className="advisor-outline-button h-9 w-9 shrink-0 rounded-full hover:bg-white"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+        <span className="text-sm font-medium text-slate-600">返回首页</span>
+      </div>
+
       <Card className={customerHeroCardClassName}>
 
         <CardContent className="p-5 sm:p-7">
