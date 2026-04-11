@@ -198,10 +198,9 @@ export function CustomerProfileFields({
     <>
       {renderInputField("name", "客户姓名", "请输入客户姓名", "最小必填，先形成可识别的客户档案。", "md:col-span-2", true)}
       {renderInputField("nickname", "客户昵称", "可选", "记录更自然的称呼，后续沟通更顺手。")}
-      {renderInputField("source", "客户来源", "例如：转介绍", "沉淀首次认识路径，便于后续复盘来源质量。")}
-      {renderInputField("profession", "职业 / 身份", "例如：银行财务", "帮助后续判断沟通语言和经营切入点。", "md:col-span-2")}
       {renderTextareaField("coreInteresting", "核心关注点", "例如：孩子教育金、养老规划", "先记录客户最在意的主题，经营简报会据此更聚焦。", "md:col-span-2")}
     </>
+
   );
 
   const extraFields = (

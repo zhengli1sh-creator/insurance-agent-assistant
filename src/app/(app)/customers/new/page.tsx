@@ -38,15 +38,14 @@ const customerFields = [
   { key: "nickname", label: "昵称", required: false },
   { key: "age", label: "年龄", required: false },
   { key: "sex", label: "性别", required: false },
-  { key: "profession", label: "职业", required: false },
   { key: "familyProfile", label: "家庭情况", required: false },
   { key: "wealthProfile", label: "财富情况", required: false },
   { key: "coreInteresting", label: "核心关注点", required: false },
   { key: "preferCommunicate", label: "沟通偏好", required: false },
-  { key: "source", label: "客户来源", required: false },
   { key: "recentMoney", label: "近期资金情况", required: false },
   { key: "remark", label: "备注", required: false },
 ] as const;
+
 
 type CustomerFieldKey = (typeof customerFields)[number]["key"];
 
@@ -57,18 +56,16 @@ const labelToKeyMap: Record<string, CustomerFieldKey> = {
   昵称: "nickname",
   年龄: "age",
   性别: "sex",
-  "职业 / 身份": "profession",
-  职业: "profession",
   家庭情况: "familyProfile",
   财富情况: "wealthProfile",
   财富状况: "wealthProfile",
   核心关注点: "coreInteresting",
   沟通偏好: "preferCommunicate",
-  客户来源: "source",
   资金情况: "recentMoney",
   近期资金情况: "recentMoney",
   备注: "remark",
 };
+
 
 const DESKTOP_CUSTOMERS_PAGE_SIZE = 5;
 
@@ -108,16 +105,15 @@ function createEmptyDraft(): Record<CustomerFieldKey, string> {
     nickname: "",
     age: "",
     sex: "",
-    profession: "",
     familyProfile: "",
     wealthProfile: "",
     coreInteresting: "",
     preferCommunicate: "",
-    source: "",
     recentMoney: "",
     remark: "",
   };
 }
+
 
 function formatTime() {
   const now = new Date();

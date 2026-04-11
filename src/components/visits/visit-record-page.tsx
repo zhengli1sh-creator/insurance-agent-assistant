@@ -52,35 +52,25 @@ function createErrorMessage(content: string): VisitChatMessage {
   return { id: crypto.randomUUID(), role: "assistant", type: "error-hint", content, timestamp: formatMessageTime() };
 }
 
-function buildHelperAction(
-  mode: VisitCustomerSheetMode,
-  onOpen: (mode: VisitCustomerSheetMode) => void,
-  label: string,
-  muted = false,
-) {
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(mode)}
-      className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium",
-        muted ? "advisor-chip-info text-slate-600" : "advisor-chip-warning text-slate-700",
-      )}
-    >
-      {label}
-    </button>
-  );
-}
+function ExistingCustomersButton({
+  count,
+  compact = false,
+  onOpen,
+  className,
+}: {
+  count: number;
+  compact?: boolean;
+  onOpen: () => void;
+  className?: string;
+}) {
 
-function ExistingCustomersButton({ count, compact = false, onOpen }: { count: number; compact?: boolean; onOpen: () => void }) {
   return (
     <button
       type="button"
       onClick={onOpen}
-      className={cn(customerEntryButtonClassName, compact ? "gap-2 rounded-[18px] px-3 py-2" : "")}
-
-
+      className={cn(customerEntryButtonClassName, compact ? "gap-2 rounded-[18px] px-3 py-2" : "", className)}
     >
+
       <div className={cn("advisor-icon-badge advisor-icon-badge-info flex shrink-0 items-center justify-center", compact ? "h-7 w-7" : "h-8 w-8")}>
         <Users className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
       </div>
@@ -154,11 +144,72 @@ export function VisitRecordPage() {
   }, [currentDraft, messages]);
 
   const addMessage = (message: VisitChatMessage) => setMessages((prev) => [...prev, message]);
-  const openCustomerSheet = (mode: VisitCustomerSheetMode) => {
+
+  const buildCustomerFormFromVisitDraft = (draft: VisitDraftState, previousForm?: CustomerProfileFormValue) => {
+    const sameCustomer = previousForm
+      ? previousForm.name.trim() === draft.name.trim() && previousForm.nickname.trim() === draft.nickName.trim()
+      : false;
+    const baseForm = sameCustomer ? previousForm : emptyCustomerProfileForm;
+
+    return {
+      ...emptyCustomerProfileForm,
+      ...baseForm,
+      name: draft.name.trim(),
+      nickname: draft.nickName.trim(),
+      coreInteresting: draft.corePain.trim(),
+      preferCommunicate: baseForm?.preferCommunicate?.trim() ? baseForm.preferCommunicate : draft.methodCommunicate.trim(),
+    } satisfies CustomerProfileFormValue;
+  };
+
+  const syncVisitDraftWithCustomerForm = (draft: VisitDraftState, form: CustomerProfileFormValue) => ({
+    ...draft,
+    customerId: "",
+    name: form.name.trim(),
+    nickName: form.nickname.trim(),
+    corePain: form.coreInteresting.trim(),
+  });
+
+  const syncVisitDraftsFromCustomerForm = (form: CustomerProfileFormValue) => {
+    setCurrentDraft((prev) => syncVisitDraftWithCustomerForm(prev, form));
+    setResumeDraft((prev) => (prev ? syncVisitDraftWithCustomerForm(prev, form) : prev));
+  };
+
+  const seedCustomerFormFromVisitDraft = (draft: VisitDraftState) => {
+    setCustomerForm((prev) => buildCustomerFormFromVisitDraft(draft, prev));
+  };
+
+  const updateCustomerForm = (patch: Partial<CustomerProfileFormValue>) => {
+    setCustomerForm((prev) => {
+      const nextForm = { ...prev, ...patch };
+      syncVisitDraftsFromCustomerForm(nextForm);
+      return nextForm;
+    });
+  };
+
+  const openCustomerSheet = (mode: VisitCustomerSheetMode, draft: VisitDraftState = resumeDraft ?? currentDraft) => {
+    if (mode === "create") {
+      seedCustomerFormFromVisitDraft(draft);
+    }
     setCustomerSheetMode(mode);
     setCustomerSheetOpen(true);
   };
+
+  const handleCustomerSheetModeChange = (mode: VisitCustomerSheetMode) => {
+    if (mode === "create") {
+      seedCustomerFormFromVisitDraft(resumeDraft ?? currentDraft);
+    }
+    setCustomerSheetMode(mode);
+  };
+
+  const handleCustomerSheetOpenChange = (open: boolean) => {
+    if (!open && customerSheetMode === "create") {
+      syncVisitDraftsFromCustomerForm(customerForm);
+    }
+    setCustomerSheetOpen(open);
+  };
+
   const openAllCustomersSheet = () => openCustomerSheet("all");
+
 
   const resolveDraftForSave = (draft: VisitDraftState) => {
     const matchedCustomer = (draft.customerId ? customers.find((customer) => customer.id === draft.customerId) : null) ?? findExactCustomerMatch(draft, customers);
@@ -216,25 +267,22 @@ export function VisitRecordPage() {
     },
     onError: (error, variables) => {
       if (error instanceof ApiRequestError && error.code === "CUSTOMER_NOT_FOUND") {
+        const nextRelatedCustomers = findRelatedCustomers(variables.draft, customers);
         setResumeDraft(variables.draft);
-        setCustomerForm({
-          ...emptyCustomerProfileForm,
-          name: variables.draft.name.trim(),
-          nickname: variables.draft.nickName.trim(),
-          coreInteresting: variables.draft.corePain.trim(),
-          preferCommunicate: variables.draft.methodCommunicate.trim(),
-        });
-        openCustomerSheet(relatedCustomers.length > 0 ? "related" : "create");
+        openCustomerSheet(nextRelatedCustomers.length > 0 ? "related" : "create", variables.draft);
       }
 
-      if (error instanceof ApiRequestError && (error.code === "CUSTOMER_AMBIGUOUS" || error.code === "CUSTOMER_MISMATCH") && relatedCustomers.length > 0) {
-        setResumeDraft(variables.draft);
-        openCustomerSheet("related");
+      if (error instanceof ApiRequestError && (error.code === "CUSTOMER_AMBIGUOUS" || error.code === "CUSTOMER_MISMATCH")) {
+        const nextRelatedCustomers = findRelatedCustomers(variables.draft, customers);
+        if (nextRelatedCustomers.length > 0) {
+          setResumeDraft(variables.draft);
+          openCustomerSheet("related", variables.draft);
+        }
       }
-
 
       addMessage(createErrorMessage(error.message || "这次还没有保存成功，请稍后重试。"));
     },
+
   });
 
   const createCustomerMutation = useMutation({
@@ -244,12 +292,13 @@ export function VisitRecordPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       }),
-    onSuccess: (customer) => {
+    onSuccess: (customer, submittedForm) => {
       const nextDraft = {
         ...(resumeDraft ?? currentDraft),
         customerId: customer.id,
         name: customer.name,
         nickName: customer.nickname ?? "",
+        corePain: submittedForm.coreInteresting.trim(),
       };
       setCurrentDraft(nextDraft);
       setCustomerSheetOpen(false);
@@ -260,6 +309,7 @@ export function VisitRecordPage() {
         saveMutation.mutate({ draft: nextDraft, resumed: true });
       }
     },
+
     onError: (error) => addMessage(createErrorMessage(error.message || "客户档案暂未保存成功，请再试一次。")),
   });
 
@@ -305,13 +355,21 @@ export function VisitRecordPage() {
       addMessage(createErrorMessage("请先补一句客户姓名或昵称，例如：今天见了王姐。"));
       return;
     }
-    if (!currentDraft.timeVisit.trim()) {
-      addMessage(createErrorMessage("拜访日期还没有整理出来。你可以补一句今天、昨天或具体日期。"));
+
+    if (customerStatus.tone === "missing") {
+      setResumeDraft(currentDraft);
+      openCustomerSheet(relatedCustomers.length > 0 ? "related" : "create", currentDraft);
       return;
     }
+
     if (customerStatus.tone === "review") {
       setResumeDraft(currentDraft);
-      openCustomerSheet("related");
+      openCustomerSheet("related", currentDraft);
+      return;
+    }
+
+    if (!currentDraft.timeVisit.trim()) {
+      addMessage(createErrorMessage("拜访日期还没有整理出来。你可以补一句今天、昨天或具体日期。"));
       return;
     }
 
@@ -319,14 +377,30 @@ export function VisitRecordPage() {
     saveMutation.mutate({ draft: resolvedDraft });
   };
 
-
   const helperSlot = customerStatus.tone === "matched"
-    ? buildHelperAction("related", openCustomerSheet, `已匹配：${customerStatus.customer?.name ?? "现有客户"}`, true)
+    ? (
+        <button
+          type="button"
+          onClick={() => openCustomerSheet("related", currentDraft)}
+          className="inline-flex items-center rounded-full bg-white/72 px-3 py-1 text-[11px] font-medium text-slate-600 transition hover:bg-white"
+        >
+          已匹配：{customerStatus.customer?.name ?? "现有客户"}
+        </button>
+      )
+    : null;
+
+  const primaryActionLabel = customerStatus.tone === "missing"
+    ? "先补客户档案"
     : customerStatus.tone === "review"
-      ? buildHelperAction("related", openCustomerSheet, "先核对相近客户")
-      : customerStatus.tone === "missing"
-        ? buildHelperAction("create", openCustomerSheet, "先补客户档案")
-        : null;
+      ? "先核对相近客户"
+      : currentDraft.followWork.trim()
+        ? "保存并继续确认任务"
+        : "保存拜访记录";
+
+  const shouldEmphasizePrimaryAction = customerStatus.tone === "missing"
+    || customerStatus.tone === "review"
+    || Boolean(currentDraft.timeVisit.trim() && (currentDraft.customerId || currentDraft.name.trim() || currentDraft.nickName.trim()));
+
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-1.5 md:gap-3">
@@ -352,7 +426,8 @@ export function VisitRecordPage() {
                 <div className="min-w-0 flex-1">
                   <h1 className="text-lg font-semibold text-slate-900 md:text-[1.35rem]">添加拜访记录</h1>
                 </div>
-                <ExistingCustomersButton count={totalCustomerCount} onOpen={openAllCustomersSheet} />
+                <ExistingCustomersButton count={totalCustomerCount} onOpen={openAllCustomersSheet} className="lg:!flex" />
+
               </div>
             </div>
           </div>
@@ -408,11 +483,12 @@ export function VisitRecordPage() {
             }}
             suggestedFields={suggestedComposerFields}
             helperSlot={helperSlot}
-            isReadyToSave={Boolean(currentDraft.timeVisit.trim() && (currentDraft.customerId || currentDraft.name.trim() || currentDraft.nickName.trim()))}
+            isReadyToSave={shouldEmphasizePrimaryAction}
             isExtractPending={extractMutation.isPending}
             isSavePending={saveMutation.isPending || createCustomerMutation.isPending}
-            saveLabel={currentDraft.followWork.trim() ? "保存并继续确认任务" : "保存拜访记录"}
+            saveLabel={primaryActionLabel}
           />
+
 
         </CardContent>
       </Card>
@@ -426,9 +502,10 @@ export function VisitRecordPage() {
         relatedCustomers={relatedCustomers}
         customerForm={customerForm}
         isCreatePending={createCustomerMutation.isPending}
-        onOpenChange={setCustomerSheetOpen}
-        onModeChange={setCustomerSheetMode}
-        onCustomerFormChange={(patch) => setCustomerForm((prev) => ({ ...prev, ...patch }))}
+        onOpenChange={handleCustomerSheetOpenChange}
+        onModeChange={handleCustomerSheetModeChange}
+        onCustomerFormChange={updateCustomerForm}
+
 
         onSelectCustomer={(customer) => {
           const nextDraft = {
