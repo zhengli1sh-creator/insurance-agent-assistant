@@ -110,6 +110,42 @@ function getActionButtonClassName(variant?: "primary" | "secondary") {
     : "advisor-primary-button cursor-pointer rounded-full px-4 py-2 text-sm text-white transition-all duration-200 hover:brightness-[1.03] disabled:shadow-none";
 }
 
+function getSectionLabel(mode: ChatRequestMode) {
+  return mode === "companion" ? "陪伴式对话" : "助手驱动主流程";
+}
+
+function getQuickStartKicker(mode: ChatRequestMode) {
+  return mode === "companion" ? "陪伴入口" : "Quick start";
+}
+
+function getQuickStartTitle(mode: ChatRequestMode) {
+  return mode === "companion" ? "可以先从当下状态说起" : "直接从高频事项开始";
+}
+
+function getQuickStartTag(mode: ChatRequestMode) {
+  return mode === "companion" ? "先稳住节奏" : "一项一项处理";
+}
+
+function getConversationNotice(mode: ChatRequestMode) {
+  if (mode === "companion") {
+    return "这里先不直接发起客户、记录或任务流程；如果你只是想缓一缓、理一理，或想有人接住一下，我会先陪你把节奏稳住。";
+  }
+
+  return "助手先理解目标，再把结果整理成预览或引导你进入结构化工作区；涉及写入、修改或生成任务时，会先提醒确认。";
+}
+
+function getFooterNote(mode: ChatRequestMode) {
+  if (mode === "workflow") {
+    return "我会先理解你的目标，再把你带到合适的内容工作区。";
+  }
+
+  if (mode === "companion") {
+    return "这里不直接打开业务流程，适合先整理情绪、节奏和眼下最难的一步。";
+  }
+
+  return "需要确认的操作会先提醒你，不会直接改动客户资料。";
+}
+
 export function ChatPanel({
   mode = "chat",
   onWorkflowChange,
