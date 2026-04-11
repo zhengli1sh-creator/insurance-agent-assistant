@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireUserContext } from "@/lib/supabase/require-user";
 import { executeChatMessage, planChatMessage } from "@/modules/chat/action-executor";
 import { understandAssistantMessage } from "@/modules/chat/assistant-understanding";
+import { buildCompanionReply } from "@/modules/chat/companion-service";
 import { resolveWorkflowBuildOptions } from "@/modules/chat/workflow-context";
 import { buildAssistantWorkflow } from "@/modules/chat/workflow-director";
 
