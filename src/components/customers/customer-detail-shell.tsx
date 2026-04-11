@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
+
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BellRing, ClipboardList, PencilLine, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, BellRing, ClipboardList, Sparkles, Users } from "lucide-react";
+
 
 import {
   CustomerProfileFields,
@@ -58,7 +60,7 @@ const futureModules = [
   },
 ] as const;
 
-const elevatedPrimaryActionClassName = `${customerPrimaryActionClassName} hover:-translate-y-0.5`;
+
 
 
 
@@ -167,8 +169,8 @@ function DetailStateCard({
 export function CustomerDetailShell({ customerId }: { customerId: string }) {
 
   const queryClient = useQueryClient();
-  const profileSectionRef = useRef<HTMLDivElement | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+
   const [form, setForm] = useState<CustomerProfileFormValue>({ ...emptyCustomerProfileForm });
   const [feedback, setFeedback] = useState("");
 
@@ -229,9 +231,7 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
     setEditOpen(true);
   }
 
-  function scrollToProfileSection() {
-    profileSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+
 
   if (customerQuery.isLoading && !customer) {
     return (
@@ -270,62 +270,36 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
         <Card className={customerHeroCardClassName}>
 
           <CardContent className="space-y-6 p-5 sm:p-7">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="advisor-accent-chip rounded-full px-3 py-1">客户档案</Badge>
-                  <span className="advisor-section-label">经营简报入口</span>
-                  {isDemoMode ? <Badge className="advisor-chip-neutral rounded-full border-0 px-3 py-1">示例预览</Badge> : null}
-
-                </div>
-
-                <div className="space-y-3">
-                  <p className="advisor-kicker">Client briefing</p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className={customerHeroTitleClassName}>{customer.name}</h1>
-
-                    {customer.nickname ? <Badge className="advisor-accent-chip rounded-full border-0">{customer.nickname}</Badge> : null}
-                    <Badge className={`rounded-full ${status.badgeClassName}`}>{status.label}</Badge>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 text-sm leading-6 text-slate-600">
-                  <span className={customerMetaPillClassName}>{customer.profession ?? "待补充职业 / 身份"}</span>
-                  <span className={customerMetaPillClassName}>{customer.source ?? "待补充客户来源"}</span>
-
-                </div>
-
-
-                <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] px-4 py-3 text-sm leading-6 text-slate-600">
-                  {status.hint}
-                </div>
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="advisor-accent-chip rounded-full px-3 py-1">客户档案</Badge>
+                <span className="advisor-section-label">经营简报入口</span>
+                {isDemoMode ? <Badge className="advisor-chip-neutral rounded-full border-0 px-3 py-1">示例预览</Badge> : null}
 
               </div>
 
-              <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[13rem]">
-                <Button
-                  type="button"
-                  onClick={openEditDialog}
-                  disabled={isDemoMode}
-                  className={`${elevatedPrimaryActionClassName} h-11`}
-                >
+              <div className="space-y-3">
+                <p className="advisor-kicker">Client briefing</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className={customerHeroTitleClassName}>{customer.name}</h1>
+
+                  {customer.nickname ? <Badge className="advisor-accent-chip rounded-full border-0">{customer.nickname}</Badge> : null}
+                  <Badge className={`rounded-full ${status.badgeClassName}`}>{status.label}</Badge>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 text-sm leading-6 text-slate-600">
+                <span className={customerMetaPillClassName}>{customer.profession ?? "待补充职业 / 身份"}</span>
+                <span className={customerMetaPillClassName}>{customer.source ?? "待补充客户来源"}</span>
+
+              </div>
 
 
-                  <PencilLine className="mr-2 h-4 w-4" />
-                  编辑客户资料
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={scrollToProfileSection}
-                  className={`${customerOutlineActionClassName} h-11`}
-
-                >
-
-                  查看完整资料
-                </Button>
+              <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] px-4 py-3 text-sm leading-6 text-slate-600">
+                {status.hint}
               </div>
             </div>
+
 
             {isDemoMode ? (
               <div className="advisor-notice-card advisor-notice-card-info rounded-[24px] p-4 text-sm leading-6 text-slate-500">
@@ -369,26 +343,16 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
                 onClick={openEditDialog}
                 disabled={isDemoMode}
                 className={`${customerPrimaryActionClassName} h-11`}
-
               >
-
                 去补充关键信息
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={scrollToProfileSection}
-                className={`${customerOutlineActionClassName} h-11`}
-
-              >
-
-                查看完整资料
-              </Button>
             </div>
+
           </CardContent>
         </Card>
 
-        <div ref={profileSectionRef} className="space-y-4">
+        <div className="space-y-4">
+
           {sections.map((section) => (
             <ProfileSectionCard key={section.title} title={section.title} fields={section.fields} />
           ))}
@@ -412,16 +376,17 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
           }
         }}
       >
-        <DialogContent className="advisor-dialog-surface max-w-[min(48rem,calc(100%-1.5rem))] overflow-hidden rounded-[32px] p-0 sm:max-w-3xl">
-
-          <div className="p-5 sm:p-6">
-            <DialogHeader>
+        <DialogContent className="advisor-dialog-surface flex max-h-[min(90vh,calc(100svh-1.5rem))] max-w-[min(48rem,calc(100%-1.5rem))] flex-col overflow-hidden rounded-[32px] p-0 sm:max-w-3xl">
+          <div className="shrink-0 px-5 pt-5 sm:px-6 sm:pt-6">
+            <DialogHeader className="pr-10 sm:pr-12">
               <DialogTitle className="text-xl text-slate-900">编辑客户资料</DialogTitle>
               <DialogDescription className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
                 当前阶段先维护真实存在的客户基础信息。保存后，经营简报和资料状态会同步更新。
               </DialogDescription>
             </DialogHeader>
+          </div>
 
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5 [touch-action:pan-y] [webkit-overflow-scrolling:touch] sm:px-6 sm:pb-6">
             <div className="mt-5">
               <CustomerProfileFields
                 value={form}
@@ -439,38 +404,35 @@ export function CustomerDetailShell({ customerId }: { customerId: string }) {
                 {feedback}
               </div>
             ) : null}
-
           </div>
 
-          <DialogFooter className="advisor-dialog-footer-surface gap-3 border-t border-slate-200/70 sm:justify-between">
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setForm(mapCustomerRecordToFormValue(customer));
-                setEditOpen(false);
-                setFeedback("");
-              }}
-              disabled={saveMutation.isPending}
-              className={customerOutlineActionClassName}
-
-            >
-
-              取消
-            </Button>
-            <Button
-              type="button"
-              onClick={() => saveMutation.mutate(form)}
-              disabled={saveMutation.isPending}
-              className={customerPrimaryActionClassName}
-
-            >
-
-              {saveMutation.isPending ? "正在保存" : "保存修改"}
-            </Button>
+          <DialogFooter className="advisor-dialog-footer-surface shrink-0 border-t border-slate-200/70 px-5 py-4 shadow-[0_-10px_24px_rgba(15,23,42,0.05)] supports-backdrop-filter:bg-white/72 supports-backdrop-filter:backdrop-blur-md sm:px-6">
+            <div className="flex w-full items-center justify-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setForm(mapCustomerRecordToFormValue(customer));
+                  setEditOpen(false);
+                  setFeedback("");
+                }}
+                disabled={saveMutation.isPending}
+                className={`${customerOutlineActionClassName} h-11 min-w-[7rem] flex-1 justify-center border-slate-200/80 bg-white/88 text-slate-600 sm:max-w-[8rem] sm:flex-none`}
+              >
+                取消
+              </Button>
+              <Button
+                type="button"
+                onClick={() => saveMutation.mutate(form)}
+                disabled={saveMutation.isPending}
+                className={`${customerPrimaryActionClassName} h-11 min-w-[7.75rem] flex-1 justify-center px-6 shadow-[0_10px_24px_rgba(15,23,42,0.12)] sm:max-w-[9.5rem] sm:flex-none`}
+              >
+                {saveMutation.isPending ? "正在保存" : "保存修改"}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
+
       </Dialog>
     </>
   );
